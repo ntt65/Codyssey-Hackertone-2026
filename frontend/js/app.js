@@ -4,6 +4,7 @@
  */
 import { pickSeason, startLeaves } from './landing.js';
 import { wakeServer } from './api.js';
+import { seoulWeather, greetingFor, cachedGreeting } from './weather.js';
 import { initChat, renderChat } from './chat.js';
 import { initPlace, renderPlace, renderMap } from './place.js';
 import { isSignedIn, savedPlaces, endDemo, startDemo } from './saved.js';
@@ -53,6 +54,7 @@ function initLanding() {
   const bubble = document.querySelector('#wake-bubble');
   const talk = document.querySelectorAll('#s00 [data-talk]');
   let pending = wakeServer();
+  const weather = seoulWeather(); // 까치가 먼저 건넬 날씨 인사 (서버 깨우는 동안 같이 받아요)
 
   const show = (state) => {
     box.dataset.state = state;
@@ -103,8 +105,10 @@ function initLanding() {
     const [ok] = await Promise.all([pending, new Promise((r) => setTimeout(r, MIN_WAKE_MS))]);
     show(ok ? 'ready' : 'tired');
     if (ok) {
-      talkFor(document.querySelector('#s00 .wake__bird'), 3600);
-      speakKo('안녕하세요! 나들이 친구 까치예요. 오늘 어디로 나들이 가 볼까요?');
+      const g = greetingFor(await weather);
+      bubble.textContent = g.text;
+      talkFor(document.querySelector('#s00 .wake__bird'), 4200);
+      speakKo(g.text);
     }
   };
 
@@ -134,6 +138,11 @@ function renderHome() {
   $('#home-saved').hidden = !list.length;
   $('#home-saved-list').replaceChildren(...list.slice(0, 1).map(savedCard));
   talkFor($('#home-bird'), 2200);
+  // 까치가 먼저 말을 걸어요: 날씨 한 줄 (못 받으면 기본 문구 그대로)
+  const say = $('#home-say');
+  const apply = (g) => { say.textContent = g.short ? `${g.short} 하고 싶은 나들이를 편하게 말해 주세요.` : '하고 싶은 나들이를 편하게 말해 주세요.'; $('#home-weather-credit').hidden = !g.short; };
+  apply(cachedGreeting());
+  seoulWeather().then((w) => apply(greetingFor(w)));
 }
 
 /** S07 내 나들이 */

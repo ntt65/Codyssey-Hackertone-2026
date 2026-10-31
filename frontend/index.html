@@ -24,7 +24,7 @@
     <div class="wake" data-state="sleep">
       <div class="leaves" aria-hidden="true"></div>
       <p class="wake__logo">오늘 나들이</p>
-      <p class="wake__bubble" id="wake-bubble" hidden>안녕하세요! 나들이 친구 까치예요.<br>오늘 어디로 나들이 가 볼까요?</p>
+      <p class="wake__bubble" id="wake-bubble" hidden>안녕하세요. 오늘은 나들이가 어떠세요?</p>
       <button class="wake__bird" type="button" data-wake aria-label="까치 깨우기">
         <img id="wake-img" src="assets/kkachi-sleep.png" alt="빨간 목도리를 두른 까치가 단풍 가지에서 자고 있어요">
       </button>
@@ -55,8 +55,9 @@
       <div class="home__greet">
         <div class="home__bird" id="home-bird"><img src="assets/kkachi-hello.png" alt="날개를 흔들며 인사하는 까치"></div>
         <div class="home__say">
-          <strong>함께 찾아볼까요?</strong>
-          <span class="muted">하고 싶은 나들이를<br>편하게 말해 주세요.</span>
+          <strong>오늘은 나들이가 어떠세요?</strong>
+          <span class="muted" id="home-say">하고 싶은 나들이를<br>편하게 말해 주세요.</span>
+          <span class="credit-mini" id="home-weather-credit" hidden>날씨 © Open-Meteo</span>
         </div>
       </div>
       <button class="btn btn--primary btn--icon" type="button" data-go="/chat?voice">
