@@ -11,7 +11,7 @@ import { isSignedIn, savedPlaces, endDemo, startDemo } from './saved.js';
 import { $, el, button, readStore, writeStore, talkFor, unlockSpeech, speakKo, photo } from './util.js';
 
 /** 까치가 일어나는 모습을 최소한 이만큼은 보여줘요 (너무 빨리 넘어가면 깜빡이는 느낌) */
-const MIN_WAKE_MS = 1600;
+const MIN_WAKE_MS = 3200; // 기지개 켜는 모습을 천천히 보여줘요 (11/1: 너무 빨리 깨어난다는 의견)
 
 function route() {
   const full = location.hash.replace(/^#/, '') || '/';
@@ -121,7 +121,7 @@ function initLanding() {
     if (box.dataset.state === 'waking') return;
     show('sleep');
     if ('speechSynthesis' in window) speechSynthesis.cancel();
-    setTimeout(() => wake(2400), 700); // 잠든 모습 잠깐 → 기지개 2.4초 → 인사
+    setTimeout(() => wake(4000), 1600); // 잠든 모습 1.6초 → 기지개 4초 → 인사 (천천히)
   });
 }
 

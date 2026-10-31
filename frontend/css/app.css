@@ -80,7 +80,7 @@ img { display: block; max-width: 100%; }
 .wake__bird { margin-top: 8px; border: 0; padding: 0; background: none; cursor: pointer; flex: 1; min-height: 0; display: flex; align-items: center; }
 .wake__bird img { width: auto; height: min(44dvh, 360px); max-width: 76vw; object-fit: contain; transform-origin: 50% 90%; }
 .wake[data-state="sleep"] .wake__bird img { animation: breathe 3.2s ease-in-out infinite; }
-.wake[data-state="waking"] .wake__bird img { animation: stretch .9s ease-in-out infinite alternate; }
+.wake[data-state="waking"] .wake__bird img { animation: stretch 1.6s ease-in-out infinite alternate; } /* 천천히 기지개 */
 .wake[data-state="ready"] .wake__bird { cursor: default; }
 .wake[data-state="ready"] .wake__bird img { animation: breathe 3.2s ease-in-out infinite; }
 /* 까치가 말할 때: 고개를 까딱이며 살짝 커졌다 작아져요 */
