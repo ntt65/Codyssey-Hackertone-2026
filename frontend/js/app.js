@@ -116,12 +116,11 @@ function initLanding() {
   document.querySelectorAll('#s00 [data-wake]').forEach((el) => el.addEventListener('click', () => wake()));
   show('sleep');
   // 알림을 눌러 들어오면 까치를 바로 깨워요 (깨우기 버튼을 누르지 않아도 돼요)
-  // 알림을 누르면 언제나 잠든 까치 → 기지개 → 인사 순서로 보여줘요 (이미 깨운 적이 있어도 처음부터)
+  // 알림을 누르면 언제나 잠든 까치부터 (이미 깨운 적이 있어도). "톡 눌러서 깨워 주세요" 문구대로 사용자가 눌러야 깨어나요.
   document.addEventListener('notify-open', () => {
     if (box.dataset.state === 'waking') return;
     show('sleep');
     if ('speechSynthesis' in window) speechSynthesis.cancel();
-    setTimeout(() => wake(4000), 1600); // 잠든 모습 1.6초 → 기지개 4초 → 인사 (천천히)
   });
 }
 
