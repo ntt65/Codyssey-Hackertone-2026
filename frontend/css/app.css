@@ -2,7 +2,7 @@
 [hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
-  background: #F2F2F3; /* 앱 바깥 바탕: 누런 베이지 대신 무난한 밝은 회색 (11/1) */
+  background: #E9EBED; /* 앱 바깥 바탕: 누런 베이지 대신 무난한 밝은 회색 (11/1) */
   color: var(--text-primary);
   font-family: var(--font);
   font-size: var(--fs-body-l);
@@ -63,14 +63,14 @@ img { display: block; max-width: 100%; }
 
 /* ---------- S00 시작 화면: 까치 깨우기 ---------- */
 .wake {
-  --wake-bg: #F5EFE1; /* 까치 그림 배경과 같은 색 */
+  --wake-bg: var(--bg-canvas); /* 까치 그림은 투명이라 앱 바탕과 같게 */
   position: relative; min-height: 100dvh; overflow: hidden;
   display: flex; flex-direction: column; align-items: center;
   padding: max(env(safe-area-inset-top), 20px) var(--gutter) 40px; background: var(--wake-bg); text-align: center;
 }
 .wake .leaves { position: absolute; inset: 0; z-index: 0; }
 .wake > *:not(.leaves) { position: relative; z-index: 1; }
-.wake__logo { margin-top: 24px; font-size: calc(22px * var(--scale)); font-weight: 900; color: var(--brand-primary); }
+.wake__logo { margin-top: 24px; font-size: calc(30px * var(--scale)); font-weight: 900; color: var(--brand-primary); }
 .wake__bubble {
   margin-top: 16px; padding: 16px 20px; width: 100%; text-align: left;
   background: #fff; border: 1px solid var(--border-subtle, #D8DEE2); border-radius: 20px;
@@ -492,4 +492,4 @@ body.map-full-open #s08 .topbar { z-index: 41; }
 .lock__hint, .lock__demo { padding: 0 64px; }
 
 /* 알림 시연 화면에서는 휴대폰 바깥을 무난한 밝은 회색으로 (누런 베이지 대신) */
-body:has(#snotify.is-active) .app { background: #F2F2F3; }
+body:has(#snotify.is-active) .app { background: #E9EBED; }
