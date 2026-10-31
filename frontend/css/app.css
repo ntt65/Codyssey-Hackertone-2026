@@ -78,6 +78,7 @@ img { display: block; max-width: 100%; }
   animation: pop .35s ease-out;
 }
 .wake__bird { margin-top: 8px; border: 0; padding: 0; background: none; cursor: pointer; flex: 1; min-height: 0; display: flex; align-items: center; }
+.wake__bird:focus:not(:focus-visible) { outline: none; } /* 누른 뒤 파란 네모 테두리 안 보이게 */
 .wake__bird img { width: auto; height: min(44dvh, 360px); max-width: 76vw; object-fit: contain; transform-origin: 50% 90%; }
 .wake[data-state="sleep"] .wake__bird img { animation: breathe 3.2s ease-in-out infinite; }
 .wake[data-state="waking"] .wake__bird img { animation: stretch 1.6s ease-in-out infinite alternate; } /* 천천히 기지개 */
