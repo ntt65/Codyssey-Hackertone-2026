@@ -1,7 +1,7 @@
 /* Figma 03 · UI Kit 의 색·글자 값과 같게 유지해요. 바꿀 땐 Figma도 같이 바꿔요.
    색: 07 페이지 "색상 비교 · 까치 남색 · 대표 3화면"(416:1332) 기준 (11/1) */
 :root {
-  --bg-canvas: #F8F7F3;
+  --bg-canvas: #F5F6F7; /* 누런 기 없는 연한 회색 (11/1) */
   --bg-surface: #FFFFFF;
   --bg-soft: #EDF2F5;
   --brand-primary: #29485B;
