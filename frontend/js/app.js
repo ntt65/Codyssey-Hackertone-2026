@@ -98,12 +98,12 @@ function initLanding() {
     sub.hidden = state === 'ready';
   };
 
-  const wake = async () => {
+  const wake = async (minMs = MIN_WAKE_MS) => {
     if (box.dataset.state === 'waking' || box.dataset.state === 'ready') return;
     if (box.dataset.state === 'tired') pending = wakeServer();
     unlockSpeech(); // 누른 순간에 소리를 열어 둬야 폰에서도 인사를 읽어 줘요
     show('waking');
-    const [ok] = await Promise.all([pending, new Promise((r) => setTimeout(r, MIN_WAKE_MS))]);
+    const [ok] = await Promise.all([pending, new Promise((r) => setTimeout(r, minMs))]);
     show(ok ? 'ready' : 'tired');
     if (ok) {
       const g = greetingFor(await weather);
@@ -113,10 +113,16 @@ function initLanding() {
     }
   };
 
-  document.querySelectorAll('#s00 [data-wake]').forEach((el) => el.addEventListener('click', wake));
+  document.querySelectorAll('#s00 [data-wake]').forEach((el) => el.addEventListener('click', () => wake()));
   show('sleep');
   // 알림을 눌러 들어오면 까치를 바로 깨워요 (깨우기 버튼을 누르지 않아도 돼요)
-  document.addEventListener('notify-open', wake);
+  // 알림을 누르면 언제나 잠든 까치 → 기지개 → 인사 순서로 보여줘요 (이미 깨운 적이 있어도 처음부터)
+  document.addEventListener('notify-open', () => {
+    if (box.dataset.state === 'waking') return;
+    show('sleep');
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+    setTimeout(() => wake(2400), 700); // 잠든 모습 잠깐 → 기지개 2.4초 → 인사
+  });
 }
 
 /**
@@ -141,8 +147,8 @@ function renderNotify() {
 function initNotify() {
   $('#noti-card').addEventListener('click', () => {
     unlockSpeech();
+    document.dispatchEvent(new CustomEvent('notify-open')); // 화면을 바꾸기 전에 까치를 잠든 상태로
     location.hash = '/';
-    setTimeout(() => document.dispatchEvent(new CustomEvent('notify-open')), 60);
   });
 }
 
