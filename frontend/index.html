@@ -40,6 +40,24 @@
     </div>
   </section>
 
+  <!-- 시연용 알림 화면: 정해진 시간에 까치가 휴대폰 알림으로 먼저 인사해요 (실제 푸시 아님) -->
+  <section class="screen" id="snotify" aria-label="까치 알림 (시연 화면)">
+    <div class="lock">
+      <p class="lock__date" id="lock-date"></p>
+      <p class="lock__time" id="lock-time"></p>
+      <button class="noti" type="button" id="noti-card" aria-label="까치 알림 열기">
+        <span class="noti__icon"><img src="assets/kkachi-face.png" alt=""></span>
+        <span class="noti__body">
+          <span class="noti__head"><strong>오늘 나들이</strong><span>지금</span></span>
+          <strong class="noti__title">까치</strong>
+          <span class="noti__text" id="noti-text">안녕하세요, 까치예요. 오늘은 나들이가 어떠세요?</span>
+        </span>
+      </button>
+      <p class="lock__hint">알림을 누르면 까치와 이야기를 시작해요</p>
+      <p class="lock__demo">시연용 화면 · 실제 휴대폰 알림이 아니에요</p>
+    </div>
+  </section>
+
   <!-- S01 홈: 까치가 먼저 인사 (H01) -->
   <section class="screen" id="s01" aria-label="홈">
     <div class="home">

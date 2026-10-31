@@ -18,7 +18,7 @@ function route() {
   const [path, query = ''] = full.split('?');
   const [, base = '', rawId] = path.split('/');
   const id = decodeURIComponent(rawId || '');
-  const screen = { '': 's00', home: 's01', chat: 's02', search: 's02', place: 's04', map: 's08', me: 's07' }[base] || 's01';
+  const screen = { '': 's00', home: 's01', chat: 's02', search: 's02', place: 's04', map: 's08', me: 's07', notify: 'snotify' }[base] || 's01';
   document.querySelectorAll('.screen').forEach((n) => n.classList.toggle('is-active', n.id === screen));
   document.querySelectorAll('.tab').forEach((tab) => {
     if (tab.dataset.go === `/${base}`) tab.setAttribute('aria-current', 'page');
@@ -26,6 +26,7 @@ function route() {
   });
   $('.tabbar').hidden = !['s01', 's07'].includes(screen);
   if (screen === 's01') renderHome();
+  if (screen === 'snotify') renderNotify();
   if (screen === 's02') {
     const q = new URLSearchParams(query);
     renderChat({ voice: q.has('voice') ? true : q.has('text') ? false : undefined });
@@ -114,6 +115,35 @@ function initLanding() {
 
   document.querySelectorAll('#s00 [data-wake]').forEach((el) => el.addEventListener('click', wake));
   show('sleep');
+  // 알림을 눌러 들어오면 까치를 바로 깨워요 (깨우기 버튼을 누르지 않아도 돼요)
+  document.addEventListener('notify-open', wake);
+}
+
+/**
+ * 시연용 알림 화면 (#/notify). 잠금화면 위로 까치 알림이 내려오고, 누르면 까치 인사(S00)로 이어져요.
+ * 문구는 서울 날씨로 코드가 정해요. 실제 휴대폰 푸시 알림은 아니에요.
+ */
+let notifyTimer = null;
+function renderNotify() {
+  const now = new Date();
+  const p2 = (n) => String(n).padStart(2, '0');
+  $('#lock-time').textContent = `${p2(now.getHours())}:${p2(now.getMinutes())}`;
+  $('#lock-date').textContent = `${now.getMonth() + 1}월 ${now.getDate()}일 ${'일월화수목금토'[now.getDay()]}요일`;
+  const card = $('#noti-card');
+  card.classList.remove('is-in');
+  const fill = (g) => { $('#noti-text').textContent = g.text.replace(/^안녕하세요\. /, '안녕하세요, 까치예요. '); };
+  fill(cachedGreeting());
+  seoulWeather().then((w) => fill(greetingFor(w)));
+  clearTimeout(notifyTimer);
+  notifyTimer = setTimeout(() => card.classList.add('is-in'), 900); // 잠깐 뒤에 "띵" 하고 내려와요
+}
+
+function initNotify() {
+  $('#noti-card').addEventListener('click', () => {
+    unlockSpeech();
+    location.hash = '/';
+    setTimeout(() => document.dispatchEvent(new CustomEvent('notify-open')), 60);
+  });
 }
 
 
@@ -193,5 +223,6 @@ initNavigation();
 initChat();
 initPlace();
 initMe();
+initNotify();
 initLanding();
 route();
