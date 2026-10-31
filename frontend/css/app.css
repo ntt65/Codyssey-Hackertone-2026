@@ -452,7 +452,12 @@ body.map-full-open #s08 .topbar { z-index: 41; }
 /* 시연용 알림 화면 (잠금화면 + 까치 알림) */
 #snotify.is-active { min-height: 100dvh; }
 .lock { position: relative; min-height: 100dvh; padding: 72px 14px 32px; display: flex; flex-direction: column; align-items: center; color: #fff; text-align: center;
-  background: linear-gradient(180deg, rgba(20,30,28,.35), rgba(20,30,28,.55)), url(../assets/landing-autumn.jpg) center 30% / cover no-repeat; }
+  /* 기본 잠금화면처럼 무난하게: 어두운 남색 바탕 + 큰 둥근 무늬 (그림 파일 없음) */
+  background:
+    radial-gradient(circle at 50% 22%, #4A5277 0 34%, transparent 34.3%),
+    radial-gradient(circle at 50% 108%, #3E4566 0 30%, transparent 30.3%),
+    radial-gradient(circle at 15% 60%, rgba(74,82,119,.35) 0 22%, transparent 22.3%),
+    linear-gradient(180deg, #2B3049 0%, #23273B 100%); }
 .lock__date { margin: 0; font-size: 18px; font-weight: 700; opacity: .95; }
 .lock__time { margin: 2px 0 36px; font-size: 84px; font-weight: 700; line-height: 1; letter-spacing: -2px; }
 .noti { width: 100%; display: flex; gap: 12px; align-items: flex-start; text-align: left; padding: 14px 16px; border: 0; border-radius: 22px;
@@ -478,3 +483,10 @@ body.map-full-open #s08 .topbar { z-index: 41; }
   #snotify .lock { width: auto; height: min(calc(100dvh - 40px), 844px); aspect-ratio: 390 / 844; max-height: none;
     border-radius: 44px; overflow: hidden; box-shadow: 0 0 0 10px #111, 0 20px 50px rgba(0,0,0,.45); }
 }
+
+.lock__icon { width: 18px; height: 18px; opacity: .85; margin-bottom: 8px; }
+.lock__shortcut { position: absolute; bottom: 28px; width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.14); display: grid; place-items: center; }
+.lock__shortcut svg { width: 20px; height: 20px; }
+.lock__shortcut--left { left: 22px; }
+.lock__shortcut--right { right: 22px; }
+.lock__hint, .lock__demo { padding: 0 64px; }
