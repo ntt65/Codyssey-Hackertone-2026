@@ -14,8 +14,8 @@
   --status-ok-bg: #E2F1E6;
 
   --font: "Noto Sans KR", system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-  /* 글자 크게를 켜면 --scale 이 1.15 가 돼요 */
-  --scale: 1;
+  /* 시니어가 읽기 쉽게 처음부터 글자를 15% 크게 (11/1, 글자 크게 버튼 대신) */
+  --scale: 1.15;
   --fs-display: calc(32px * var(--scale));
   --fs-title-l: calc(26px * var(--scale));
   --fs-title-m: calc(21px * var(--scale));
@@ -30,4 +30,3 @@
   --gutter: 24px;
 }
 
-:root.text-large { --scale: 1.15; }

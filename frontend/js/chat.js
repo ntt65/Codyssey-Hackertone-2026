@@ -8,6 +8,7 @@
 import { state, save, resetChat } from './state.js';
 import { requestRecommend, requestChat, searchPlaces } from './api.js';
 import { parseUtterance, longEnough } from './parse.js';
+import { cachedGreeting } from './weather.js';
 import { $, el, button, formatDate, formatTime, todayIso, minutes, hhmm, isTest, isDebug, talkFor, unlockSpeech, photo } from './util.js';
 
 const QA_START = { label: '청량리역', lat: 37.5805961, lng: 127.0482573 };
@@ -757,7 +758,7 @@ function closer() {
 /** 새 대화 첫 인사 */
 function start() {
   if (!state.messages.length) {
-    say('안녕하세요! 오늘은 어떤 나들이를 하고 싶으세요? "내일 오후 2시부터 5시까지 전시 보고 싶어요"처럼 편하게 말씀해 주세요.', { ask: true });
+    say(`${cachedGreeting().text} "내일 오후 2시부터 5시까지 전시 보고 싶어요"처럼 편하게 말씀해 주세요.`, { ask: true });
   } else render();
 }
 
