@@ -177,22 +177,6 @@ function initMe() {
 
 function meNote(t) { const n = $('#me-note'); n.textContent = t; n.hidden = false; }
 
-/** 글자 크게: 앱 전체 글자를 15% 키우고, 다음에 열어도 기억해요. */
-function initTextSize() {
-  const root = document.documentElement;
-  const apply = (on) => {
-    root.classList.toggle('text-large', on);
-    document.querySelectorAll('[data-text-size]').forEach((b) => b.setAttribute('aria-pressed', String(on)));
-  };
-  apply(readStore('text_large') === true);
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('[data-text-size]')) return;
-    const on = !root.classList.contains('text-large');
-    apply(on);
-    writeStore('text_large', on);
-  });
-}
-
 /** data-go 가 붙은 버튼을 누르면 해당 화면으로 이동해요. */
 function initNavigation() {
   document.addEventListener('click', (e) => {
@@ -205,7 +189,6 @@ function initNavigation() {
   window.addEventListener('hashchange', route);
 }
 
-initTextSize();
 initNavigation();
 initChat();
 initPlace();
