@@ -2,7 +2,7 @@
 [hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
-  background: #E9E5DA;
+  background: #F2F2F3; /* 앱 바깥 바탕: 누런 베이지 대신 무난한 밝은 회색 (11/1) */
   color: var(--text-primary);
   font-family: var(--font);
   font-size: var(--fs-body-l);
@@ -464,8 +464,8 @@ body.map-full-open #s08 .topbar { z-index: 41; }
   background: rgba(255,255,255,.88); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); box-shadow: 0 10px 30px rgba(0,0,0,.25);
   color: #1B1D1A; font: inherit; cursor: pointer; opacity: 0; transform: translateY(-40px) scale(.98); transition: opacity .45s ease, transform .55s cubic-bezier(.2,.9,.3,1.2); }
 .noti.is-in { opacity: 1; transform: none; }
-.noti__icon { width: 44px; height: 44px; flex: none; border-radius: 12px; background: #F6F3EC; display: grid; place-items: center; overflow: hidden; }
-.noti__icon img { width: 40px; height: 40px; object-fit: contain; }
+.noti__icon { width: 44px; height: 44px; flex: none; display: grid; place-items: center; } /* 까치 투명 배경 그대로 */
+.noti__icon img { width: 44px; height: 44px; object-fit: contain; }
 .noti__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
 .noti__head { display: flex; justify-content: space-between; font-size: 13px; color: #55584F; }
 .noti__head strong { font-weight: 700; letter-spacing: .02em; }
@@ -479,7 +479,7 @@ body.map-full-open #s08 .topbar { z-index: 41; }
 #snotify.is-active { display: flex; align-items: center; justify-content: center; min-height: 100dvh; }
 #snotify .lock { width: 100%; min-height: 0; height: 100dvh; max-height: calc(100vw * 844 / 390); }
 @media (min-width: 520px), (min-height: 960px) {
-  #snotify.is-active { background: #2A2E2B; padding: 20px 0; }
+  #snotify.is-active { background: transparent; padding: 20px 0; }
   #snotify .lock { width: auto; height: min(calc(100dvh - 40px), 844px); aspect-ratio: 390 / 844; max-height: none;
     border-radius: 44px; overflow: hidden; box-shadow: 0 0 0 10px #111, 0 20px 50px rgba(0,0,0,.45); }
 }
@@ -490,3 +490,6 @@ body.map-full-open #s08 .topbar { z-index: 41; }
 .lock__shortcut--left { left: 22px; }
 .lock__shortcut--right { right: 22px; }
 .lock__hint, .lock__demo { padding: 0 64px; }
+
+/* 알림 시연 화면에서는 휴대폰 바깥을 무난한 밝은 회색으로 (누런 베이지 대신) */
+body:has(#snotify.is-active) .app { background: #F2F2F3; }
