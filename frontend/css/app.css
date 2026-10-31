@@ -469,3 +469,12 @@ body.map-full-open #s08 .topbar { z-index: 41; }
 .lock__hint { margin-top: auto; font-size: 16px; font-weight: 700; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
 .lock__demo { margin: 6px 0 0; font-size: 12px; opacity: .7; }
 @media (prefers-reduced-motion: reduce) { .noti { transition: none; } }
+
+/* 알림 화면은 언제나 휴대폰 비율(390×844)로: 폰에서는 화면 가득, 큰 화면에서는 가운데 휴대폰 틀 */
+#snotify.is-active { display: flex; align-items: center; justify-content: center; min-height: 100dvh; }
+#snotify .lock { width: 100%; min-height: 0; height: 100dvh; max-height: calc(100vw * 844 / 390); }
+@media (min-width: 520px), (min-height: 960px) {
+  #snotify.is-active { background: #2A2E2B; padding: 20px 0; }
+  #snotify .lock { width: auto; height: min(calc(100dvh - 40px), 844px); aspect-ratio: 390 / 844; max-height: none;
+    border-radius: 44px; overflow: hidden; box-shadow: 0 0 0 10px #111, 0 20px 50px rgba(0,0,0,.45); }
+}
