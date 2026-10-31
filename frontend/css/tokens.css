@@ -1,17 +1,18 @@
-/* Figma 03 · UI Kit 의 색·글자 값과 같게 유지해요. 바꿀 땐 Figma도 같이 바꿔요. */
+/* Figma 03 · UI Kit 의 색·글자 값과 같게 유지해요. 바꿀 땐 Figma도 같이 바꿔요.
+   색: 07 페이지 "색상 비교 · 까치 남색 · 대표 3화면"(416:1332) 기준 (11/1) */
 :root {
-  --bg-canvas: #F6F3EC;
+  --bg-canvas: #F8F7F3;
   --bg-surface: #FFFFFF;
-  --bg-soft: #E7F0E9;
-  --brand-primary: #1E5B43;
-  --text-primary: #1B1D1A;
-  --text-secondary: #55584F;
+  --bg-soft: #EDF2F5;
+  --brand-primary: #29485B;
+  --text-primary: #25313B;
+  --text-secondary: #56616B;
   --text-on-primary: #FFFFFF;
-  --border-default: #DFDACD;
-  --status-warn-bg: #FCEFD8;
-  --status-warn-text: #8F5410;
+  --border-default: #D8DEE2;
+  --status-warn-bg: #FAEDE5;
+  --status-warn-text: #93442F;
   --status-danger: #B3261E;
-  --status-ok-bg: #E2F1E6;
+  --status-ok-bg: #EDF2F5;
 
   --font: "Noto Sans KR", system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   /* 시니어가 읽기 쉽게 처음부터 글자를 15% 크게 (11/1, 글자 크게 버튼 대신) */

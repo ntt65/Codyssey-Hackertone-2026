@@ -113,7 +113,7 @@ function closeSheet() { $('#sheet-save').hidden = true; }
  * 카카오 지도를 먼저 쓰고(도메인 등록 필요), 불러오지 못하면 OpenStreetMap 지도로 바꿔요.
  * 지도가 바뀌어도 경로 계산 결과(도보 Valhalla, 대중교통 카카오)는 같아요.
  */
-const COLORS = { WALKING: '#55584F', BUS: '#2E7D32', SUBWAY: '#1565C0', walk: '#1E5B43' };
+const COLORS = { WALKING: '#56616B', BUS: '#2E7D32', SUBWAY: '#1565C0', walk: '#29485B' };
 let engine = null; // { kind: 'kakao'|'osm', map, layers: [] }
 let kakaoReady = null;
 

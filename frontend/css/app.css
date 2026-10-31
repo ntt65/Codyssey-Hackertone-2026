@@ -73,7 +73,7 @@ img { display: block; max-width: 100%; }
 .wake__logo { margin-top: 24px; font-size: calc(22px * var(--scale)); font-weight: 900; color: var(--brand-primary); }
 .wake__bubble {
   margin-top: 16px; padding: 16px 20px; width: 100%; text-align: left;
-  background: #fff; border: 1px solid var(--border-subtle, #DDD8CC); border-radius: 20px;
+  background: #fff; border: 1px solid var(--border-subtle, #D8DEE2); border-radius: 20px;
   font-size: calc(20px * var(--scale)); font-weight: 700; line-height: 1.45;
   animation: pop .35s ease-out;
 }
@@ -217,9 +217,9 @@ img { display: block; max-width: 100%; }
 .confirm__label { font-size: var(--fs-caption); color: var(--text-secondary); }
 
 /* S03 */
-.map-wrap { position: relative; height: 240px; background: #ECE9DF; }
+.map-wrap { position: relative; height: 240px; background: #EEF1F2; }
 .map { position: absolute; inset: 0; }
-.map-error { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center; background: #ECE9DF; }
+.map-error { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; text-align: center; background: #EEF1F2; }
 .pin span {
   display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
   background: var(--bg-surface); border: 2.5px solid var(--brand-primary); color: var(--brand-primary);
@@ -334,7 +334,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 
 /* S08 지도 */
 .route__time { font-size: var(--fs-title-l); }
-.map--route { position: relative; height: 300px; border-radius: var(--radius-card); overflow: hidden; background: #ECE9DF; }
+.map--route { position: relative; height: 300px; border-radius: var(--radius-card); overflow: hidden; background: #EEF1F2; }
 .pin--from span, .pin--to span { display: inline-block; padding: 4px 10px; border-radius: 12px; background: #fff; border: 2px solid var(--brand-primary); color: var(--brand-primary); font-weight: 700; font-size: 14px; white-space: nowrap; }
 .pin--to span { background: var(--brand-primary); color: #fff; }
 #s08 .map-error { position: static; }
@@ -408,7 +408,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .route-card__head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
 .route-card__head strong { font-size: var(--fs-title-m); }
 .route-steps { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
-.route-step { display: flex; flex-direction: column; padding-left: 12px; border-left: 4px solid #55584F; font-size: var(--fs-label); }
+.route-step { display: flex; flex-direction: column; padding-left: 12px; border-left: 4px solid #56616B; font-size: var(--fs-label); }
 .route-step--bus { border-left-color: #2E7D32; }
 .route-step--subway { border-left-color: #1565C0; }
 .route-step--walking { border-left-style: dashed; }
@@ -437,11 +437,11 @@ body.map-full-open #s08 .topbar { z-index: 41; }
 .credit { margin: -12px 0 0; font-size: 11px; color: var(--text-secondary); opacity: .45; text-align: right; }
 
 /* 행사 사진: 공식 포스터는 잘리지 않게 담고, 뒤는 흐린 같은 그림으로 채워요 */
-.photo { position: relative; overflow: hidden; background: #ECE9DF; }
+.photo { position: relative; overflow: hidden; background: #EEF1F2; }
 .photo img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .photo.is-icon { background: var(--bg-soft); display: grid; place-items: center; }
 .photo.is-icon img { width: auto; height: 62%; max-width: 70%; object-fit: contain; }
-.photo.is-icon .photo__note { background: rgba(30,91,67,.75); }
+.photo.is-icon .photo__note { background: rgba(41,72,91,.75); }
 .photo__note { position: absolute; right: 8px; bottom: 8px; padding: 2px 8px; border-radius: 8px; background: rgba(0,0,0,.55); color: #fff; font-size: 12px; }
 .chat-card__img.photo { height: 160px; }
 .place-hero.photo { height: 260px; border-radius: var(--radius-card); }
@@ -467,7 +467,7 @@ body.map-full-open #s08 .topbar { z-index: 41; }
 .noti__icon { width: 44px; height: 44px; flex: none; display: grid; place-items: center; } /* 까치 투명 배경 그대로 */
 .noti__icon img { width: 44px; height: 44px; object-fit: contain; }
 .noti__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
-.noti__head { display: flex; justify-content: space-between; font-size: 13px; color: #55584F; }
+.noti__head { display: flex; justify-content: space-between; font-size: 13px; color: #56616B; }
 .noti__head strong { font-weight: 700; letter-spacing: .02em; }
 .noti__title { font-size: 17px; }
 .noti__text { font-size: 17px; line-height: 1.45; }
