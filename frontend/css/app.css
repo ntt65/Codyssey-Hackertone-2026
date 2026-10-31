@@ -2,7 +2,7 @@
 [hidden] { display: none !important; }
 html, body { margin: 0; }
 body {
-  background: #E9E5DA;
+  background: #F2F2F3; /* 앱 바깥 바탕: 누런 베이지 대신 무난한 밝은 회색 (11/1) */
   color: var(--text-primary);
   font-family: var(--font);
   font-size: var(--fs-body-l);
@@ -80,7 +80,7 @@ img { display: block; max-width: 100%; }
 .wake__bird { margin-top: 8px; border: 0; padding: 0; background: none; cursor: pointer; flex: 1; min-height: 0; display: flex; align-items: center; }
 .wake__bird img { width: auto; height: min(44dvh, 360px); max-width: 76vw; object-fit: contain; transform-origin: 50% 90%; }
 .wake[data-state="sleep"] .wake__bird img { animation: breathe 3.2s ease-in-out infinite; }
-.wake[data-state="waking"] .wake__bird img { animation: stretch .9s ease-in-out infinite alternate; }
+.wake[data-state="waking"] .wake__bird img { animation: stretch 1.6s ease-in-out infinite alternate; } /* 천천히 기지개 */
 .wake[data-state="ready"] .wake__bird { cursor: default; }
 .wake[data-state="ready"] .wake__bird img { animation: breathe 3.2s ease-in-out infinite; }
 /* 까치가 말할 때: 고개를 까딱이며 살짝 커졌다 작아져요 */
@@ -447,4 +447,49 @@ body.map-full-open #s08 .topbar { z-index: 41; }
 .place-hero.photo { height: 260px; border-radius: var(--radius-card); }
 .saved-card__img.photo { height: 160px; }
 
-.credit-mini { font-size: 11px; color: var(--text-secondary); opacity: .5; }
+.credit-mini { font-size: 9px; color: var(--text-secondary); opacity: .3; letter-spacing: 0; } /* 출처 표시라 남기되 아주 작고 희미하게 */
+
+/* 시연용 알림 화면 (잠금화면 + 까치 알림) */
+#snotify.is-active { min-height: 100dvh; }
+.lock { position: relative; min-height: 100dvh; padding: 72px 14px 32px; display: flex; flex-direction: column; align-items: center; color: #fff; text-align: center;
+  /* 기본 잠금화면처럼 무난하게: 어두운 남색 바탕 + 큰 둥근 무늬 (그림 파일 없음) */
+  background:
+    radial-gradient(circle at 50% 22%, #4A5277 0 34%, transparent 34.3%),
+    radial-gradient(circle at 50% 108%, #3E4566 0 30%, transparent 30.3%),
+    radial-gradient(circle at 15% 60%, rgba(74,82,119,.35) 0 22%, transparent 22.3%),
+    linear-gradient(180deg, #2B3049 0%, #23273B 100%); }
+.lock__date { margin: 0; font-size: 18px; font-weight: 700; opacity: .95; }
+.lock__time { margin: 2px 0 36px; font-size: 84px; font-weight: 700; line-height: 1; letter-spacing: -2px; }
+.noti { width: 100%; display: flex; gap: 12px; align-items: flex-start; text-align: left; padding: 14px 16px; border: 0; border-radius: 22px;
+  background: rgba(255,255,255,.88); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  color: #1B1D1A; font: inherit; cursor: pointer; opacity: 0; transform: translateY(-40px) scale(.98); transition: opacity .45s ease, transform .55s cubic-bezier(.2,.9,.3,1.2); }
+.noti.is-in { opacity: 1; transform: none; }
+.noti__icon { width: 44px; height: 44px; flex: none; display: grid; place-items: center; } /* 까치 투명 배경 그대로 */
+.noti__icon img { width: 44px; height: 44px; object-fit: contain; }
+.noti__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.noti__head { display: flex; justify-content: space-between; font-size: 13px; color: #55584F; }
+.noti__head strong { font-weight: 700; letter-spacing: .02em; }
+.noti__title { font-size: 17px; }
+.noti__text { font-size: 17px; line-height: 1.45; }
+.lock__hint { margin-top: auto; font-size: 16px; font-weight: 700; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+.lock__demo { margin: 6px 0 0; font-size: 12px; opacity: .7; }
+@media (prefers-reduced-motion: reduce) { .noti { transition: none; } }
+
+/* 알림 화면은 언제나 휴대폰 비율(390×844)로: 폰에서는 화면 가득, 큰 화면에서는 가운데 휴대폰 틀 */
+#snotify.is-active { display: flex; align-items: center; justify-content: center; min-height: 100dvh; }
+#snotify .lock { width: 100%; min-height: 0; height: 100dvh; max-height: calc(100vw * 844 / 390); }
+@media (min-width: 520px), (min-height: 960px) {
+  #snotify.is-active { background: transparent; padding: 20px 0; }
+  #snotify .lock { width: auto; height: min(calc(100dvh - 40px), 844px); aspect-ratio: 390 / 844; max-height: none;
+    border-radius: 44px; overflow: hidden; box-shadow: 0 0 0 10px #111, 0 20px 50px rgba(0,0,0,.45); }
+}
+
+.lock__icon { width: 18px; height: 18px; opacity: .85; margin-bottom: 8px; }
+.lock__shortcut { position: absolute; bottom: 28px; width: 44px; height: 44px; border-radius: 50%; background: rgba(255,255,255,.14); display: grid; place-items: center; }
+.lock__shortcut svg { width: 20px; height: 20px; }
+.lock__shortcut--left { left: 22px; }
+.lock__shortcut--right { right: 22px; }
+.lock__hint, .lock__demo { padding: 0 64px; }
+
+/* 알림 시연 화면에서는 휴대폰 바깥을 무난한 밝은 회색으로 (누런 베이지 대신) */
+body:has(#snotify.is-active) .app { background: #F2F2F3; }
