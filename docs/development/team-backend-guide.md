@@ -1,136 +1,78 @@
-# LAB678 · 동료와 LLM을 위한 개발 참조·실행 안내
+# LAB678 · 에이전트 실행·API·검증 안내
 
-2026-10-31 작성. 기획·디자인·개발 병렬 작업을 위한 안내이며, 공통 규칙은 [TEAM_WORKFLOW.md](https://github.com/Lab678-Hackathon/lab678/blob/develop/TEAM_WORKFLOW.md)를 따른다. 이 안내가 팀 최종 승인이나 API 계약 확정을 대신하지 않는다.
+갱신: 2026-11-01 · **`dj/develop`** · 제품 검증 코드 `e7163aa`. [개발 문서 안내](README.md)에서 원본/대상과 문서 읽는 순서를 먼저 확인한다. 이 안내는 팀 기획 확정·배포 승인이나 실제 기기 QA 완료를 뜻하지 않는다.
 
-**1. 역할과 작업 범위**
+## 브랜치와 실행 준비
 
-현재 작업 방향은 민규님이 기획, 희영님이 디자인·프론트, 동조님이 백엔드 중심 개발을 맡는 것이다. 기존 TEAM_WORKFLOW는 동조님을 ‘개발·기술 검증·구현·테스트’로 기재하며, 폴더별 전담 표는 아직 없다. 아래는 이번 분업에 맞춘 참조 안내다.
+`dj/agent`는 원본, `dj/develop`은 develop `e5697e2`를 직접 기반으로 엔진을 선택 이식한 검토본이다. 게시된 코드/문서 기준은 각각 b6355a0/d541ea5와 e7163aa/ed923aa이며 후속 문서 커밋은 제품 검증 성적을 바꾸지 않는다. 예전 ‘22커밋 미push’, ‘프론트 실파일 미공유’는 [10/31 안내](team-backend-guide-20261031.md)의 이력이다.
 
-| 영역 | 확인·작업 방법 |
-|---|---|
-| `docs/planning/` | 기획 담당이 관리. 개발자는 최신 develop에서 받아 읽고 변경 제안은 기획 담당에게 전달 |
-| `frontend/`, `design/` | 디자인·프론트 담당의 화면과 에셋. 백엔드가 임의 변경하지 않음 |
-| `backend/` | 동조님의 문화정보 조회·추천·코스·이동 API와 테스트 |
-| `backend/preview.html` | 백엔드 동작 확인용 임시 화면. 최종 디자인 기준이나 완성 프론트가 아님 |
-| `docs/development/` | 구현 현황·API 인계·검증·남은 일 공유 |
-| `plan_dj/`, `.local/` | 동조 개인 로컬 자료·환경 설정. Git 제외이므로 팀 실행에 필요한 파일을 여기서 찾지 않음 |
-
-다른 담당 영역, 공유 API, 공통 컴포넌트, 환경·배포 설정, DB 구조를 바꾸려면 **변경 전에 관련 담당자와 공유·확인**한다. 기술 통합·배포 실행 담당은 문서에서 미정이므로 임의 배정하지 않는다.
-
-**2. 사람과 LLM 모두 이 순서로 읽기**
-
-1. `AGENTS.md` → `TEAM_WORKFLOW.md` → 작업 폴더의 `AGENTS.md`: 작업 범위와 협업 규칙.
-2. `docs/planning/README.md` → `PRD.md` → `Lab_678_MVP_화면명세서.md`: 현재 기획 기준은 PRD **v0.6**, 화면명세 **v0.2**. 기획 확정·팀 검토 대기·미확인을 구분한다.
-3. `docs/development/current-state.md`: 현재 완료·진행·다음 일·제약. 기록 시점과 실제 브랜치/커밋도 확인한다.
-4. `backend/README.md` → 이 안내 → `docs/development/outing-handoff.md`: 실행법·개인 API·실제 데이터와 검증 경위.
-5. `docs/development/tasks.md`: 남은 업무. `screen-spec-review.md`는 **구 화면명세 v0.1 기준 검토 이력**이므로 최신 v0.2 검증표로 사용하지 않는다.
-6. 코드가 필요할 때 `repo_index.md` → `repo_reverse_index.md` → 관련 소스·테스트만 읽는다. `repo_tree.md`는 구조 확인, `discussion-log.md`와 `reports/`는 결정·검증 근거가 필요할 때 읽는다.
-
-인계 문서에는 기능 추가 당시와 후속 정정이 함께 있다. ‘키 미설정’ 같은 과거 문장보다 최신 정정·현재 코드·실제 응답을 우선 대조한다. 요구사항과 구현의 차이는 기록하고 한쪽을 몰래 바꾸지 않는다.
-
-10/31 첫 프론트 연결 자료는 [출발지 검색·실제 응답·CORS 안내](place-search-api.md)와 [추천 계약](recommend-api.md)부터 읽는다. 장소/주소 검색 API와 5173 origin 검증을 추가했으며, 팀 화면의 실제 통합은 별도다. 아래 ‘22커밋 앞섬’은 최초 작성 당시 이력으로 최신 원격 상태를 뜻하지 않는다. 공유 시점의 push 여부와 커밋은 별도로 대조한다.
-
-**3. 어느 브랜치를 받아야 하나**
-
-공동 개발 기준은 `develop`, 동조님 진행 작업은 `dj/develop`이다. **로컬 커밋만 된 기능은 팀원이 fetch해도 받을 수 없다.** 이 안내 작성 전 확인에서 동조 로컬은 `origin/dj/develop`보다 22커밋 앞서 있었으며, 이 안내도 별도 push 전에는 원격에 없다. 최신 작업의 push와 기준 커밋 공유 후 아래 방식으로 확인한다.
-
-기존 작업을 건드리지 않고 동조 코드만 실행해 보려면 저장소 루트에서 별도 점검 폴더를 만든다. `../lab678-dj-review`가 이미 있으면 새 이름을 사용한다.
+다른 작업이 있는 폴더는 보존하고 별도 확인 폴더를 사용한다. 아래 폴더가 이미 있으면 새 이름을 고른다. 이 명령은 원격을 받는 읽기/확인 예시이며 병합 명령이 아니다.
 
 ```shell
 git status
 git fetch origin
 git log -1 --oneline origin/dj/develop
-git worktree add --detach ../lab678-dj-review origin/dj/develop
-cd ../lab678-dj-review
+git worktree add --detach ../lab678-agent-review origin/dj/develop
+cd ../lab678-agent-review
 ```
 
-출력된 커밋을 동조님이 공유한 기준 커밋과 대조한다. 이 폴더는 실행·열람용이며 여기서 팀 기능 개발을 시작하지 않는다. `plan_dj`와 `.local` 키 파일은 복제되지 않는다.
+Python 3.12 이상에서 백엔드·정적 프론트 실행에 별도 Python 패키지나 프론트 빌드는 필요하지 않다. Node/Playwright/Chrome은 선택적 브라우저 회귀 검사에 별도로 필요하다.
 
-자기 기능의 새 브랜치는 최신 `develop`에서 만든다. 아래 `feature/my-task`는 자신의 작업명으로 바꾸며, 이미 개인 브랜치가 있으면 다시 생성하지 않는다. 미커밋 변경이 있으면 먼저 보존한다.
+## 로컬 실행과 환경
 
-```shell
-git status
-git switch develop
-git pull --ff-only origin develop
-git switch -c feature/my-task
-```
-
-기존 개인 브랜치는 최신 develop을 받은 뒤 자기 브랜치로 돌아와 `git merge develop` 등 팀 상황에 맞는 방식으로 반영한다. 충돌은 담당자와 확인하고, 강제 덮어쓰기나 `reset --hard`로 해결하지 않는다. 동조 브랜치의 파일을 개별 복사하거나 임의 cherry-pick하면 코드·문서 버전이 섞이므로, 공동 반영은 develop 대상 PR을 통한다.
-
-**4. 내 PC에서 실행하기**
-
-Python 3.10 이상 문법을 사용하는 표준 라이브러리 기반 점검 서버다. 현재 실행 확인 환경은 Windows/Python 3.15.2다. 이 점검 화면에는 npm 설치·프론트 빌드·Google 로그인·Supabase·OpenAI 키가 필요하지 않다. 정식 배포 서버나 FastAPI 앱으로 가정하지 않는다.
-
-저장소 루트에서 실행하고 터미널을 열어 둔다.
+저장소 루트에서 터미널 두 개로 실행한다. Windows에서는 `python`, 다른 환경에서는 설치된 `python3` 등을 사용한다.
 
 ```shell
-python --version
 python backend/preview.py
+python frontend/dev_server.py
 ```
 
-일반 Chrome에서 **http://127.0.0.1:8765/** 를 연다. 종료는 실행 터미널에서 `Ctrl+C`다. 포트가 사용 중이면 기존 점검 서버인지 확인하고 본인이 실행한 서버만 종료한다. Python 코드 변경 후에는 서버를 재시작한다.
+사용자 화면은 **http://127.0.0.1:5173/**, API 기본 주소는 **http://127.0.0.1:8765**다. 8765의 기존 `/checks`는 개발 점검 화면이다. 5173은 `/preview/` POST를 백엔드로 프록시하며 `LAB678_API`로 대상 API를 지정할 수 있다. 기본 포트가 이미 사용 중이면 기존 소유 서버를 확인하고 임의 종료하지 않는다. 코드 변경 후에는 해당 백엔드를 재시작한다.
 
-이 주소는 **각자 PC의 로컬 주소**다. 다른 팀원이나 휴대폰에서 동조 PC의 서버로 연결되는 주소가 아니다. 서버는 `127.0.0.1`에만 바인딩한다. 클라우드 LLM이 서버를 실행해도 사용자 PC의 Chrome에서 같은 주소로 보이지 않을 수 있다.
+각 PC의 127.0.0.1은 자기 PC다. 문서의 주소를 공용 배포 주소로 공유하지 않는다. 이번 PR 코드를 기존 배포 앱에 적용한 것으로 표시하지 않는다.
 
-첫 확인은 `나들이 찾기 → 전시 → 추천받기 → 카드 선택 → 조건 바꾸기`로 한다. 재현용 기록은 **2026-10-31, 전시/전체, 기록 재생 모드**를 사용한다. 국악 기록은 없다. 날짜가 지난 예시는 현행 방문 가능성을 보장하지 않는다.
+- 환경변수 이름은 [루트 실행 안내](../../README.md)와 [환경변수 예시](../../.env.example)를 따른다. 실제 키/환경 파일을 채팅·Git·응답·로그에 넣지 않는다.
+- 기본 v3 자연어 대화에는 유효한 `LAB678_NAITO_API_KEY`와 현재 설정 provider/model이 필요하다. 미설정/연결/응답 형식 오류를 구분하고 입력·대화를 보존한다. v3 실패를 프론트 규칙 파서의 성공으로 바꾸지 않는다.
+- 기존 코드가 지원하는 `.local/naito.env`는 키와 모델의 로컬 설정일 뿐 공개·복제 대상이 아니다. 다른 제공자/모델을 문서 갱신 과정에서 바꾸지 않는다. 일반 `.env` 전체를 자동 로딩한다고 가정하지 말고 환경변수나 명시된 로컬 설정을 사용한다.
+- 서울시 문화 키가 없을 때의 sample 범위, 실제 장소/경로에 필요한 카카오 설정은 [문화 자료](culture-sources.md)·[장소 계약](place-search-api.md)·[추천 계약](recommend-api.md)을 확인한다.
+- `?mode=recorded`는 기존 추천/문화 조회의 기록 자료 모드다. 자연어 AI·장소/경로·지도·음성까지 키 없이 전부 작동하는 모드가 아니다. 10/31 자료는 현재 방문 가능성을 보장하지 않는다.
+- 기본 프론트 프록시 외의 origin은 `LAB678_ALLOWED_ORIGINS`의 명시 CORS 허용을 사용한다. OPTIONS/CORS는 구현되어 있다. CORS 설정이 외부 API 접속이나 실제 배포 정상 동작을 보장하지는 않는다.
 
-실시간 문화정보·지도·도보·대중교통은 인터넷이 필요하다. 기록 재생은 문화정보만 저장된 응답을 사용하며, 지도 타일이나 도보 코스까지 오프라인이 되는 것은 아니다. 실시간 결과 수는 달라질 수 있다.
+## 구현·선택·음성의 경계
 
-**5. 음성·대중교통 설정과 제한**
+이 브랜치의 실행은 `backend/agent_v3.py`, 핵심 의미/정책·사실 탐색·임시 store는 `chat_knowledge.py`, `dialogue_memory.py`, `exploration.py`, `conversation_store.py`다. 세션 접점은 `frontend/js/agent-session.js`다. 소스의 전체 history/내비게이션 구현과 대상의 최소 접점을 혼동하지 않는다.
 
-- **음성 입력:** 일반 Chrome에서 마이크를 허용하면 전사 결과의 분류·두 곳 코스 키워드는 자동 반영된다. 전사를 확인·수정할 수 있고 ‘분류 반영’ 버튼도 제공한다. 내장 브라우저에서는 network 오류가 관찰됐다. 실패하면 텍스트로 이어간다. 현재는 분류·두 곳 코스 키워드 반영이며 자유형 AI 대화 전체가 구현된 것은 아니다.
-- **음성 출력:** 카드 선택 후 ‘선택한 행사 읽기’를 사용한다. 브라우저/OS 한국어 음성에 따라 결과가 다를 수 있다. ‘음성 파일로 듣기’는 **Windows와 설치된 한국어 음성**이 필요하며 macOS/Linux 지원을 전제하지 않는다.
-- **대중교통:** 서버 환경변수 `LAB678_KAKAO_REST_API_KEY` 또는 Git 제외 파일 `.local/transit.env`에 같은 이름으로 키를 설정한다. 카카오맵 API 사용 가능 여부·쿼터를 확인한 키가 필요하며, 기존 파일을 덮어쓰지 않는다. 키 값은 채팅·프론트 코드·Git에 넣지 않는다. 일반 `.env` 자동 로딩은 구현돼 있지 않다.
-- **키 미설정:** 대중교통은 503 `unconfigured`가 정상적인 설정 오류다. 이 상태에서도 문화행사 추천과 도보를 별도로 점검할 수 있다.
-- **현재 데이터 범위:** 서울문화포털 sample은 요청당 최대 5건이며 TourAPI는 미연결이다. 대중교통 안내는 실조회 검증했지만 코스 계산은 도보 기준이다. 총 도보량·미래 출발시각·무장애 여부는 확정하지 않는다.
+기본 대화는 v3다. 목적/취향·추천 조건·메뉴 진행을 분리해 보존하고, 확인된 정보로 실제 후보를 제안한다. ‘이곳 선택’과 현재 표시 묶음의 ‘3번’은 같은 실제 후보 ID를 선택한다. 상세 열람·임시 선택·내 나들이 저장·예약 확정은 각각 다른 의미다. 날짜 없는 탐색을 허용하지만 기존 명시 방문계획의 최소 60분 검증을 제거하지 않았다.
 
-최신 기획의 최소 60분은 아직 서버에 반영되지 않았다. 팀 질문별 현황과 연결 우선순위는 [통합 체크표](team-integration-checklist.md)를 확인한다.
+음성은 기존 브라우저 STT/TTS를 사용한다. 실제 마이크·한국어 음성·권한·GPS·모바일 배치는 사용자 기기에서 확인해야 한다. 자동 회귀의 모의 장치 카운터를 실기기 인식률로 설명하지 않는다. 실패 시 텍스트로 이어갈 수 있다. 지원되지 않는 영화 상영표·예약이나 남은 토큰 수치를 추측하지 않는다.
 
-**6. 디자인·프론트에서 API를 연결할 때**
+## API 연결
 
-현재 경로는 **개인 점검용 계약**이다. 팀 공통 계약으로 확정하기 전에 동조님과 입력·응답·오류 형태를 맞춘다.
-
-| 메서드·경로 | 입력·용도 |
+| 메서드·경로 | 현재 용도/문서 |
 |---|---|
-| `GET /example` | 실행 가능한 대표 추천 요청 JSON |
-| `POST /preview/recommend` | 장소/코스 추천. `request_kind`: `place` 또는 `course`, 출발명·좌표, 한국 시각 시작/종료, 분류 |
-| `POST /preview/walk` | `points`에 출발/도착 `{lat,lng}` 2개. `details:true`이면 상세 도보 안내 |
-| `POST /preview/transit` | 동일한 좌표 2개로 조회. 날짜/출발시각 파라미터는 현재 지원하지 않음 |
-| `POST /preview/voice` | `{text:...}` → Windows에서 합성한 WAV 또는 오류 |
+| `POST /preview/chat` | `agent_version=3`의 open/message/select/heartbeat/release 등 이벤트. [개발 명세](agent-implementation-spec.md)의 계약과 대상 차이를 확인 |
+| `POST /preview/places` | 실제 출발지 장소/주소 검색. [장소 계약](place-search-api.md) |
+| `POST /preview/recommend` | 명시 방문계획 place/course·route 호환과 최소시간 검증. [추천 계약](recommend-api.md) |
+| `POST /preview/walk`, `/preview/transit` | 실제 이동 경로. [이동 인계](outing-handoff.md) |
+| `POST /preview/contact` | 실제 공식 출처의 문의 연락처. 없는 번호를 생성하지 않음 |
+| `POST /preview/voice` | 기존 Windows 파일 음성 경로. 브라우저 STT/TTS와 별도 |
 
-POST는 `Content-Type: application/json`을 사용한다. 대표 요청·응답은 `docs/development/examples/outing-request.json`, `outing-response.json`을 참조하되 실제 반환값과 대조한다. 코스에는 `stay_minutes`, `exclude_ids`, 대안 조회에는 `alternatives:true`가 사용된다. 기획 개념값 `route`와 현재 코드값 `course`는 매핑 확인이 필요하다.
+v3는 canonical handle/epoch/revision/document/lease/turn을 사용한다. 오래된 표시 묶음·다른 대화 후보·조건 변경 뒤의 선택은 거절한다. 일반 요청/legacy는 8KiB, v3 restore만 32KiB다. 400 입력, 409 동기화/lease, 429 제한, 502 외부/형식, 503 미설정, 504 timeout을 구분한다. HTTP200의 구조화된 `source_error`도 읽어야 하며 카드 수나 HTTP200만으로 의미/조회 성공을 판정하지 않는다.
 
-추천은 HTTP 200의 `ready`/`no_results`, 입력 오류 400의 `need_input`, 외부 조회 실패 502의 `error`를 구분한다. 대중교통은 별도로 503 설정·인증, 429 한도, 504 시간 초과 등을 처리한다. 빈 결과를 통신 오류로, 미확인 가격을 무료로 바꾸지 않는다.
+## 검증과 공유
 
-현재 화면은 서버와 같은 주소에서 API를 호출한다. **다른 포트의 프론트 개발 서버용 CORS/OPTIONS 처리는 아직 없다.** 별도 프론트를 연결할 때는 개발 프록시 또는 백엔드 CORS 설정을 관련 담당자와 협의한다. 카드·지도는 동일 후보 `id`를 사용하고 `null`·미확인 상태를 그대로 전달한다.
-
-**7. 검증·공유·병합**
-
-서버 실행과 별도로 저장소 루트에서 백엔드 회귀를 실행할 수 있다.
+기록된 이 브랜치 성적은 **backend 241/241 · HTTP/store/DOM 23/23 · legacy 상태 15/15**, 도구 26개 PASS다. source 실모델 B/C 평가와 target fixture 평가를 합산하지 않는다. 전체 하네스에는 기준부터 있던 docstring 7건이 남아 있다.
 
 ```shell
 python -m unittest discover -s backend -v
-python utils/scripts/harness.py
+node utils/scripts/check_agent_v3.cjs
+node utils/scripts/check_agent_regressions.cjs
+node utils/scripts/check_agent_http.cjs
+python utils/scripts/harness.py --tests
 ```
 
-이 안내 작성 시 백엔드 19개 테스트와 로컬 홈/기록 재생 추천을 다시 확인했다. 모의·기록 기반 테스트 통과가 외부 API·실제 마이크·스피커·최종 UI 성공을 대신하지 않는다. 브라우저 자동 점검 도구는 Node·Playwright·브라우저 설치가 별도로 필요하므로 위 Python 실행만으로 사용할 수 있다고 가정하지 않는다.
+브라우저 회귀는 필요시 `PLAYWRIGHT_MODULE`, `CHROMIUM_PATH`, `PYTHON`을 지정한다. 이식 대상의 기존 HTTP·대화·추천 회귀는 스크립트가 legacy query로 확인한다. 이번 문서 정리에서는 제품 검사를 다시 실행하지 않고 링크·색인·state·도구 검사와 제품 파일 불변을 검증한다.
 
-사용자 점검은 **입력→추천 / 선택→경로 / 전체 시연** 구간으로 묶는다. 오류 공유 시 브랜치·커밋, 입력 조건, 실제/기대 결과, 재현 순서, HTTP 상태와 키를 제거한 메시지를 전달한다.
+사용자 시험은 Ctrl+F5 → 새 대화 → 목적·지역 → 현재 카드 선택/‘3번’ → 다른 묶음 선택 → 상세·지도·저장·복귀 순서로 한다. 실패는 브랜치/커밋·단계·HTTP/turn/revision과 실제/기대 결과를 기록하되 키·민감 원문·정밀 위치는 공개하지 않는다.
 
-자기 기능의 최소 정상 동작을 확인한 후 **commit/push → develop 대상 PR → Discord에 요약·링크 → 셀프 merge 가능** 순서를 따른다. 공통·다른 담당 영역 변경은 사전 확인이 필요하고, develop→main은 손희영님 최종 승인 대상이다. 하루 2~3회 정도 및 작업 종료 전 동기화를 권장한다. 이 안내 자체는 push·메시지 전송을 실행하지 않는다.
-
-**LLM에 붙여 넣을 시작 지시문**
-
-> LAB678에서 내 담당 범위만 작업해 줘. 먼저 현재 브랜치·커밋·미커밋 변경을 확인하고 AGENTS.md, TEAM_WORKFLOW.md, 담당 폴더 지침을 읽어. 최신 기획은 docs/planning/README.md에서 찾고, 실제 개발 현황은 docs/development/current-state.md 및 team-backend-guide.md로 확인해. screen-spec-review.md는 v0.1 당시 기록임을 주의해. 필요한 소스·테스트는 색인으로 좁혀 읽고 실제 실행 결과와 요구사항을 구분해. 다른 담당 영역·공유 API·공통 설정은 변경 전에 관련 담당자 확인이 필요해. 비밀값과 개인 plan_dj는 수집하거나 공유하지 마. 구현·Mock·미검증을 구분하고 구간별로 테스트한 뒤 변경 파일·검증·남은 문제를 보고해. Git 작업은 내 요청 범위와 TEAM_WORKFLOW에 따라 진행해.
-
-### 대중교통 지도 응답 추가 (2026-10-31)
-
-`routes[].steps[].path`는 검증된 `[위도, 경도]` 좌표 배열이다. 빈 배열은 지도 좌표 미확인이며 이동 단계 텍스트는 그대로 표시한다. 단계 사이를 임의로 연결하지 않는다. 개인 점검 화면은 텍스트/내부 지도 전환과 단계 확대를 지원한다. 기존 시간·거리·요금 필드와 null 의미는 유지한다. 상세 검증은 [인계 문서](outing-handoff.md)의 대중교통 내부 지도 항목을 참고한다.
-
-### 입력 검증 및 요청 호환 (2026-10-31)
-
-추천 요청의 최소 60분과 필드 오류 응답을 서버·점검 화면에 적용했다. `request_kind=route`와 기존 `course` 모두 코스 계산으로 연결하며 응답 키는 `course`를 유지한다. 프론트 전달용 [현재 추천 API 계약과 응답 예시](recommend-api.md)를 먼저 확인한다. 이 문서는 구현 상태이며 팀 최종 합의/CORS/UI 연결 완료를 뜻하지 않는다.
-
-### 별도 프론트 연결 준비 (2026-10-31 추가)
-
-백엔드는 `LAB678_ALLOWED_ORIGINS`로 프론트 origin을 명시하면 JSON POST/OPTIONS 연결을 지원한다. 기본 포트는8765, 별도 점검은 `--port`로 지정한다. 행사 기간·지역·주소 미확인 필드도 추가했다. [최신 연결 설정·응답 계약](recommend-api.md)을 기준으로 확인한다. 별도 포트 테스트는 통과했으나 실제 팀 프론트 코드는 아직 공유되지 않아 최종 UI 연결은 미검증이다. 앞선 CORS 미구현 설명은 이 추가 내용으로 정정한다.
+현재 공유는 [이슈67](https://github.com/Lab678-Hackathon/lab678/issues/67)과 [PR69](https://github.com/Lab678-Hackathon/lab678/pull/69)를 따른다. PR68은 과거 외부 병합 이력이다. 이번 요청은 두 브랜치 문서 갱신·push까지이며 merge·main/develop 변경·배포·Discord 전송은 실시하지 않는다.

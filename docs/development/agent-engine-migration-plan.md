@@ -1,5 +1,7 @@
 # develop 원형에 에이전트 엔진을 선택 이식하는 계획
 
+> **2026-11-01 현행 상태:** M0~M5의 이식·검증은 dj/develop에서 완료했고 e7163aa 및 게시 기록 ed923aa를 push해 PR69를 발행했다. 아래 착수 전 문장·원격 미게시/force 미승인 표시는 당시 승인 범위의 이력이다. 후속 명시 push 지시에 따라 이전80 tip 보존과 기대SHA lease 게시를 마쳤다. 원본은 b6355a0/d541ea5로 보존했다. 실제 완료는 [대상 실행 체크리스트](https://github.com/Lab678-Hackathon/lab678/blob/dj/develop/docs/development/agent-engine-port-progress.md)와 [게시 결과](https://github.com/Lab678-Hackathon/lab678/blob/dj/develop/docs/development/agent-engine-publication.md)를 따른다. 이번 변경은 두 브랜치의 문서 안내 갱신이며 이 계획을 다시 실시하거나 원격 강제 갱신하는 지시가 아니다.
+
 2026-11-01 · 소스 `dj/agent` → 대상 새 `dj/develop` · **이식·검증 후 사용자 요청으로 검증 코드 e7163aa push 및 PR69 발행 완료.** 소스 성적과 대상 성적을 구분하며 develop 병합·배포하지 않았다.
 
 > 후속 게시 승인 “이대로 푸시 … PR발행해”에 따라 이전 원격 tip을 보존한 뒤 기대 SHA lease로 게시했다. 앞선 로컬 미게시/새 PR 미승인 문구는 당시 계획 이력이며, 최신 결과는 [게시 기록](agent-engine-publication.md)과 [PR69](https://github.com/Lab678-Hackathon/lab678/pull/69)를 따른다.

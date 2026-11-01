@@ -96,7 +96,9 @@ lab678/
       demo-login-server-progress.md
       demo-profile-design.md
       deployment-keys.md
+      development-context-20261031.md
       discussion-log.md
+      documentation-refresh-progress.md
       engineering-loop.md
       examples/
         course-selected-place.live.json
@@ -277,6 +279,7 @@ lab678/
         20261101-agent-remediation-published.md
         20261101-agent-remediation-validation.md
         20261101-dj-agent-setup.md
+        20261101-documentation-refresh.md
         20261101-engine-port-local.md
         20261101-engine-port-publish-code.md
         20261101-engine-port-published.md
@@ -301,6 +304,7 @@ lab678/
       service-key-status.md
       state.json
       tasks.md
+      team-backend-guide-20261031.md
       team-backend-guide.md
       team-integration-checklist.md
       tooling-progress.md

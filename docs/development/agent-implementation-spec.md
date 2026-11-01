@@ -2,13 +2,19 @@
 
 2026-11-01 · 작업 브랜치 `dj/agent` · 이번 게시 기준 커밋: **b6355a0fd9a9add0447fa18226e44ca3543cf0f4**
 
-> **원본/대상 구분:** 원본 코드는 dj/agent에 push했다. 최신 사용자 지시에 따라 [이식 계획과 체크리스트](agent-engine-migration-plan.md)를 저장하고, 최신 develop에서 새 dj/develop을 만들어 엔진과 최소 편의 UI를 이식한다. M0~M5 실시 승인을 받았으며 원본 성적을 대상의 완료로 표시하지 않는다. 두 브랜치에 이 문서와 이식 계획을 동일 경로로 보존한다.
+> **원본/대상 구분 · 현행 정정:** 이 명세 본문은 원본 dj/agent 코드 b6355a0의 설계·파일맵·253/19/9 검증 이력이다. 대상 dj/develop의 이식·검증·게시도 완료했으며, 실제 결과는 [대상 실행 체크리스트](https://github.com/Lab678-Hackathon/lab678/blob/dj/develop/docs/development/agent-engine-port-progress.md)와 [PR69](https://github.com/Lab678-Hackathon/lab678/pull/69)를 따른다. 이슈67은 현재 대상 중심으로 재작성했다. 원본 성적을 대상 성적으로 옮기거나 과거 PR68 병합에 후속 코드를 소급 포함하지 않는다.
 
 이 명세는 현재 구현을 처음 읽는 팀원과 다른 LLM이 제품 의도·구조·실패·검증·한계를 한 번에 검토할 수 있도록 정리했다. 현재 소스 판정은 **승인 범위 구현·코드/HTTP/DOM 검증·코드 push 완료, 사용자 실기기 QA 대기**다. 일반적인 한국어 대화 품질이나 실제 음성·GPS·예약·배포가 모두 검증됐다는 뜻은 아니다.
 
 최신 사용자의 **“push해” 및 기존 이슈/PR 갱신 요청**을 이번 작업 단위의 커밋·`dj/agent` push에 대한 명시적 승인으로 기록한다. 이번 게시 대상에 한해 이전의 11/1 13:00 이후 커밋 금지와 충돌하는 부분에 적용하는 최신 지시이며, 이후 모든 변경의 포괄 허락으로 확대하지 않는다. `main`·`develop`을 변경하거나 병합·배포하지 않는다.
 
 기존 [PR #68](https://github.com/Lab678-Hackathon/lab678/pull/68)은 외부에서 이미 병합된 이력이 있는 PR이다. 이번에는 그 상태를 유지하고 설명만 최신화한다. 이번 `dj/agent`의 후속 push가 과거 병합에 소급 포함됐다는 뜻이 아니며 새 PR도 만들지 않는다. 실제 원격 포함 범위는 상단 커밋과 브랜치 소스를 기준으로 확인해야 한다.
+
+## 대상 dj/develop을 읽을 때의 차이
+
+아래 본문은 원본 명세를 보존한다. 대상 실행부는 `backend/agent_v3.py`로 분리했고 기존 `naito_chat.py`에는 v3 분기 3줄만 추가했다. 프론트 세션 전송은 신규 `frontend/js/agent-session.js`와 기존 JS 접점이다. 원본 전체 history/내비게이션 엔진을 복사하지 않았다.
+
+대상 검증은 backend 241/241·HTTP/store/DOM 23/23·legacy 상태 15/15·도구26 PASS다. 아래 §11 원본 파일맵·§12의253/19/9·§13 원본 실모델 사용량과 합산하지 않는다. 대상의 제품 diff/음성3결함 보완/기존 docstring7 FAIL/실기기 미실시는 [실행 체크리스트](agent-engine-port-progress.md)와 [게시 결과](agent-engine-publication.md)를 따른다. 기준 develop은 e5697e2, 검증 이식코드는 e7163aa, 문서 게시기록은 ed923aa다.
 
 ## 1. 제품 목표와 사용자 요구
 

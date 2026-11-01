@@ -360,6 +360,17 @@
       "backend/deploy.env.example",
       "backend/test_deployment_keys.py",
       "docs/development/deployment-keys.md"
+    ],
+    "두 브랜치 현행 개발 문서·실행·이력 안내": [
+      "docs/development/README.md",
+      "docs/development/team-backend-guide.md",
+      "docs/development/documentation-refresh-progress.md",
+      "docs/development/tasks.md",
+      "docs/development/team-integration-checklist.md",
+      "docs/development/development-context-20261031.md",
+      "docs/development/team-backend-guide-20261031.md",
+      "backend/README.md",
+      "utils/README.md"
     ]
   }
 }

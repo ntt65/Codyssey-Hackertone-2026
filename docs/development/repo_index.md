@@ -11,13 +11,13 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [.github/ISSUE_TEMPLATE/task.md](../../.github/ISSUE_TEMPLATE/task.md) | --- | `1ee33bbd2c25` |
 | [.github/pull_request_template.md](../../.github/pull_request_template.md) | ## 무엇을 했나요 | `ec68f1c48e6b` |
 | [.gitignore](../../.gitignore) | 설정·자료 파일; 필요할 때 원문 확인 | `77b6eb2fdbf9` |
-| [AGENTS.md](../../AGENTS.md) | Lab678 · AI 작업 안내 | `cbe73f269a97` |
+| [AGENTS.md](../../AGENTS.md) | Lab678 · AI 작업 안내 | `626cf4b3dd72` |
 | [CLAUDE.md](../../CLAUDE.md) | @AGENTS.md | `a853633c4e5c` |
 | [GEMINI.md](../../GEMINI.md) | @AGENTS.md | `a853633c4e5c` |
-| [README.md](../../README.md) | 오늘 나들이 · Lab678 | `1d6a865500c1` |
+| [README.md](../../README.md) | 오늘 나들이 · Lab678 | `071828d229c4` |
 | [TEAM_WORKFLOW.md](../../TEAM_WORKFLOW.md) | 678 Lab · TEAM_WORKFLOW | `bbe50fd59065` |
 | [backend/AGENTS.md](../../backend/AGENTS.md) | backend 작업 | `15ed2f76becf` |
-| [backend/README.md](../../backend/README.md) | backend | `424d271d4f1b` |
+| [backend/README.md](../../backend/README.md) | backend · 에이전트 실행과 검토 | `462c53839376` |
 | [backend/agent_v3.py](../../backend/agent_v3.py) | Versioned agent engine, isolated from the unchanged legacy condition API. | `edc5e29a4236` |
 | [backend/chat_conditions.py](../../backend/chat_conditions.py) | AI 해석 결과를 추천 조건 초안으로 병합한다. 네트워크·저장·추천 실행은 하지 않는다. | `c8fca428da00` |
 | [backend/chat_grounding.py](../../backend/chat_grounding.py) | 검증 가능한 발화 근거만 조건에 반영한다. 외부 호출·저장·행사 사실 판정은 하지 않는다. | `b957b102350c` |
@@ -76,11 +76,11 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [design/README.md](../../design/README.md) | design | `e8cd21971ef0` |
 | [docs/AGENTS.md](../../docs/AGENTS.md) | 문서 작업 | `6943f61f8205` |
 | [docs/README.md](../../docs/README.md) | docs | `6f5e3f0160f6` |
-| [docs/development/README.md](../../docs/development/README.md) | LAB678 · 김동조 개발 작업 맥락 | `77d40da541d0` |
-| [docs/development/agent-engine-migration-plan.md](../../docs/development/agent-engine-migration-plan.md) | develop 원형에 에이전트 엔진을 선택 이식하는 계획 | `2c95e199eb3b` |
+| [docs/development/README.md](../../docs/development/README.md) | LAB678 · 에이전트 개발 문서 안내 | `9abe9134da38` |
+| [docs/development/agent-engine-migration-plan.md](../../docs/development/agent-engine-migration-plan.md) | develop 원형에 에이전트 엔진을 선택 이식하는 계획 | `6bb2eb08a49b` |
 | [docs/development/agent-engine-port-progress.md](../../docs/development/agent-engine-port-progress.md) | develop 기반 엔진 이식 실행 체크리스트 | `4590b86f2d44` |
 | [docs/development/agent-engine-publication.md](../../docs/development/agent-engine-publication.md) | develop 기반 엔진 선택 이식 게시 결과 | `d66e81766c8c` |
-| [docs/development/agent-implementation-spec.md](../../docs/development/agent-implementation-spec.md) | 에이전트 개발 명세 — 니즈 이해·추천·선택 진행 | `6f824fcc1610` |
+| [docs/development/agent-implementation-spec.md](../../docs/development/agent-implementation-spec.md) | 에이전트 개발 명세 — 니즈 이해·추천·선택 진행 | `afddee4521cf` |
 | [docs/development/agent-remediation-review.md](../../docs/development/agent-remediation-review.md) | 대화·추천 에이전트 개선 및 재검토 자료 | `4fd85d5cf104` |
 | [docs/development/automatic-voice.md](../../docs/development/automatic-voice.md) | 자동 음성 대화·종료 설정 | `c953304f4258` |
 | [docs/development/chat-conditions.md](../../docs/development/chat-conditions.md) | 대화 조건 처리 코어와 연결 제안 | `99996fc7f1fc` |
@@ -88,11 +88,13 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [docs/development/conversation-validation.md](../../docs/development/conversation-validation.md) | 자연어 대화·추천 추가 구간 검증 | `febb45abfa52` |
 | [docs/development/course-alternatives-progress.md](../../docs/development/course-alternatives-progress.md) | 시간 부족 → 동의 → 대안 선택 진행표 | `a662e7da1bee` |
 | [docs/development/culture-sources.md](../../docs/development/culture-sources.md) | 서울시 조회 확대와 국문 문화시설 연결 | `27085042b590` |
-| [docs/development/current-state.md](../../docs/development/current-state.md) | 현재 상태와 다음 할 일 | `097b202f22d3` |
+| [docs/development/current-state.md](../../docs/development/current-state.md) | 현재 상태와 다음 할 일 | `32ed0ae4c88b` |
 | [docs/development/demo-login-server-progress.md](../../docs/development/demo-login-server-progress.md) | 데모 로그인·해커톤 서버 검토 진행표 | `ca878f31c5f8` |
 | [docs/development/demo-profile-design.md](../../docs/development/demo-profile-design.md) | 인증 없는 이용·체험 프로필·로컬 저장 설계안 | `87e1d5b21681` |
 | [docs/development/deployment-keys.md](../../docs/development/deployment-keys.md) | 공공데이터·Naito 배포 키 처리 | `6666b0215a8f` |
+| [docs/development/development-context-20261031.md](../../docs/development/development-context-20261031.md) | 개발 맥락 안내 — 2026-10-31 당시 기록 | `76efa6fabb5c` |
 | [docs/development/discussion-log.md](../../docs/development/discussion-log.md) | LAB678 · 김동조 대화·작업 기록 | `db7b3688c34a` |
+| [docs/development/documentation-refresh-progress.md](../../docs/development/documentation-refresh-progress.md) | 두 브랜치 현행 문서 갱신 체크리스트 | `610d93c2368f` |
 | [docs/development/engineering-loop.md](../../docs/development/engineering-loop.md) | 개발 도구·반복 검증·컨텍스트 운영 | `8503cbd5c4f0` |
 | [docs/development/examples/course-selected-place.live.json](../../docs/development/examples/course-selected-place.live.json) | 구조화 설정·상태 데이터 | `2c89a9a3ae68` |
 | [docs/development/examples/demo-users.sample.json](../../docs/development/examples/demo-users.sample.json) | 구조화 설정·상태 데이터 | `f148990a7ff7` |
@@ -255,6 +257,7 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [docs/development/reports/20261101-agent-remediation-published.md](../../docs/development/reports/20261101-agent-remediation-published.md) | 개선·검증 후 `dj/agent`를 push했습니다. | `3ed52d7364f9` |
 | [docs/development/reports/20261101-agent-remediation-validation.md](../../docs/development/reports/20261101-agent-remediation-validation.md) | 실제 브라우저에서 로컬 백엔드의 CORS·대화 검증·무료 필터·동명 장소 선택을 함께 확인하는 검증 도구와 다른 LLM용 분석 자료를 추가했습니다. 작업 범위·재현 사례·수정 근거·실행 방법·한계를 기록하고 상태와 색인을 갱신했습니다. | `f52ba4ae0b46` |
 | [docs/development/reports/20261101-dj-agent-setup.md](../../docs/development/reports/20261101-dj-agent-setup.md) | 완료했습니다. 최신 원격 develop의 `252c07c`에서 **`dj/agent`**를 분기했습니다. | `2a2b9c9d11c6` |
+| [docs/development/reports/20261101-documentation-refresh.md](../../docs/development/reports/20261101-documentation-refresh.md) | 두 브랜치 문서를 최신화하고 각각 push했습니다. | `59a31039c293` |
 | [docs/development/reports/20261101-engine-port-local.md](../../docs/development/reports/20261101-engine-port-local.md) | 이식과 검증을 마쳤습니다. 새 dj/develop 로컬 버전입니다. | `49df8144390d` |
 | [docs/development/reports/20261101-engine-port-publish-code.md](../../docs/development/reports/20261101-engine-port-publish-code.md) | 최신 develop e5697e2를 직접 기준으로 개선 에이전트와 최소 화면 연결부를 선택 이식한 검증본을 커밋했습니다. | `585f18192b3b` |
 | [docs/development/reports/20261101-engine-port-published.md](../../docs/development/reports/20261101-engine-port-published.md) | dj/develop push와 [PR #69](https://github.com/Lab678-Hackathon/lab678/pull/69) 발행을 완료했습니다. [이슈 #67](https://github.com/Lab678-Hackathon/lab67 | `c5ec5ebf10e1` |
@@ -277,10 +280,11 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [docs/development/reports/voice-wave-and-compatibility.md](../../docs/development/reports/voice-wave-and-compatibility.md) | 화면은 모바일 폭에서 검사했지만, **맥북·휴대폰의 자동 음성 대화는 실제 기기 확인이 필요합니다.** 브라우저 음성 인식에는 지원 차이가 있습니다. [MDN 공식 호환성 안내](https://developer.mozilla.org/en-US/docs | `e86f5f6e2737` |
 | [docs/development/screen-spec-review.md](../../docs/development/screen-spec-review.md) | 화면명세 v0.1 수신·구현 대조 체크표 | `6be14b542825` |
 | [docs/development/service-key-status.md](../../docs/development/service-key-status.md) | 키별 실제 동작·앱 반영 점검 | `20d43495185e` |
-| [docs/development/state.json](../../docs/development/state.json) | 구조화 설정·상태 데이터 | `cbb97c68c4d5` |
-| [docs/development/tasks.md](../../docs/development/tasks.md) | LAB678 · 김동조 개발 할 일 | `555cf41b5052` |
-| [docs/development/team-backend-guide.md](../../docs/development/team-backend-guide.md) | LAB678 · 동료와 LLM을 위한 개발 참조·실행 안내 | `a8cfdbe6a06b` |
-| [docs/development/team-integration-checklist.md](../../docs/development/team-integration-checklist.md) | 팀 의견 대조 · 최종 UI 연결 우선 체크표 | `a9c94afd0cf6` |
+| [docs/development/state.json](../../docs/development/state.json) | 구조화 설정·상태 데이터 | `99b17c43c924` |
+| [docs/development/tasks.md](../../docs/development/tasks.md) | LAB678 · 현행 개인 작업 목록 | `d7c141d44a55` |
+| [docs/development/team-backend-guide-20261031.md](../../docs/development/team-backend-guide-20261031.md) | 개발 참조·실행 안내 — 2026-10-31 당시 기록 | `b1aa7a7905ba` |
+| [docs/development/team-backend-guide.md](../../docs/development/team-backend-guide.md) | LAB678 · 에이전트 실행·API·검증 안내 | `946ed29fa1b3` |
+| [docs/development/team-integration-checklist.md](../../docs/development/team-integration-checklist.md) | LAB678 · 현행 팀 통합 검토표 | `f4f71e34e1d3` |
 | [docs/development/tooling-progress.md](../../docs/development/tooling-progress.md) | 재사용 도구·자동 색인·컨텍스트 구축 진행 체크표 | `b72aa1e78379` |
 | [docs/development/transit-mobile.md](../../docs/development/transit-mobile.md) | 대중교통 노선·모바일 경로 카드 | `d35437eecf22` |
 | [docs/development/transit-progress.md](../../docs/development/transit-progress.md) | 앱 내부 대중교통 안내 진행표 | `de4987d17983` |
@@ -350,8 +354,8 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [frontend/js/util.js](../../frontend/js/util.js) | 여러 화면이 같이 쓰는 작은 도구: 요소 만들기, 날짜·시각 표시, 저장소 읽기/쓰기. | `4adb4e134617` |
 | [frontend/js/weather.js](../../frontend/js/weather.js) | 날씨 인사. 서울의 지금 날씨를 Open-Meteo(무료, 키 없음)에서 받아 까치가 먼저 건넬 말을 코드가 정해요. | `9b257963a8cb` |
 | [utils/AGENTS.md](../../utils/AGENTS.md) | utils 작업 | `606b01a12f06` |
-| [utils/README.md](../../utils/README.md) | 재사용 개발 도구 | `8583bb659b7a` |
-| [utils/harness.json](../../utils/harness.json) | 구조화 설정·상태 데이터 | `8b1cbebf2b0e` |
+| [utils/README.md](../../utils/README.md) | 재사용 개발 도구 | `3d41ce728e05` |
+| [utils/harness.json](../../utils/harness.json) | 구조화 설정·상태 데이터 | `271111571673` |
 | [utils/index.md](../../utils/index.md) | 자동 생성 색인 | `generated` |
 | [utils/reverse_index.md](../../utils/reverse_index.md) | 자동 생성 색인 | `generated` |
 | [utils/scripts/agent_http_fixture.py](../../utils/scripts/agent_http_fixture.py) | 브라우저 회귀 검사에 실제 Preview HTTP와 고정 외부 공급자 데이터를 제공한다. | `f12f06c9e2d7` |

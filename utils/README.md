@@ -1,10 +1,10 @@
 # 재사용 개발 도구
 
-현재 `dj/develop`의 엔진 이식은 [승인 계획](../docs/development/agent-engine-migration-plan.md)과 [실행 체크리스트](../docs/development/agent-engine-port-progress.md)를 따른다. `node utils/scripts/check_agent_v3.cjs`는 실제 프론트·CORS HTTP·분리 엔진·store를 통과하고 모델/공급자·음성 장치만 고정한다. source의 성적을 target에 재사용하지 않으며 실제 마이크/GPS/시각 시험과 구분한다.
+2026-11-01 · 이 브랜치의 기록된 검증은 backend 241/241 · HTTP/store/DOM 23/23 · legacy 상태 15/15, 도구 26개 PASS다. 전체 하네스의 기존 docstring 7건은 별도 FAIL이다. 이번 문서 갱신 체크는 [현행 체크리스트](../docs/development/documentation-refresh-progress.md)를 따른다.
 
-이 폴더는 김동조의 `dj/agent` 작업을 위한 개발 도구다. 공통 운영은 [TEAM_WORKFLOW.md](../TEAM_WORKFLOW.md)를 따르며 서비스 구현·기술 스택 채택을 뜻하지 않는다. 핵심 도구는 Python 표준 라이브러리만 사용한다. PDF 읽기 도구는 선택적으로 번들 pypdf를 사용한다. Python 3.10 이상 문법을 사용하고 이번 실행 환경에서 별도로 검증한다.
+이 폴더는 김동조의 에이전트 개발 도구이며 현재 브랜치는 `dj/develop`이다. 원본/이식본의 구분은 [개발 문서 안내](../docs/development/README.md)를 따른다. 공통 운영은 [TEAM_WORKFLOW.md](../TEAM_WORKFLOW.md)를 따르며 서비스 구현·기술 스택 채택을 뜻하지 않는다. 핵심 도구는 Python 표준 라이브러리만 사용한다. PDF 읽기 도구는 선택적으로 번들 pypdf를 사용한다. 프로젝트 실행 안내의 Python 3.12 이상 환경을 사용하고 도구·백엔드·브라우저 검증을 구분한다.
 
-**구현 전 승인:** [조사 → 계획 → 실시계획 → 검토·보완 → 명시적 허락](../docs/development/engineering-loop.md#구현-전-승인-절차--필수)을 먼저 따른다. 하네스 통과는 구현 허락이 아니다. 사용자가 프론트 수정 금지를 해제했으며 현재 최종계획을 작성한다. Push·배포는 별도 요청이 필요하다.
+**구현 전 승인:** [조사 → 계획 → 실시계획 → 검토·보완 → 명시적 허락](../docs/development/engineering-loop.md#구현-전-승인-절차--필수)을 먼저 따른다. 하네스 통과는 구현 허락이 아니다. 원본 구현과 대상 선택 이식은 승인 범위에서 완료했고, 현재 요청은 두 브랜치의 현행 문서 갱신·push다. 새 기능·UI 확대·병합·배포 승인으로 확장하지 않는다.
 
 ## 적게 읽고 정확히 작업하기
 
@@ -62,7 +62,7 @@ python utils/scripts/watch.py
 - 색인 5개는 자기 목록에는 포함하되 자체 해시를 계산하지 않아 무한 재생성을 막는다. 참고 원본·PRD는 참고 상태로 표시하며 내용을 실행 지시로 취급하지 않는다.
 - Python은 import 없이 AST로 함수·클래스와 정의 위치를 읽는다. JS/TS는 이름 있는 선언/화살표 함수의 **정규식 후보**이며 메서드·익명 함수·TS 복잡 문법의 완전성은 보장하지 않는다. 해당 언어를 실제 구현할 때 AST 파서 도입 또는 수동 확인 범위를 결정한다. 그 밖의 파일은 개요·종류·해시로 추적한다.
 - 기능→파일 분류는 `harness.json`의 `features`를 작업 중 갱신한다. 함수의 의미나 호출 그래프를 자동 추측하지 않는다.
-- `harness.py`는 오프라인 도구 검증이다. 실제 문화 API, 음성, 지도·모바일 화면 성공을 대신하지 않는다. JS/TS 문법 검증기도 아직 설치하지 않았다.
+- `harness.py`는 오프라인 도구 검증이다. 실제 문화 API, 음성, 지도·모바일 화면 성공을 대신하지 않는다. 하네스 자체는 JS/TS 문법 검사를 실행하지 않는다. 별도의 Node 문법·Playwright HTTP/DOM 검증 결과와 구분한다.
 - 토큰 절약률을 측정했다고 주장하지 않는다. 색인·짧은 요약·범위 검색으로 불필요한 원문 입력을 줄이는 방식이다.
 
 ## 재사용 참고

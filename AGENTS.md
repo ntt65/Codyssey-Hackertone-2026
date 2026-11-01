@@ -13,15 +13,17 @@
 
 ## 개인 개발 작업 맥락
 
-현재 작업폴더는 **`D:\git\lab678`**, 실제 작업 브랜치는 최신 `origin/develop`의 `e5697e2`에서 새로 만든 **`dj/develop`**이에요. 원본 `dj/agent` 코드 `b6355a0`·명세 `d541ea5`는 push해 보존했고, 이전 로컬 `dj/develop` tip은 `dj/develop-before-engine-20261101`에 남겼어요. 사용자 최신 지시 “계획 저장하고 보여주고 시작해”, “체크리스트를 만들어 하나씩 체크하면서 실행 점검 보완 진행해”로 [엔진 이식 계획](docs/development/agent-engine-migration-plan.md)의 M0~M5를 승인받았어요. [실행 체크리스트](docs/development/agent-engine-port-progress.md)를 실제 검증 후 체크하며 진행해요. 최소 선택 버튼·실제 모호한 출발지 팝업 외 전체 UI 교체는 제외해요. 원격 dj/develop force·새 PR·병합·배포는 별도 승인 없이 하지 않아요.
+최신 사용자 **‘그래 문서들 현재 최신 업데이트에 맞게 갱신해’**, **‘끝나면 2개다 push 해놔’**로 두 브랜치의 현행 문서 갱신·필요한 문서 커밋·정상 push를 승인받았어요. 마감 뒤인 이번 문서 게시에 한정한 최신 지시로 기록하며 guard/날짜를 바꾸지 않아요. 원본 문서는 저장소 내부 별도 작업폴더에서 정리하고 실제 제품 시험 폴더는 dj/develop에 유지해요. 코드/UI·main/develop·merge·배포는 변경하지 않아요.
+
+이 문서의 브랜치는 **`dj/develop`**이며 깨끗한 develop에 엔진과 필수 화면 접점을 선택 이식한 검토본이에요. 원본 코드 b6355a0/명세 d541ea5와 대상 이식코드 e7163aa/게시기록 ed923aa를 구분해요. 대상은 develop e5697e2를 직접 기반으로 선택 이식·검증·PR69 게시를 완료했어요. 최신 진입점은 [개발 문서 안내](docs/development/README.md)예요.
 
 후속 사용자 **“이대로 푸시 … PR발행해”**로 현재 검증본의 커밋·push와 새 `dj/develop → develop` PR 발행을 승인받았어요. 이전 원격 tip80d481b는 보존 ref를 먼저 만든 뒤, 조회한 SHA가 같을 때만 lease로 새 검증본을 게시해요. 마감 제한에 대한 이 게시 요청의 예외를 기록하고 공통 guard/날짜는 바꾸지 않아요. 이전의 미게시/새 PR 미승인 표시는 당시 기록이며, 병합·배포 금지는 유지해요.
 
 게시 코드 `e7163aa`의 직접 부모가 develop `e5697e2`이고 source `b6355a0`가 조상이 아님을 확인했어요. [PR69](https://github.com/Lab678-Hackathon/lab678/pull/69)는 open/미병합이며 [게시 기록](docs/development/agent-engine-publication.md)과 [이슈67](https://github.com/Lab678-Hackathon/lab678/issues/67)에 설계·프론트 최소 변경·검증·한계를 정리했어요. 이후 추가 개발·병합·배포는 이 게시 요청에서 추정하지 않아요.
 
-`dj/agent` 작업을 이어갈 때는 [현재 상태와 다음 할 일](docs/development/current-state.md)을 먼저 확인해요. [저장소 색인](docs/development/repo_index.md)·[기능/함수 역색인](docs/development/repo_reverse_index.md)·[구조](docs/development/repo_tree.md)로 파일을 좁히고, 필요한 경우에만 [개발 맥락](docs/development/README.md)과 [대화·작업 기록](docs/development/discussion-log.md)의 해당 부분을 읽어요. 공통 운영 규칙은 계속 `TEAM_WORKFLOW.md`를 기준으로 삼아요.
+이 브랜치 작업을 이어갈 때는 [현재 상태와 다음 할 일](docs/development/current-state.md)을 먼저 확인해요. [저장소 색인](docs/development/repo_index.md)·[기능/함수 역색인](docs/development/repo_reverse_index.md)·[구조](docs/development/repo_tree.md)로 파일을 좁히고, 필요한 경우에만 [개발 맥락](docs/development/README.md)과 [대화·작업 기록](docs/development/discussion-log.md)의 해당 부분을 읽어요. 공통 운영 규칙은 계속 `TEAM_WORKFLOW.md`를 기준으로 삼아요.
 
-김동조님은 완료한 작업을 작업 단위로 커밋하도록 상시 요청했어요. 이 요청에 따라 `dj/agent`에서 작업별로 커밋하며, push는 별도 명시 요청이 있을 때만 해요.
+김동조님은 완료한 작업을 작업 단위로 커밋하도록 상시 요청했어요. 이번 문서 갱신은 각 브랜치에서 작업 단위로 커밋하며, push는 별도 명시 요청이 있을 때만 해요.
 
 커밋 메시지는 작업 완료 후 사용자에게 출력하는 보고문 전체를 요약하거나 바꾸지 않고 그대로 기록해요. 이 최신 사용자 지시를 짧은 커밋 메시지 권장보다 우선해요.
 
@@ -43,4 +45,4 @@
 
 ## 이전 코드 참조
 
-재사용 전 [두 브랜치 읽기·경량화 가이드](docs/development/konnect-reuse-reading-guide.md)를 확인해요. `framework`는 경량 범용 기반으로 `framework_doc/` 분석·색인을 먼저, `konnect`는 이전 완성 기능으로 `study/` 분석·색인을 먼저 읽고 필요한 소스·테스트만 대조해요. Google 로그인·Supabase·다중 LLM 호출은 이번 서비스의 필수 전제로 삼지 않아요. 최신 사용자 지시·확정 요구에 맞춰 선택하고 아직 서비스 이식은 시작하지 않았어요.
+재사용 전 [두 브랜치 읽기·경량화 가이드](docs/development/konnect-reuse-reading-guide.md)를 확인해요. `framework`는 경량 범용 기반으로 `framework_doc/` 분석·색인을 먼저, `konnect`는 이전 완성 기능으로 `study/` 분석·색인을 먼저 읽고 필요한 소스·테스트만 대조해요. Google 로그인·Supabase·다중 LLM 호출은 이번 서비스의 필수 전제로 삼지 않아요. framework/KONNECT는 필요한 개선 아이디어를 선별 참조해요. 개선 에이전트의 develop 기반 선택 이식은 완료했으며 이전 프로젝트 전체를 이식한 것은 아니에요.

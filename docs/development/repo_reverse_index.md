@@ -54,6 +54,7 @@
 - **사진 지정 초기 설정 폼 복원·휴대폰 화면**: [backend/team_chat.js](../../backend/team_chat.js), [backend/team_culture.js](../../backend/team_culture.js), [utils/scripts/check_voice_navigation.cjs](../../utils/scripts/check_voice_navigation.cjs), [docs/development/qa-simple-settings](../../docs/development/qa-simple-settings)
 - **진행 점검·공유·충돌 통합**: [docs/development/release-checklist.md](../../docs/development/release-checklist.md)
 - **배포 키 환경변수·공공데이터·Naito**: [backend/deploy.env.example](../../backend/deploy.env.example), [backend/test_deployment_keys.py](../../backend/test_deployment_keys.py), [docs/development/deployment-keys.md](../../docs/development/deployment-keys.md)
+- **두 브랜치 현행 개발 문서·실행·이력 안내**: [docs/development/README.md](../../docs/development/README.md), [docs/development/team-backend-guide.md](../../docs/development/team-backend-guide.md), [docs/development/documentation-refresh-progress.md](../../docs/development/documentation-refresh-progress.md), [docs/development/tasks.md](../../docs/development/tasks.md), [docs/development/team-integration-checklist.md](../../docs/development/team-integration-checklist.md), [docs/development/development-context-20261031.md](../../docs/development/development-context-20261031.md), [docs/development/team-backend-guide-20261031.md](../../docs/development/team-backend-guide-20261031.md), [backend/README.md](../../backend/README.md), [utils/README.md](../../utils/README.md)
 
 ## 심볼 → 정의 파일
 

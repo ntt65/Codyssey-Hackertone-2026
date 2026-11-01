@@ -1,5 +1,7 @@
 # 오늘 나들이 · Lab678
 
+> **개발 브랜치 안내 · 2026-11-01:** 현재 브랜치 `dj/develop`:  깨끗한 develop에 엔진과 필수 화면 접점을 선택 이식한 검토본입니다. [최신 개발 문서](docs/development/README.md)에서 원본/이식본·실행·검증 범위를 확인하세요. [이슈67](https://github.com/Lab678-Hackathon/lab678/issues/67)과 [PR69](https://github.com/Lab678-Hackathon/lab678/pull/69)는 현재 이식본 중심입니다. 아래 기존 배포 주소가 이번 PR을 적용했다는 뜻은 아닙니다.
+
 > **"일상에 새로운 외출의 계기를."**  
 > 문화활동을 경험하고 싶지만 선택이 막막한 시니어가 AI와 대화하며 자신에게 맞는 나들이를 결정하도록 돕습니다.  
 > Codyssey AI 해커톤 2026 · 팀 Lab678 (손희영 · 정민규 · 김동조)
@@ -91,14 +93,14 @@ set -a; source .env; set +a
 | `LAB678_SEOUL_API_KEY` | 권장 | 서울시 문화행사 실시간 조회. 없으면 공개 샘플 5건만 조회돼요 |
 | `LAB678_KAKAO_REST_API_KEY` | 권장 | 출발지 장소 검색, 대중교통 경로 |
 | `LAB678_KAKAO_JAVASCRIPT_KEY` | 선택 | 카카오 지도 표시 (카카오 개발자 콘솔에 실행 주소 도메인 등록 필요). 없으면 OpenStreetMap 지도로 표시돼요 |
-| `LAB678_NAITO_API_KEY` | 선택 | AI 대화 해석. 없으면 프론트의 규칙 기반 해석으로 동작해요 |
+| `LAB678_NAITO_API_KEY` | v3 대화 필수 | 기본 v3 자연어 대화에 필요해요. 없으면 설정 오류를 안내하고 입력·대화를 유지해요 |
 | `LAB678_NAITO_PROVIDER` | 선택 | `codyssey`(기본, 해커톤 제공 주소) · `anthropic` · `openai` |
 | `LAB678_NAITO_MODEL` | 선택 | AI 모델 이름 (기본 `claude-sonnet-4`) |
 | `LAB678_TOUR_API_KEY` | 선택 | 한국관광공사 TourAPI 문화시설 조회 (보조 기능) |
 | `LAB678_ALLOWED_ORIGINS` | 배포 시 | 프론트 주소 CORS 허용 목록 (쉼표 구분) |
 | `LAB678_FILE_VOICE` | 배포 시 | `off`: 서버 음성 파일 기능 끄기 |
 
-키가 하나도 없어도 **기록 데이터 모드**(`?mode=recorded`, 10/31 저장 데이터)로 전체 흐름을 시험할 수 있어요.
+**기록 데이터 모드**(`?mode=recorded`, 10/31 저장 데이터)는 기존 추천/문화 자료의 일부를 재생해요. 기본 v3 자연어 대화에는 AI 설정이 필요하고 장소·경로·음성까지 키 없이 대체하지 않아요.
 
 ### 3. 실행
 
@@ -115,8 +117,8 @@ python3 frontend/dev_server.py
 브라우저에서 엽니다.
 
 - 실시간: http://127.0.0.1:5173
-- 키 없이 시험: http://127.0.0.1:5173/?mode=recorded#/chat?text
-  → "10월 31일 오후 2시부터 5시까지 전시 보고 싶어요" → 출발지 "QA 고정: 청량리역"
+- 기록 추천 자료 모드(자연어 AI·장소/경로의 무설정 시험이 아님): http://127.0.0.1:5173/?mode=recorded#/chat?text
+  → 이 자료의 10/31 방문 조건은 과거 예시예요. 현행 방문 가능성이나 v3 대화 성공의 근거로 사용하지 않아요.
 
 마이크는 `localhost`(또는 https)에서만 켜져요. Chrome을 권장해요.
 
