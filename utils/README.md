@@ -38,6 +38,12 @@ PDF는 번들 Python에서 `-X utf8 utils/scripts/read_pdf.py 입력.pdf --outpu
 
 ## 자동 갱신
 
+### 대화·추천 회귀 검증
+
+`node scripts/check_agent_dialogue.cjs`, `node scripts/check_agent_recommendation.cjs`, `node scripts/check_agent_regressions.cjs`는 실제 프론트 DOM에 모의 API/음성을 연결한다. 저장소 루트에서 실행할 때는 경로 앞에 `utils/`를 붙인다. 조건 보존, 보류 해제, 재추천, 취소·늦은 응답을 검사한다.
+
+`node scripts/check_agent_http.cjs`는 별도 origin의 브라우저에서 실제 로컬 Python HTTP 서버로 요청하고 CORS·조건 검증·장소 선택·추천 필터를 함께 검사한다. 이 도구가 `agent_http_fixture.py`를 자식 프로세스로 실행·정리하며, 외부 AI/카카오/문화 데이터 공급자만 고정하고 실제 환경 파일은 읽지 않는다. 실행에는 Node·Python과 Playwright/Chromium이 필요하다. 설치 위치가 별도이면 `PLAYWRIGHT_MODULE`, `CHROMIUM_PATH`, `PYTHON`으로 지정한다. 실제 외부 API·실기기·배포 검증을 대신하지 않는다.
+
 ```powershell
 python utils/scripts/watch.py
 ```
