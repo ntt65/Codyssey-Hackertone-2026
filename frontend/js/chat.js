@@ -270,8 +270,8 @@ function speak(text, then) {
       if (!then) return;
       // 폰은 읽기가 끝나기 전에 끝났다고 알려 주기도 해요. 정말 조용해질 때까지 기다렸다가 마이크를 켜요.
       const wait = (tries) => {
-        if (speechSynthesis.speaking && tries < 60) { setTimeout(() => wait(tries + 1), 250); return; }
-        setTimeout(then, 700);
+        if (speechSynthesis.speaking && tries < 60) { setTimeout(() => wait(tries + 1), 150); return; }
+        setTimeout(then, 300); // 까치 말이 끝나면 조금 더 빨리 마이크를 켜요 (예전 0.7초)
       };
       wait(0);
     };
@@ -770,9 +770,15 @@ export function renderChat(opts = {}) {
   else setSound(state.sound);
   const mode = opts.voice === true ? 'voice' : opts.voice === false ? 'text' : (state.mode || 'text');
   setMode(mode);
+  // 홈에서 '말로 대화 시작하기'로 다시 들어왔는데 아직 아무 말도 안 했으면, 인사부터 다시 해요 (예전엔 말없이 마이크만 켜졌어요)
+  if (opts.voice === true && !state.messages.some((m) => m.role === 'user')) { resetChat(); placeOptions = []; }
   const fresh = !state.messages.length;
   start();
-  if (mode === 'voice' && !fresh) setTimeout(() => listen(), 300); // 처음이면 인사를 다 읽은 뒤 자동으로 들어요
+  if (mode === 'voice' && !fresh) { // 이어서 하는 대화면 까치가 마지막 말을 다시 해 주고 들어요
+    const last = [...state.messages].reverse().find((m) => m.role === 'ai' && m.text);
+    if (opts.voice === true && last) speak(last.text, () => listen(true));
+    else setTimeout(() => listen(), 300);
+  }
   if (mode === 'text' && opts.voice === false) $('#chat-input').focus();
 }
 
