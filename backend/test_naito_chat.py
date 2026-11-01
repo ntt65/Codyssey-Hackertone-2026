@@ -31,7 +31,7 @@ class NaitoChatTests(unittest.TestCase):
 
     def test_provider_request_excludes_coordinates(self):
         """키는 헤더에만, 좌표는 제외하며 공식 고정 주소로 한 번 요청한다."""
-        body = {"content": [{"type": "text", "text": '{"category":"국악"}'}], "stop_reason": "end_turn"}
+        body = {"content": [{"type": "text", "text": json.dumps({"changes": {"category": "국악"}, "evidence": {"category": "국악"}}, ensure_ascii=False)}], "stop_reason": "end_turn"}
         draft = dict(date="2026-10-31", start_location=dict(label="청량리역", lat=37.5805961, lng=127.0482573))
         with patch("naito_chat.urlopen", return_value=io.BytesIO(json.dumps(body).encode())) as call:
             self.assertEqual(extract_conditions("국악", draft, [], "secret-test", "claude-sonnet-4"), {"category": "국악"})
@@ -88,6 +88,7 @@ class NaitoChatTests(unittest.TestCase):
 
 
 class EndpointTest(unittest.TestCase):
+    """공급자별 요청 형식과 모의 응답의 공통 검증 경계를 확인한다."""
     def test_provider_switch(self):
         """설정한 제공자 주소로만 호출하고, 모르는 값이면 해커톤 주소. 키 모양으로 추측하지 않는다."""
         import naito_chat
@@ -103,7 +104,8 @@ class EndpointTest(unittest.TestCase):
     def test_openai_request_and_response(self):
         """OpenAI 형식: Bearer 키, system+user 메시지, JSON 응답을 꺼내요."""
         import io, json as _json, naito_chat
-        body = {"choices": [{"finish_reason": "stop", "message": {"content": "{\"category\": \"전시\"}"}}]}
+        content = _json.dumps({"changes": {"category": "전시"}, "evidence": {"category": "전시"}}, ensure_ascii=False)
+        body = {"choices": [{"finish_reason": "stop", "message": {"content": content}}]}
         with patch.dict("os.environ", {"LAB678_NAITO_PROVIDER": "openai"}), \
              patch("naito_chat.urlopen", return_value=io.BytesIO(_json.dumps(body).encode())) as net:
             out = naito_chat.extract_conditions("전시 보고 싶어요", {}, [], "sk-test", "gpt-test")
@@ -113,3 +115,46 @@ class EndpointTest(unittest.TestCase):
         self.assertEqual(req.get_header("Authorization"), "Bearer sk-test")
         sent = _json.loads(req.data)
         self.assertEqual([m["role"] for m in sent["messages"]], ["system", "user"])
+
+    def test_providers_reject_unspoken_place_and_preserve_valid_category(self):
+        """세 공급자에서 발화에 없는 출발지 후보만 보류하고 명확한 분류는 유지한다."""
+        import naito_chat
+        model_payload = {"changes": {"category": "전시", "start_query": "강남역"},
+                         "evidence": {"category": "전시", "start_query": "전시"}}
+        model_content = json.dumps(model_payload, ensure_ascii=False)
+        for selected in ("codyssey", "anthropic", "openai"):
+            if selected == "openai":
+                response = {"choices": [{"finish_reason": "stop", "message": {"content": model_content}}]}
+            else:
+                response = {"content": [{"type": "text", "text": model_content}], "stop_reason": "end_turn"}
+            with self.subTest(provider=selected), \
+                    patch.dict("os.environ", {"LAB678_NAITO_PROVIDER": selected}), \
+                    patch("naito_chat.settings", return_value=("secret", "mock-model")), \
+                    patch("naito_chat.urlopen", return_value=io.BytesIO(json.dumps(response).encode())) as network:
+                status, result = naito_chat.chat(dict(message="전시 보고 싶어요", condition_draft={}, revision=0))
+            self.assertEqual(status, 200)
+            self.assertEqual(result["updated_condition_draft"]["category"], "전시")
+            self.assertNotIn("start_query", result["updated_condition_draft"])
+            self.assertFalse(result["ready_to_search"])
+            self.assertEqual(result["interpretation_status"], "needs_clarification")
+            self.assertEqual(network.call_count, 1)
+
+    def test_invalid_envelope_and_truncated_replies_do_not_apply(self):
+        """공급자의 손상·절단 응답은 보류 성공으로 가장하지 않고 오류를 반환한다."""
+        import naito_chat
+        responses = [
+            {"content": [{"type": "text", "text": '{"category":"국악"}'}], "stop_reason": "end_turn"},
+            {"content": [{"type": "text", "text": '{"changes":{},"evidence":{}}'}], "stop_reason": "max_tokens"},
+            {"choices": [{"finish_reason": "length", "message": {"content": '{"changes":{},"evidence":{}}'}}]},
+            {"choices": [{"finish_reason": "content_filter", "message": {"content": '{"changes":{},"evidence":{}}'}}]},
+            {"choices": [{"finish_reason": "stop", "message": {"content": '{"changes":{},"evidence":{}}', "refusal": "refused"}}]},
+        ]
+        for selected, response in zip(("codyssey", "anthropic", "openai", "openai", "openai"), responses):
+            with self.subTest(provider=selected), \
+                    patch.dict("os.environ", {"LAB678_NAITO_PROVIDER": selected}), \
+                    patch("naito_chat.settings", return_value=("secret", "mock-model")), \
+                    patch("naito_chat.urlopen", return_value=io.BytesIO(json.dumps(response).encode())):
+                status, result = naito_chat.chat(dict(message="국악", condition_draft={}, revision=0))
+            self.assertEqual(status, 502)
+            self.assertEqual(result["code"], "ai_invalid_response")
+            self.assertNotIn("updated_condition_draft", result)

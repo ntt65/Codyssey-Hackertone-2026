@@ -78,6 +78,9 @@
     ],
     "Naito 채팅·모델 설정·HTTP 검증": [
       "backend/naito_chat.py",
+      "backend/chat_prompt.py",
+      "backend/chat_grounding.py",
+      "backend/test_chat_grounding.py",
       "backend/test_naito_chat.py",
       "utils/scripts/check_chat_api.py",
       "utils/scripts/check_chat_live.py",
