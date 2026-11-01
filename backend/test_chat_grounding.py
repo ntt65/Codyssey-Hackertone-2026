@@ -123,6 +123,83 @@ class GroundingTests(unittest.TestCase):
             with self.subTest(payload=payload), self.assertRaises(ValueError):
                 ground_payload(payload, "1", {}, [], datetime(2026, 11, 1, tzinfo=KST))
 
+    def test_departure_and_destination_are_distinct(self):
+        """목적지와 출발지를 혼동하지 않고 짧은 출발지 답도 수용한다."""
+        message = "서울역에서 출발해 시청에 가고 싶어요"
+        self.assertEqual(self.check(message, {"start_query": "시청"}, {"start_query": "시청"}), {})
+        self.assertEqual(self.check(message, {"start_query": "서울역"}, {"start_query": "서울역"}),
+                         {"start_query": "서울역"})
+        self.assertEqual(self.check("시청에 가고 싶어요", {"start_query": "시청"}, {"start_query": "시청"}), {})
+        self.assertEqual(self.check("시청이요", {"start_query": "시청"}, {"start_query": "시청"}), {})
+        self.assertEqual(self.check("시청이요", {"start_query": "시청"}, {"start_query": "시청"},
+                                    history=[{"role": "assistant", "content": "어디에서 출발하세요?"}]),
+                         {"start_query": "시청"})
+        self.assertEqual(self.check("시청이요", {"start_query": "시청"}, {"start_query": "시청"},
+                                    history=[{"role": "assistant", "content": "어디로 가고 싶으세요?"}]), {})
+
+    def test_free_preference_requires_matching_intent(self):
+        """무료 조건을 반대로 바꾸지 않고 명확한 해제를 처리한다."""
+        for value, accepted in [(True, True), (False, False)]:
+            result = self.check("무료만 보여줘", {"free_only": value}, {"free_only": "무료만"})
+            self.assertEqual(bool(result), accepted)
+        result = self.check("무료 전시 보고 싶어요", {"free_only": True}, {"free_only": "무료 전시"})
+        self.assertEqual(result, {"free_only": True})
+        result = self.check("무료 전시는 말고 유료 전시도 괜찮아요", {"free_only": True},
+                            {"free_only": "무료 전시는 말고"})
+        self.assertEqual(result, {})
+        result = self.check("유료도 괜찮아요", {"free_only": False}, {"free_only": "유료도 괜찮아요"},
+                            {"free_only": True})
+        self.assertEqual(result, {"free_only": False})
+        result = self.check("무료만 아니고 유료도 괜찮아요", {"free_only": True},
+                            {"free_only": "무료만 아니고 유료도 괜찮아요"})
+        self.assertEqual(result, {})
+        result = self.check("상관없어요", {"free_only": False}, {"free_only": "상관없어요"},
+                            {"free_only": True}, [{"role": "assistant", "content": "무료만 볼까요, 유료도 괜찮으세요?"}])
+        self.assertEqual(result, {"free_only": False})
+
+    def test_admission_budget_amount_and_scope(self):
+        """관람료와 명시된 원화 금액이 일치해야 예산을 변경한다."""
+        for value, accepted in [(10000, True), (100000, False)]:
+            result = self.check("관람료 만원 이내", {"budget_krw": value}, {"budget_krw": "만원"})
+            self.assertEqual(bool(result), accepted)
+        result = self.check("입장료 10,000원 이내", {"budget_krw": 10000}, {"budget_krw": "10,000원"})
+        self.assertEqual(result, {"budget_krw": 10000})
+        result = self.check("총 예산 만원", {"budget_krw": 10000}, {"budget_krw": "만원"})
+        self.assertEqual(result, {})
+        result = self.check("관람료 제한 없어요", {"budget_krw": "any"}, {"budget_krw": "제한 없어요"})
+        self.assertEqual(result, {"budget_krw": "any"})
+        result = self.check("관람료 1만원에서 2만원 사이", {"budget_krw": 20000}, {"budget_krw": "2만원"})
+        self.assertEqual(result, {})
+
+    def test_required_conditions_not_silently_removed(self):
+        """기존 필수조건을 보존하고 명시된 조건만 해제한다."""
+        draft = {"unsupported_requirements": ["계단 없음"]}
+        result = self.check("실내만 꼭 원해요", {"unsupported_requirements": []},
+                            {"unsupported_requirements": "실내만"}, draft)
+        self.assertEqual(result, {})
+        result = self.check("실내만 꼭 원해요", {"unsupported_requirements": ["계단 없음", "실내만"]},
+                            {"unsupported_requirements": "실내만"}, draft)
+        self.assertEqual(result, {"unsupported_requirements": ["계단 없음", "실내만"]})
+        result = self.check("계단 없음 조건 빼줘", {"unsupported_requirements": []},
+                            {"unsupported_requirements": "계단 없음 조건 빼줘"}, draft)
+        self.assertEqual(result, {"unsupported_requirements": []})
+        result = self.check("계단 없음은 지키고 실내만 조건 빼줘", {"unsupported_requirements": []},
+                            {"unsupported_requirements": "실내만 조건 빼줘"}, draft)
+        self.assertEqual(result, {})
+        result = self.check("실내만 싫어요", {"unsupported_requirements": ["실내만"]},
+                            {"unsupported_requirements": "실내만 싫어요"})
+        self.assertEqual(result, {})
+
+    def test_night_twelve_does_not_become_noon(self):
+        """밤 12시의 날짜 경계는 낮 12시로 자동 확정하지 않는다."""
+        result = self.check("내일 밤 12시에 출발", {"start_at": "2026-11-02T12:00:00+09:00"},
+                            {"start_at": "밤 12시"})
+        self.assertEqual(result, {})
+        self.assertEqual(result.blocked_fields, ("start_at",))
+        result = self.check("내일 낮 12시에 출발", {"start_at": "2026-11-02T12:00:00+09:00"},
+                            {"start_at": "낮 12시"})
+        self.assertEqual(result, {"start_at": "2026-11-02T12:00:00+09:00"})
+
 
 if __name__ == "__main__":
     unittest.main()

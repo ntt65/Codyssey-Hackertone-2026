@@ -86,6 +86,20 @@ class NaitoChatTests(unittest.TestCase):
         self.assertEqual(result["interpretation_status"], "no_supported_change")
         self.assertFalse(result["ready_to_search"])
 
+    def test_provider_reply_cannot_clear_required_condition(self):
+        """모의 공급자의 필수 조건 무단 삭제는 보류하고 기존 초안을 보존한다."""
+        payload = {"changes": {"unsupported_requirements": []}, "evidence": {"unsupported_requirements": "실내만"}}
+        body = {"content": [{"type": "text", "text": json.dumps(payload, ensure_ascii=False)}], "stop_reason": "end_turn"}
+        data = dict(message="실내만 꼭 원해요", condition_draft={"unsupported_requirements": ["계단 없음"]}, revision=1)
+        with patch("naito_chat.settings", return_value=("secret-test", "mock-model")), \
+                patch.dict("os.environ", {"LAB678_NAITO_PROVIDER": "codyssey"}), \
+                patch("naito_chat.urlopen", return_value=io.BytesIO(json.dumps(body).encode())):
+            status, result = chat(data)
+        self.assertEqual(status, 200)
+        self.assertEqual(result["updated_condition_draft"]["unsupported_requirements"], ["계단 없음"])
+        self.assertEqual(result["interpretation_status"], "needs_clarification")
+        self.assertFalse(result["ready_to_search"])
+
 
 class EndpointTest(unittest.TestCase):
     """공급자별 요청 형식과 모의 응답의 공통 검증 경계를 확인한다."""

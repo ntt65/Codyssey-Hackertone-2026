@@ -92,6 +92,10 @@ def _clock_values(text):
         if minute > 59 or hour > 23 or (period and hour > 12):
             values.append((match, None))
             continue
+        # 밤 12시는 자정/날짜 경계가 불명확하다. 낮 12시로 환산하지 않는다.
+        if hour == 12 and period in ("밤", "저녁"):
+            values.append((match, None))
+            continue
         if period in ("오후", "저녁", "밤", "낮"):
             hour = hour % 12 + 12
         elif period in ("오전", "아침", "새벽"):
@@ -184,6 +188,97 @@ def _category_matches(value, message, draft):
     return True
 
 
+def _origin_matches(value, quote, message, history):
+    """명시적 출발 표현이나 직전 출발지 질문과 지명을 대조한다."""
+    name = re.sub(r"\s+", "", value).casefold()
+    quoted = re.sub(r"\s+", "", quote).casefold()
+    text = re.sub(r"\s+", "", message).casefold()
+    if name not in quoted:
+        return False
+    escaped = re.escape(name)
+    # 장소가 가고 싶은 목적지로 명시된 경우, 다른 곳의 출발 표현으로 인정하지 않는다.
+    if re.search(escaped + r"(?:에|으로|로|까지)(?:가고|가려|가자|갈|가요|방문|보고|가겠)", text):
+        return False
+    if "출발" in text:
+        return bool(re.search(escaped + r"(?:에서|부터)?출발|출발(?:지는|지|은|장소는|점은)?" + escaped, text))
+    # 질문이 없는 단답 지명은 목적지일 수도 있으므로 출발지로 확정하지 않는다.
+    question = history[-1].get("content", "") if history and history[-1].get("role") == "assistant" else ""
+    return bool(re.search(r"출발(?:지|할|하|은|이|은|지를|할\s*곳)?", question))
+
+
+def _free_matches(value, message, draft, history):
+    """명시된 무료 조건과 해제만 인정하며 질문 맥락 없는 반대 값은 막는다."""
+    text = re.sub(r"\s+", "", message)
+    if value:
+        if re.search(r"무료(?:인)?(?:전시|공연|행사|체험|축제|관람)?(?:만|로)?(?:는|은|을|를)?(?:아니|말고|싫|불가|안돼|안됨|해제|원하지않)", text):
+            return False
+        return bool(re.search(r"무료(?:만|로만|로|인것만|만요|요|(?:인)?(?:전시|공연|행사|체험|축제|관람))|돈(?:은|이)?안(?:드는|들|내는)", text))
+    if re.search(r"유료(?:도|라도)(?:괜찮|좋|돼|가능)|무료(?:만)?(?:는|은)?(?:아니|말고|해제)|무료제한(?:없|해제)", text):
+        return True
+    question = history[-1].get("content", "") if history and history[-1].get("role") == "assistant" else ""
+    return bool(re.search(r"무료|유료", question) and re.fullmatch(r"(?:상관없(?:어요|어|습니다)?|아무거나(?:요)?)[.!?]?", text))
+
+
+def _price_amount(quote):
+    """근거의 단일 원화 금액만 읽는다. 복합 표현은 추측하지 않는다."""
+    text = re.sub(r"\s+", "", quote)
+    matches = list(re.finditer(r"(?<![\d,.만천백십일이삼사오육칠팔구])([\d,]+|일|이|삼|사|오|육|칠|팔|구)?(만|천)?원", text))
+    if len(matches) != 1:
+        return None
+    match = matches[0]
+    amount, unit = match.group(1), match.group(2)
+    if not amount and not unit:
+        return None
+    if amount is None:
+        number = 1
+    elif amount in "일이삼사오육칠팔구":
+        number = "일이삼사오육칠팔구".index(amount) + 1
+    else:
+        try:
+            number = int(amount.replace(",", ""))
+        except ValueError:
+            return None
+    return number * {None: 1, "천": 1000, "만": 10000}[unit]
+
+
+def _budget_matches(value, quote, message, history):
+    """관람료 금액·제한 해제를 확인할 수 있을 때만 예산을 적용한다."""
+    question = history[-1].get("content", "") if history and history[-1].get("role") == "assistant" else ""
+    # 총 외출 비용은 관람료 상한과 다르다.
+    if re.search(r"총\s*(?:비용|예산)|교통비|식비", message):
+        return False
+    if not re.search(r"관람료|입장료|입장권|티켓|표값|관람\s*예산", message + question):
+        return False
+    if value == "any":
+        return bool(re.search(r"제한\s*(?:없|해제)|상관\s*없|얼마든|예산\s*(?:없|해제)", message))
+    return _price_amount(quote) == value and _price_amount(message) == value
+
+
+def _requirements_match(value, message, draft):
+    """필수 조건의 임의 삭제와 발화에 없는 신규 제약을 차단한다."""
+    previous = draft.get("unsupported_requirements")
+    if not isinstance(previous, list):
+        previous = []
+    compact = re.sub(r"\s+", "", message).casefold()
+    def present(term):
+        """띄어쓰기를 제외한 조건 원문이 발화에 있는지 확인한다."""
+        return re.sub(r"\s+", "", term).casefold() in compact
+    removed = [term for term in previous if term not in value]
+    def explicitly_removed(term):
+        """제거할 각 항목에 해제 표현이 직접 연결된 경우만 인정한다."""
+        escaped = re.escape(re.sub(r"\s+", "", term).casefold())
+        return bool(re.search(escaped + r"(?:조건|제약)?(?:은|는|을|를)?(?:빼|제외|해제|없애|지워|필수아니|필요없)", compact))
+    if removed and not all(explicitly_removed(term) for term in removed):
+        return False
+    for term in value:
+        if term in previous:
+            continue
+        escaped = re.escape(re.sub(r"\s+", "", term).casefold())
+        if not present(term) or re.search(escaped + r"(?:은|는|을|를)?(?:말고|아니|싫|빼|제외)", compact):
+            return False
+    return True
+
+
 def ground_payload(payload, message, draft, history, now=None):
     """원문 근거·형식·검증 가능한 시각을 검사하고 차단된 필드를 분리한다.
 
@@ -216,7 +311,13 @@ def ground_payload(payload, message, draft, history, now=None):
         if valid and field in {"start_at", "end_at"}:
             valid = _time_matches(field, value, message, quote, draft, history, now)
         if valid and field == "start_query":
-            valid = re.sub(r"\s+", "", value).casefold() in re.sub(r"\s+", "", quote).casefold()
+            valid = _origin_matches(value, quote, message, history)
+        if valid and field == "free_only":
+            valid = _free_matches(value, message, draft, history)
+        if valid and field == "budget_krw":
+            valid = _budget_matches(value, quote, message, history)
+        if valid and field == "unsupported_requirements":
+            valid = _requirements_match(value, message, draft)
         if valid and field in {"keywords", "exclude_terms"}:
             previous = draft.get(field) if isinstance(draft.get(field), list) else []
             valid = all(term in previous or re.sub(r"\s+", "", term).casefold() in compact for term in value)
