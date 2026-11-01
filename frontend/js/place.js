@@ -4,7 +4,7 @@
  * 도보 시간은 경로 계산이 성공했을 때만 보여요 (직선 거리를 걷는 시간처럼 쓰지 않아요).
  */
 import { state, candidateById } from './state.js';
-import { walkRoute, transitRoute, mapConfig } from './api.js';
+import { walkRoute, transitRoute, mapConfig, eventContact } from './api.js';
 import { isSignedIn, isSaved, savePlace, startDemo, savedPlaces } from './saved.js';
 import { $, el, photo, formatDate, formatTime, checkedAt, isDebug, speakKo, talkFor } from './util.js';
 
@@ -77,13 +77,22 @@ export function renderPlace(id) {
     a.rel = 'noopener';
     contact.append(a);
   }
-  // 서울시 문화행사 데이터에는 장소 전화번호가 없어요. 지어내지 않고 서울시 문화행사 문의(120 다산콜)로 안내해요.
+  // 문의 전화: 공식 상세 페이지의 '문의' 번호를 서버가 읽어 와요. 못 찾으면 이 줄은 안 보여요 (번호를 지어내지 않아요).
+  const tel = el('span', 'contact__tel');
   const call = el('a', 'call-btn');
-  call.href = 'tel:120';
-  call.setAttribute('aria-label', '서울시 문의 120에 전화하기');
+  call.hidden = true;
   call.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>전화하기';
-  contact.append(el('span', 'contact__tel', '문의 120 (서울 다산콜)'), call);
+  contact.append(tel, call);
   box.append(contact);
+  if (c.official_url) {
+    eventContact(c.official_url).then((phones) => {
+      if (!phones.length || !call.isConnected) return;
+      tel.textContent = `문의 ${phones.join(' · ')}`;
+      call.href = `tel:${phones[0].replace(/-/g, '')}`;
+      call.setAttribute('aria-label', `${phones[0]}에 전화하기`);
+      call.hidden = false;
+    });
+  }
   if (c.source_checked_at) box.append(el('p', 'caption muted', `서울시 문화행사 정보 · ${checkedAt(c.source_checked_at)}`));
 
   $('#s04-map').dataset.go = `/map/${encodeURIComponent(c.id)}`;
