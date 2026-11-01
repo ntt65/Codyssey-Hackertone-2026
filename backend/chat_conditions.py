@@ -137,10 +137,8 @@ def apply_interpretation(draft, proposal, confirmed_fields, base_revision, curre
             continue
         if field == "start_query" and draft.get("start_location"):
             before = draft["start_location"]
-            # 좌표가 있는 출발지는 항상 다시 검색·선택하도록 동의를 받는다.
+            # 이름만으로 장소의 동일성을 판단하지 않는다. 같은 이름도 재검색·선택한다.
             protected = True
-            if isinstance(before, dict) and before.get("label") == value:
-                continue
         if before == value:
             continue
         if before is not None and protected:

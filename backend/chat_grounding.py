@@ -27,6 +27,45 @@ _START = re.compile(r"출발(?!지)|시작|부터")
 _END = re.compile(r"마치|종료|끝|돌아|귀가|까지")
 _CATEGORY_WORDS = {"전시": ("전시",), "국악": ("국악", "꾹악"), "클래식": ("클래식", "클레식", "클라식"),
                    "콘서트": ("콘서트", "콘써트"), "연극": ("연극",)}
+_PARTICLES = r"(?:(?:으로|에서|부터|까지|은|는|이|가|을|를|도|만|로))*"
+_REJECTION = (r"(?:아니|아닌|아닙|아냐|말고|싫|별로|불가|(?:이)?면안|안(?:돼|되|됨|보|듣|가|하|원|좋|싫|나쁘)|못|"
+              r"원하지|(?:보|듣|가|하|추천하|찾아주|보여주)지(?:않|마|말)|"
+              r"(?:좋|괜찮|선호하)지(?:않|못)|(?:보고|듣고|가고|하고)싶지(?:않|마|말)|"
+              r"(?:보|듣|가|하)면안)")
+_REMOVAL_PROHIBITED = (r"(?:빼지|제외하지|해제하지|없애지|지우지|삭제하지|지워주지|빼주지|필요없지|"
+                      r"빼면안|빼서는안|제외하면안|제외해서는안|제외해선안|해제하면안|삭제하면안)")
+
+
+def _compact(text):
+    """근거 비교에만 쓸 공백 없는 문자열을 만든다. 원문과 저장 상태는 바꾸지 않는다."""
+    return re.sub(r"\s+", "", text).casefold()
+
+
+def _term_rejected(term, message):
+    """해당 항목 바로 뒤의 부정만 검사한다. 다른 절의 거절을 이 항목에 붙이지 않는다."""
+    suffix = (_PARTICLES + r"(?:인)?(?:전시|공연|행사|체험|축제|관람|활동|것|곳)?"
+              + _PARTICLES + _REJECTION)
+    return bool(re.search(re.escape(_compact(term)) + suffix, _compact(message)))
+
+
+def _explicit_removal(term, message):
+    """관심어 등 긍정 조건의 항목별 해제만 인정하고 해제하지 말라는 요청은 거절한다."""
+    prefix = re.escape(_compact(term)) + r"(?:조건|제약|관심어|키워드)?" + _PARTICLES
+    text = _compact(message)
+    if re.search(prefix + _REMOVAL_PROHIBITED, text):
+        return False
+    return bool(re.search(prefix + r"(?:빼|제외|해제|없애|지워|삭제|말고|필수아니|필요없|관심없)", text))
+
+
+def _no_preference(message, history, topic):
+    """해당 선호를 직접 해제하거나 직전 해당 질문에 무관하다고 답한 경우만 인정한다."""
+    text = _compact(message)
+    clear = r"상관없|아무거나|제한없|제한해제|선호없|선호해제|구분없|다좋|모두좋|둘다좋"
+    if re.search(topic, text) and re.search(clear, text) and not re.search(r"없지|해제하지|좋지", text):
+        return True
+    question = history[-1].get("content", "") if history and history[-1].get("role") == "assistant" else ""
+    return bool(re.search(topic, _compact(question)) and re.fullmatch(
+        r"(?:상관없(?:어요|어|습니다)?|아무거나(?:요)?|다좋아요|둘다좋아요)[.!?]?", text))
 
 
 class GroundedProposal(dict):
@@ -182,8 +221,15 @@ def _category_matches(value, message, draft):
     proposed = value if isinstance(value, list) else [value]
     spoken = {category for category, words in _CATEGORY_WORDS.items() if any(word in message for word in words)}
     for category in proposed:
+        music_rejected = _term_rejected("음악", message) or _explicit_removal("음악", message)
+        if category in {"국악", "클래식", "콘서트"} and music_rejected:
+            return False
+        if category == "전체" and (music_rejected or any(
+                _term_rejected(word, message) or _explicit_removal(word, message)
+                for words in _CATEGORY_WORDS.values() for word in words)):
+            return False
         for word in _CATEGORY_WORDS.get(category, ()):
-            if re.search(re.escape(word) + r"\s*(?:은|는|이|가|을|를)?\s*(?:말고|아니|싫|빼|제외)", message):
+            if _term_rejected(word, message) or _explicit_removal(word, message):
                 return False
     previous = draft.get("categories", [draft.get("category")])
     if not isinstance(previous, list):
@@ -205,7 +251,10 @@ def _origin_matches(value, quote, message, history):
     # 장소가 가고 싶은 목적지로 명시된 경우, 다른 곳의 출발 표현으로 인정하지 않는다.
     if re.search(escaped + r"(?:에|으로|로|까지)(?:가고|가려|가자|갈|가요|방문|보고|가겠)", text):
         return False
-    if re.search(escaped + r"(?:에서|부터)?출발(?:은|는|이|가|을|를)?(?:하지|안|못|아니|싫|불가|말고)", text):
+    if _term_rejected(value, message):
+        return False
+    if re.search(escaped + _PARTICLES + r"출발" + _PARTICLES
+                 + r"(?:하지|안|못|아니|아닌|아닙|싫|불가|말고|하면안|해선안|해서는안)", text):
         return False
     if "출발" in text:
         return bool(re.search(escaped + r"(?:에서|부터)?출발|출발(?:지는|지|은|장소는|점은)?" + escaped, text))
@@ -217,15 +266,23 @@ def _origin_matches(value, quote, message, history):
 def _free_matches(value, message, draft, history):
     """명시된 무료 조건과 해제만 인정하며 질문 맥락 없는 반대 값은 막는다."""
     text = re.sub(r"\s+", "", message)
+    if re.search(r"(?:아니|아닌|아닙).*(?:아니|아닌|아닙)", text):
+        return False
     if value:
-        if re.search(r"무료(?:인)?(?:전시|공연|행사|체험|축제|관람)?(?:만|로)?(?:는|은|을|를)?(?:아니|말고|싫|불가|안돼|안됨|해제|원하지않)", text):
+        if _term_rejected("무료", message):
+            return False
+        if re.search(r"무료(?:만|로만|로)?(?:는|은|을|를)?(?:해제|제한해제|제한없)", text):
             return False
         if re.search(r"무료(?:인)?(?:전시|공연|행사|체험|축제|관람)?(?:만|로)?(?:는|은|을|를)?(?:보여주|추천하|찾아주|보고싶)지(?:마|말|않)", text):
+            return False
+        if re.search(r"유료(?:도|라도)(?:괜찮|좋|돼|가능)(?!지않|지못|은아니)", text):
             return False
         return bool(re.search(r"무료(?:만|로만|로|인것만|만요|요|(?:인)?(?:전시|공연|행사|체험|축제|관람))|돈(?:은|이)?안(?:드는|들|내는)", text))
     if re.search(r"유료(?:도|라도)(?:괜찮|좋|돼|가능)(?:지않|지못|은아니)", text):
         return False
-    if re.search(r"유료(?:도|라도)(?:괜찮|좋|돼|가능)|무료(?:만)?(?:는|은)?(?:아니|말고|해제)|무료제한(?:없|해제)", text):
+    if re.search(r"무료(?:만|로만)(?:보여|찾아|추천|원해)", text):
+        return False
+    if re.search(r"유료(?:도|라도)(?:괜찮|좋|돼|가능)|무료(?:만)?(?:는|은)?(?:아니|아닌|아닙|말고|해제)|무료제한(?:없|해제)", text):
         return True
     question = history[-1].get("content", "") if history and history[-1].get("role") == "assistant" else ""
     return bool(re.search(r"무료|유료", question) and re.fullmatch(r"(?:상관없(?:어요|어|습니다)?|아무거나(?:요)?)[.!?]?", text))
@@ -274,15 +331,82 @@ def _exclusions_match(value, message, draft):
     previous = draft.get("exclude_terms")
     if not isinstance(previous, list):
         previous = []
-    compact = re.sub(r"\s+", "", message).casefold()
+    compact = _compact(message)
+    def released(term):
+        """제외의 해제와 해제하지 말라는 발화를 구분한다."""
+        prefix = re.escape(_compact(term)) + _PARTICLES
+        if re.search(prefix + r"제외(?:를|을|조건)?(?:해제하지|해제하면안)", compact):
+            return False
+        return bool(re.search(prefix + r"(?:제외(?:를|을|조건)?해제|제외하지(?:마|말|않)|빼지(?:마|말|않)|"
+                              r"빼면안|빼서는안|제외하면안|제외해서는안|다시포함)", compact))
     for term in previous:
         if term in value:
             continue
-        escaped = re.escape(re.sub(r"\s+", "", term).casefold())
-        # 빼기/제외 자체는 제외 추가이므로 해제라는 표현과 구분한다.
-        if not re.search(escaped + r"(?:은|는|을|를)?(?:제외(?:를|을|조건)?해제|제외하지(?:마|말|않)|빼지(?:마|말|않)|다시포함)", compact):
+        if not released(term):
             return False
-    return all(term in previous or re.sub(r"\s+", "", term).casefold() in compact for term in value)
+    for term in value:
+        if released(term):
+            return False
+        if term not in previous:
+            prefix = re.escape(_compact(term)) + _PARTICLES
+            if not re.search(prefix + r"(?:빼|제외|피해|피하|싫|말고|안가|가지마)", compact):
+                return False
+    return True
+
+
+def _keywords_match(value, message, draft):
+    """관심어 추가에는 긍정 근거, 삭제에는 해당 항목 또는 관심어 전체의 명시 해제를 요구한다."""
+    previous = draft.get("keywords") if isinstance(draft.get("keywords"), list) else []
+    compact = _compact(message)
+    # 단순한 '전시 좋아'나 다른 조건의 해제는 기존 관심어를 삭제할 근거가 아니다.
+    clear = bool(re.search(r"(?:^|[.!?,])(?:이제)?(?:관심어|키워드)(?:조건|제한)?" + _PARTICLES
+                           + r"(?:모두|전부|전체)?(?:빼|지워|삭제|해제|없애)", compact))
+    if re.search(_REMOVAL_PROHIBITED, compact):
+        clear = False
+    if not value and not previous:
+        return clear
+    for term in previous:
+        if term not in value and not (clear or _explicit_removal(term, message)):
+            return False
+    for term in value:
+        if _term_rejected(term, message) or _explicit_removal(term, message) or clear:
+            return False
+        if term not in previous and _compact(term) not in compact:
+            return False
+    return True
+
+
+def _environment_matches(value, message, history):
+    """실내외 후보를 직접 언급·거절·선호 해제와 대조한다. 모호하면 확정하지 않는다."""
+    if value == "any":
+        return (_no_preference(message, history, r"실내|실외|야외")
+                and not any(_term_rejected(word, message) for word in ("실내", "실외", "야외")))
+    terms = {"indoor": ("실내",), "outdoor": ("실외", "야외")}
+    compact = _compact(message)
+    mentioned = {kind for kind, words in terms.items()
+                 if any(word in compact and not _term_rejected(word, message) for word in words)}
+    rejected = any(_term_rejected(word, message) for word in terms[value])
+    return mentioned == {value} and not rejected and not _no_preference(message, history, r"실내|실외|야외")
+
+
+def _request_kind_matches(value, message, history):
+    """한 곳과 코스 요청의 명시 수량·표현을 대조하고 반대·복합 요청은 보류한다."""
+    kind = "course" if value == "route" else value
+    terms = {"place": ("한곳", "1곳", "한군데", "1군데", "한장소", "행사하나", "한개"),
+             "course": ("코스", "두곳", "2곳", "두군데", "2군데", "여러곳", "여러장소", "동선", "루트")}
+    compact = _compact(message)
+    mentioned = {item for item, words in terms.items()
+                 if any(word in compact and not _term_rejected(word, message)
+                        and not _explicit_removal(word, message) for word in words)}
+    rejected = any(_term_rejected(word, message) or _explicit_removal(word, message) for word in terms[kind])
+    # 한 곳/두 곳을 직접 묻는 질문에는 짧은 수량 답도 허용한다.
+    question = history[-1].get("content", "") if history and history[-1].get("role") == "assistant" else ""
+    if not mentioned and re.search(r"한\s*곳|두\s*곳|코스", question):
+        if re.fullmatch(r"(?:하나|한개)(?:만|요|로)?[.!?]?", compact):
+            mentioned = {"place"}
+        elif re.fullmatch(r"(?:두개|둘)(?:만|요|로)?[.!?]?", compact):
+            mentioned = {"course"}
+    return mentioned == {kind} and not rejected
 
 
 def _requirements_match(value, message, draft):
@@ -356,10 +480,19 @@ def ground_payload(payload, message, draft, history, now=None):
         if valid and field == "exclude_terms":
             valid = _exclusions_match(value, message, draft)
         if valid and field == "keywords":
-            previous = draft.get(field) if isinstance(draft.get(field), list) else []
-            valid = all(term in previous or re.sub(r"\s+", "", term).casefold() in compact for term in value)
+            valid = _keywords_match(value, message, draft)
+            # 모델이 빈 기본값을 덧붙여도 무관한 조건까지 재질문하지 않는다.
+            # 해제로 검증되지 않은 무변경 값은 interpreted_fields에도 넣지 않는다.
+            if not valid and not value and not draft.get("keywords"):
+                continue
         if valid and field in {"category", "categories"}:
             valid = _category_matches(value, message, draft)
+        if valid and field == "music_followup" and value:
+            valid = "음악" in compact and not (_term_rejected("음악", message) or _explicit_removal("음악", message))
+        if valid and field == "indoor_outdoor":
+            valid = _environment_matches(value, message, history)
+        if valid and field == "request_kind":
+            valid = _request_kind_matches(value, message, history)
         if valid:
             accepted[field] = value
         else:

@@ -61,6 +61,20 @@ class ChatConditionTests(unittest.TestCase):
         self.assertIn("start_location", accepted["missing_fields"])
         self.assertIn("start_location", self.resolve(result, {"start_query": False})["updated_condition_draft"])
 
+    def test_same_name_origin_still_requires_place_reselection(self):
+        """시청처럼 같은 이름인 다른 장소도 재검색하며 동의 전에는 기존 좌표를 보존한다."""
+        self.draft["start_location"] = dict(label="시청", lat=37.5665, lng=126.9780)
+        original = deepcopy(self.draft)
+        result = self.apply({"start_query": "시청"}, ["start_location"])
+        self.assertEqual(result["conflicts"], [dict(field="start_query", before=original["start_location"], after="시청")])
+        self.assertFalse(result["ready_to_search"])
+        self.assertEqual(result["updated_condition_draft"], original)
+        accepted = self.resolve(result, {"start_query": True})
+        self.assertEqual(accepted["updated_condition_draft"]["start_query"], "시청")
+        self.assertNotIn("start_location", accepted["updated_condition_draft"])
+        self.assertEqual(self.resolve(result, {"start_query": False})["updated_condition_draft"], original)
+        self.assertEqual(self.draft, original)
+
     def test_stale_response_and_manual_edit(self):
         """AI 응답/동의 대기 중 직접 수정된 현재값은 보존한다."""
         self.assertEqual(self.apply({"category": "국악"}, current_revision=3)["status"], "stale")

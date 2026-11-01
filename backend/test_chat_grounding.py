@@ -248,6 +248,113 @@ class GroundingTests(unittest.TestCase):
                 self.assertEqual(self.check(message, {"unsupported_requirements": []},
                                             {"unsupported_requirements": message}, draft), {})
 
+    def test_free_inflected_negation_and_allowed_paid_options(self):
+        """무료의 활용형 부정과 유료 허용을 구분하고 정상 무료 요청은 유지한다."""
+        for message in ("무료만 아닌 유료도 괜찮아요", "무료만은 아닙니다", "무료만은 아니에요",
+                        "무료만 보여줘, 유료도 괜찮아요"):
+            with self.subTest(message=message):
+                self.assertEqual(self.check(message, {"free_only": True}, {"free_only": message}), {})
+        for message in ("무료만 아닌 유료도 괜찮아요", "유료도 괜찮아요", "무료 제한 해제해줘"):
+            with self.subTest(message=message):
+                self.assertEqual(self.check(message, {"free_only": False}, {"free_only": message}), {"free_only": False})
+        for message in ("무료만 보여줘", "무료 공연만 찾아줘", "돈 안 드는 전시"):
+            with self.subTest(message=message):
+                self.assertEqual(self.check(message, {"free_only": True}, {"free_only": message}), {"free_only": True})
+        for value in (True, False):
+            self.assertEqual(self.check("무료만은 아닌 게 아니에요", {"free_only": value},
+                                        {"free_only": "무료만은 아닌 게 아니에요"}), {})
+
+    def test_departure_prohibition_correction_and_short_answer(self):
+        """출발 금지의 활용형·짧은 부정 답변을 막고 정정된 출발지는 수용한다."""
+        history = [{"role": "assistant", "content": "어디에서 출발하세요?"}]
+        for message in ("서울역에서 출발하면 안 돼요", "서울역에서 출발해서는 안 돼요",
+                        "서울역에서는 출발 못해요", "서울역은 아니에요"):
+            with self.subTest(message=message):
+                self.assertEqual(self.check(message, {"start_query": "서울역"}, {"start_query": "서울역"}, history=history), {})
+        message = "서울역에서 출발하면 안 돼요. 시청에서 출발해요"
+        self.assertEqual(self.check(message, {"start_query": "시청"}, {"start_query": "시청"}), {"start_query": "시청"})
+        self.assertEqual(self.check("출발지는 시청으로 바꿔줘", {"start_query": "시청"}, {"start_query": "시청"}),
+                         {"start_query": "시청"})
+
+    def test_keywords_keep_unmentioned_preferences_and_explicit_clear(self):
+        """무관한 답변은 기존 관심어를 지우지 않고 개별 정정과 전체 해제는 허용한다."""
+        draft = {"keywords": ["미술", "사진"]}
+        for message in ("전시 좋아", "미술은 빼지 마", "미술을 빼면 안 돼", "관심어 전부 지우지 마", "관심어 전부 빼면 안 돼"):
+            with self.subTest(message=message):
+                self.assertEqual(self.check(message, {"keywords": []}, {"keywords": message}, draft), {})
+        self.assertEqual(self.check("전시 좋아", {"keywords": ["미술", "사진", "전시"]}, {"keywords": "전시"}, draft),
+                         {"keywords": ["미술", "사진", "전시"]})
+        for message in ("미술은 빼줘", "미술 말고 사진", "미술 키워드 삭제해줘"):
+            with self.subTest(message=message):
+                self.assertEqual(self.check(message, {"keywords": ["사진"]}, {"keywords": message}, draft), {"keywords": ["사진"]})
+        self.assertEqual(self.check("관심어 전부 지워줘", {"keywords": []}, {"keywords": "관심어 전부 지워줘"}, draft), {"keywords": []})
+        self.assertEqual(self.check("사진은 싫어요", {"keywords": ["사진"]}, {"keywords": "사진"}), {})
+        result = self.check("전시 좋아", {"category": "전시", "keywords": []},
+                            {"category": "전시", "keywords": "전시"})
+        self.assertEqual(result, {"category": "전시"})
+        self.assertEqual(result.blocked_fields, ())
+
+    def test_indoor_outdoor_opposites_corrections_and_release(self):
+        """반대 실내외 값과 의미 없는 해제는 막고 명시 선호·정정·해제를 수용한다."""
+        cases = [("실외가 좋아요", "outdoor"), ("야외 행사 원해요", "outdoor"),
+                 ("실내가 좋아요", "indoor"), ("실내 말고 실외", "outdoor"),
+                 ("야외는 싫고 실내로", "indoor"), ("실내는 안 좋아요, 실외로", "outdoor"),
+                 ("야외는 별로예요. 실내가 좋아요", "indoor"), ("실내는 좋지 않아요. 실외로", "outdoor"),
+                 ("실외는 안 원해요. 실내로", "indoor")]
+        for message, expected in cases:
+            for value in ("indoor", "outdoor", "any"):
+                with self.subTest(message=message, value=value):
+                    result = self.check(message, {"indoor_outdoor": value}, {"indoor_outdoor": message})
+                    self.assertEqual(result, {"indoor_outdoor": value} if value == expected else {})
+        self.assertEqual(self.check("실내외 상관없어요", {"indoor_outdoor": "any"}, {"indoor_outdoor": "실내외 상관없어요"}),
+                         {"indoor_outdoor": "any"})
+        self.assertEqual(self.check("상관없어요", {"indoor_outdoor": "any"}, {"indoor_outdoor": "상관없어요"},
+                                    history=[{"role": "assistant", "content": "실내와 야외 중 어디가 좋으세요?"}]), {"indoor_outdoor": "any"})
+        self.assertEqual(self.check("상관없어요", {"indoor_outdoor": "any"}, {"indoor_outdoor": "상관없어요"}), {})
+        for message in ("실내가 싫지는 않아요", "실내는 안 싫어요"):
+            self.assertEqual(self.check(message, {"indoor_outdoor": "indoor"}, {"indoor_outdoor": message}), {})
+        self.assertEqual(self.check("실내는 상관없지만 야외는 싫어요", {"indoor_outdoor": "any"},
+                                    {"indoor_outdoor": "실내는 상관없지만 야외는 싫어요"}), {})
+
+    def test_exclusion_addition_needs_exclusion_not_just_mention(self):
+        """제외 금지나 평범한 장소 언급으로 새 제외를 만들지 않는다."""
+        for message in ("시청은 빼지 말아줘", "시청을 제외하지 마", "시청이 좋아요", "시청 제외 해제해줘",
+                        "시청을 빼면 안 돼", "시청을 제외하면 안 돼"):
+            with self.subTest(message=message):
+                self.assertEqual(self.check(message, {"exclude_terms": ["시청"]}, {"exclude_terms": message}), {})
+        for message in ("시청은 빼줘", "시청 제외해줘", "시청 말고", "시청은 싫어요"):
+            with self.subTest(message=message):
+                self.assertEqual(self.check(message, {"exclude_terms": ["시청"]}, {"exclude_terms": message}), {"exclude_terms": ["시청"]})
+        draft = {"exclude_terms": ["시청"]}
+        self.assertEqual(self.check("시청은 제외 해제하지 마", {"exclude_terms": []}, {"exclude_terms": "시청은 제외 해제하지 마"}, draft), {})
+
+    def test_music_group_rejection_does_not_become_music_categories(self):
+        """음악 전체의 거절을 국악·클래식·콘서트 선호로 바꾸지 않는다."""
+        for message in ("음악은 싫어요", "음악 말고 전시", "음악은 듣고 싶지 않아요", "음악은 빼줘"):
+            for category in ("국악", "클래식", "콘서트", "전체"):
+                with self.subTest(message=message, category=category):
+                    self.assertEqual(self.check(message, {"categories": [category]}, {"categories": message}), {})
+        self.assertEqual(self.check("음악 말고 전시", {"category": "전시"}, {"category": "전시"}), {"category": "전시"})
+        self.assertEqual(self.check("클래식 말고 국악", {"category": "국악"}, {"category": "국악"}), {"category": "국악"})
+        self.assertEqual(self.check("음악 듣고 싶어요", {"categories": ["국악", "클래식", "콘서트"], "music_followup": True},
+                                    {"categories": "음악", "music_followup": "음악"}),
+                         {"categories": ["국악", "클래식", "콘서트"], "music_followup": True})
+        self.assertEqual(self.check("음악은 싫어요", {"music_followup": True}, {"music_followup": "음악"}), {})
+
+    def test_place_and_course_counts_cannot_be_inverted(self):
+        """한 곳과 코스를 뒤집지 않고 명확한 정정과 질문 뒤의 짧은 답변은 수용한다."""
+        cases = [("한 곳만", "place"), ("행사 하나 찾아줘", "place"),
+                 ("두 군데 코스", "course"), ("여러 곳 둘러볼래", "course"),
+                 ("코스 말고 한 곳", "place"), ("한 곳 말고 두 곳", "course")]
+        for message, expected in cases:
+            for value in ("place", "course", "route"):
+                with self.subTest(message=message, value=value):
+                    result = self.check(message, {"request_kind": value}, {"request_kind": message})
+                    self.assertEqual(result, {"request_kind": value} if ("course" if value == "route" else value) == expected else {})
+        self.assertEqual(self.check("하나요", {"request_kind": "place"}, {"request_kind": "하나요"},
+                                    history=[{"role": "assistant", "content": "한 곳을 찾을까요, 두 곳 코스가 좋으세요?"}]), {"request_kind": "place"})
+        self.assertEqual(self.check("하나요", {"request_kind": "place"}, {"request_kind": "하나요"}), {})
+
 
 if __name__ == "__main__":
     unittest.main()
