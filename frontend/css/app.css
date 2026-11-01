@@ -175,6 +175,13 @@ img { display: block; max-width: 100%; }
 .btn--small { min-height: 48px; font-size: var(--fs-label); }
 .caption { font-size: var(--fs-caption); }
 .link-btn { border: 0; background: none; padding: 8px 0; color: var(--brand-primary); font-size: var(--fs-label); font-weight: 700; text-decoration: none; }
+/* 공식 안내 + 전화 문의 한 줄 (11/1) */
+.contact { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.contact .link-btn { padding: 8px 14px; border: 1px solid var(--border-default); border-radius: 999px; background: var(--bg-surface); }
+.contact__tel { flex-basis: 100%; font-size: var(--fs-label); color: var(--text-secondary); }
+.contact__tel[hidden], .call-btn[hidden] { display: none; }
+.call-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; background: var(--brand-primary); color: var(--text-on-primary); font: 700 var(--fs-label) var(--font); text-decoration: none; }
+.call-btn svg { width: 18px; height: 18px; }
 
 .field { display: flex; flex-direction: column; gap: 8px; scroll-margin-top: 80px; }
 .field__label { font-size: var(--fs-label); color: var(--text-secondary); font-weight: 500; }

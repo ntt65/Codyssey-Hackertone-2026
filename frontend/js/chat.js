@@ -8,8 +8,7 @@
 import { state, save, resetChat } from './state.js';
 import { requestRecommend, requestChat, searchPlaces } from './api.js';
 import { parseUtterance, longEnough } from './parse.js';
-import { cachedGreeting } from './weather.js';
-import { $, el, button, formatDate, formatTime, todayIso, minutes, hhmm, isTest, isDebug, talkFor, unlockSpeech, photo } from './util.js';
+import { $, el, button, formatDate, formatTime, todayIso, minutes, hhmm, isTest, isDebug, talkFor, unlockSpeech, photo, SPEECH_RATE } from './util.js';
 
 const QA_START = { label: '청량리역', lat: 37.5805961, lng: 127.0482573 };
 /**
@@ -257,10 +256,11 @@ function speak(text, then) {
   talkFor($('#float-bird'), talkMs);
   if (!state.sound || !('speechSynthesis' in window)) { if (then) setTimeout(then, 1200); return; }
   try {
+    const busy = speechSynthesis.speaking || speechSynthesis.pending; // 홈 인사를 읽던 중이면
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'ko-KR';
-    u.rate = 0.95;
+    u.rate = SPEECH_RATE;
     const ko = speechSynthesis.getVoices().find((v) => v.lang?.startsWith('ko'));
     if (ko) u.voice = ko;
     let done = false;
@@ -270,15 +270,17 @@ function speak(text, then) {
       if (!then) return;
       // 폰은 읽기가 끝나기 전에 끝났다고 알려 주기도 해요. 정말 조용해질 때까지 기다렸다가 마이크를 켜요.
       const wait = (tries) => {
-        if (speechSynthesis.speaking && tries < 60) { setTimeout(() => wait(tries + 1), 250); return; }
-        setTimeout(then, 700);
+        if (speechSynthesis.speaking && tries < 60) { setTimeout(() => wait(tries + 1), 150); return; }
+        setTimeout(then, 300); // 까치 말이 끝나면 조금 더 빨리 마이크를 켜요 (예전 0.7초)
       };
       wait(0);
     };
     u.onend = finish;
     u.onerror = finish;
     setTimeout(finish, 1500 + text.length * 180); // onend 가 안 오는 브라우저 대비
-    speechSynthesis.speak(u);
+    // 끊은 직후 바로 말하면 Chrome이 첫 인사를 버리기도 해서 (홈 인사 → 대화 첫 인사) 잠깐 쉬었다 말해요
+    if (busy) setTimeout(() => speechSynthesis.speak(u), 150);
+    else speechSynthesis.speak(u);
   } catch { if (then) setTimeout(then, 1200); }
 }
 
@@ -758,7 +760,7 @@ function closer() {
 /** 새 대화 첫 인사 */
 function start() {
   if (!state.messages.length) {
-    say(`${cachedGreeting().text} "내일 오후 2시부터 5시까지 전시 보고 싶어요"처럼 편하게 말씀해 주세요.`, { ask: true });
+    say('안녕하세요. 나들이 가고 싶은 곳 편히 말씀해 주세요.', { ask: true });
   } else render();
 }
 
@@ -768,9 +770,15 @@ export function renderChat(opts = {}) {
   else setSound(state.sound);
   const mode = opts.voice === true ? 'voice' : opts.voice === false ? 'text' : (state.mode || 'text');
   setMode(mode);
+  // 홈에서 '말로 대화 시작하기'로 다시 들어왔는데 아직 아무 말도 안 했으면, 인사부터 다시 해요 (예전엔 말없이 마이크만 켜졌어요)
+  if (opts.voice === true && !state.messages.some((m) => m.role === 'user')) { resetChat(); placeOptions = []; }
   const fresh = !state.messages.length;
   start();
-  if (mode === 'voice' && !fresh) setTimeout(() => listen(), 300); // 처음이면 인사를 다 읽은 뒤 자동으로 들어요
+  if (mode === 'voice' && !fresh) { // 이어서 하는 대화면 까치가 마지막 말을 다시 해 주고 들어요
+    const last = [...state.messages].reverse().find((m) => m.role === 'ai' && m.text);
+    if (opts.voice === true && last) speak(last.text, () => listen(true));
+    else setTimeout(() => listen(), 300);
+  }
   if (mode === 'text' && opts.voice === false) $('#chat-input').focus();
 }
 
