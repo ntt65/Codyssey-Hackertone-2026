@@ -166,6 +166,12 @@ def _time_matches(field, value, message, quote, draft, history, now):
             return False
     if selected[0].group() not in quote:
         return False
+    # 단일 시각 뒤에 이어진 부정은 그 시각을 승인하는 근거가 아니다.
+    suffix = re.sub(r"\s+", "", message[selected[0].end():])
+    if re.match(r"(?:(?:에|에는|은|는|이|가|을|를|으로|부터|까지))*"
+                r"(?:(?:출발|시작|종료|마치|끝|귀가)(?:은|는|이|가|을|를)?)?"
+                r"(?:안|못|아니|싫|불가|말고|하지|하면안)", suffix):
+        return False
     minutes = selected[1]
     return (minutes is not None and parsed.hour * 60 + parsed.minute == minutes
             and parsed.second == 0 and parsed.microsecond == 0)
@@ -199,6 +205,8 @@ def _origin_matches(value, quote, message, history):
     # 장소가 가고 싶은 목적지로 명시된 경우, 다른 곳의 출발 표현으로 인정하지 않는다.
     if re.search(escaped + r"(?:에|으로|로|까지)(?:가고|가려|가자|갈|가요|방문|보고|가겠)", text):
         return False
+    if re.search(escaped + r"(?:에서|부터)?출발(?:은|는|이|가|을|를)?(?:하지|안|못|아니|싫|불가|말고)", text):
+        return False
     if "출발" in text:
         return bool(re.search(escaped + r"(?:에서|부터)?출발|출발(?:지는|지|은|장소는|점은)?" + escaped, text))
     # 질문이 없는 단답 지명은 목적지일 수도 있으므로 출발지로 확정하지 않는다.
@@ -212,7 +220,11 @@ def _free_matches(value, message, draft, history):
     if value:
         if re.search(r"무료(?:인)?(?:전시|공연|행사|체험|축제|관람)?(?:만|로)?(?:는|은|을|를)?(?:아니|말고|싫|불가|안돼|안됨|해제|원하지않)", text):
             return False
+        if re.search(r"무료(?:인)?(?:전시|공연|행사|체험|축제|관람)?(?:만|로)?(?:는|은|을|를)?(?:보여주|추천하|찾아주|보고싶)지(?:마|말|않)", text):
+            return False
         return bool(re.search(r"무료(?:만|로만|로|인것만|만요|요|(?:인)?(?:전시|공연|행사|체험|축제|관람))|돈(?:은|이)?안(?:드는|들|내는)", text))
+    if re.search(r"유료(?:도|라도)(?:괜찮|좋|돼|가능)(?:지않|지못|은아니)", text):
+        return False
     if re.search(r"유료(?:도|라도)(?:괜찮|좋|돼|가능)|무료(?:만)?(?:는|은)?(?:아니|말고|해제)|무료제한(?:없|해제)", text):
         return True
     question = history[-1].get("content", "") if history and history[-1].get("role") == "assistant" else ""
@@ -251,7 +263,26 @@ def _budget_matches(value, quote, message, history):
         return False
     if value == "any":
         return bool(re.search(r"제한\s*(?:없|해제)|상관\s*없|얼마든|예산\s*(?:없|해제)", message))
+    # budget_krw는 상한이므로 하한을 같은 금액의 상한으로 바꾸지 않는다.
+    if re.search(r"(?:원\s*(?:이상|초과|넘|보다\s*(?:높|많)))", message):
+        return False
     return _price_amount(quote) == value and _price_amount(message) == value
+
+
+def _exclusions_match(value, message, draft):
+    """제외 항목은 새 발화에 있거나 기존에 있어야 하며 해제는 항목별 명시해야 한다."""
+    previous = draft.get("exclude_terms")
+    if not isinstance(previous, list):
+        previous = []
+    compact = re.sub(r"\s+", "", message).casefold()
+    for term in previous:
+        if term in value:
+            continue
+        escaped = re.escape(re.sub(r"\s+", "", term).casefold())
+        # 빼기/제외 자체는 제외 추가이므로 해제라는 표현과 구분한다.
+        if not re.search(escaped + r"(?:은|는|을|를)?(?:제외(?:를|을|조건)?해제|제외하지(?:마|말|않)|빼지(?:마|말|않)|다시포함)", compact):
+            return False
+    return all(term in previous or re.sub(r"\s+", "", term).casefold() in compact for term in value)
 
 
 def _requirements_match(value, message, draft):
@@ -267,6 +298,10 @@ def _requirements_match(value, message, draft):
     def explicitly_removed(term):
         """제거할 각 항목에 해제 표현이 직접 연결된 경우만 인정한다."""
         escaped = re.escape(re.sub(r"\s+", "", term).casefold())
+        if re.search(escaped + r"(?:조건|제약)?(?:은|는|을|를)?"
+                     r"(?:빼지(?:마|말|않)|제외하지(?:마|말|않)|해제하지(?:마|말|않)|"
+                     r"없애지(?:마|말|않)|지우지(?:마|말|않)|필요없지않)", compact):
+            return False
         return bool(re.search(escaped + r"(?:조건|제약)?(?:은|는|을|를)?(?:빼|제외|해제|없애|지워|필수아니|필요없)", compact))
     if removed and not all(explicitly_removed(term) for term in removed):
         return False
@@ -318,7 +353,9 @@ def ground_payload(payload, message, draft, history, now=None):
             valid = _budget_matches(value, quote, message, history)
         if valid and field == "unsupported_requirements":
             valid = _requirements_match(value, message, draft)
-        if valid and field in {"keywords", "exclude_terms"}:
+        if valid and field == "exclude_terms":
+            valid = _exclusions_match(value, message, draft)
+        if valid and field == "keywords":
             previous = draft.get(field) if isinstance(draft.get(field), list) else []
             valid = all(term in previous or re.sub(r"\s+", "", term).casefold() in compact for term in value)
         if valid and field in {"category", "categories"}:

@@ -200,6 +200,54 @@ class GroundingTests(unittest.TestCase):
                             {"start_at": "낮 12시"})
         self.assertEqual(result, {"start_at": "2026-11-02T12:00:00+09:00"})
 
+    def test_negation_cannot_invert_free_or_time(self):
+        """부정된 무료·유료와 시각을 반대로 확정하지 않는다."""
+        for message, changes, evidence in [
+            ("무료만 보여주지 마", {"free_only": True}, {"free_only": "무료만"}),
+            ("유료도 괜찮지 않아요", {"free_only": False}, {"free_only": "유료도 괜찮지 않아요"}),
+            ("내일 오후 2시 출발은 안돼요", {"start_at": "2026-11-02T14:00:00+09:00"}, {"start_at": "오후 2시"}),
+            ("내일 오후 2시에는 출발하지 말아주세요", {"start_at": "2026-11-02T14:00:00+09:00"}, {"start_at": "오후 2시"}),
+        ]:
+            with self.subTest(message=message):
+                self.assertEqual(self.check(message, changes, evidence), {})
+        self.assertEqual(self.check("내일 오후 2시 출발해요", {"start_at": "2026-11-02T14:00:00+09:00"},
+                                    {"start_at": "오후 2시"}), {"start_at": "2026-11-02T14:00:00+09:00"})
+
+    def test_rejected_departure_does_not_become_origin(self):
+        """출발하지 않는 장소와 명시적으로 출발하는 장소를 구분한다."""
+        message = "서울역에서 출발하지 말고 시청에서 출발해요"
+        self.assertEqual(self.check(message, {"start_query": "서울역"}, {"start_query": "서울역"}), {})
+        self.assertEqual(self.check(message, {"start_query": "시청"}, {"start_query": "시청"}), {"start_query": "시청"})
+
+    def test_minimum_price_is_not_maximum_budget(self):
+        """이상·초과 같은 하한을 관람료 상한으로 변환하지 않는다."""
+        for message in ("관람료 만원 이상인 것만", "입장료 1만원 초과"):
+            self.assertEqual(self.check(message, {"budget_krw": 10000}, {"budget_krw": "만원"}), {})
+        self.assertEqual(self.check("관람료 만원 이내", {"budget_krw": 10000}, {"budget_krw": "만원"}),
+                         {"budget_krw": 10000})
+
+    def test_excluded_places_need_explicit_release(self):
+        """제외 목록을 명시적 해제 없이 지우지 않고 항목별 해제는 보존한다."""
+        draft = {"exclude_terms": ["시청", "강남"]}
+        self.assertEqual(self.check("전시가 좋아요", {"exclude_terms": []}, {"exclude_terms": "전시"}, draft), {})
+        self.assertEqual(self.check("시청은 제외하지 말아줘", {"exclude_terms": ["강남"]},
+                                    {"exclude_terms": "시청은 제외하지 말아줘"}, draft), {"exclude_terms": ["강남"]})
+        self.assertEqual(self.check("시청은 제외하지 말아줘", {"exclude_terms": []},
+                                    {"exclude_terms": "시청은 제외하지 말아줘"}, draft), {})
+        self.assertEqual(self.check("시청을 빼지 마", {"exclude_terms": ["강남"]},
+                                    {"exclude_terms": "시청을 빼지 마"}, draft), {"exclude_terms": ["강남"]})
+        self.assertEqual(self.check("강남도 빼줘", {"exclude_terms": ["시청", "강남"]},
+                                    {"exclude_terms": "강남도 빼줘"}, {"exclude_terms": ["시청"]}),
+                         {"exclude_terms": ["시청", "강남"]})
+
+    def test_required_condition_negated_release_is_not_release(self):
+        """필수조건을 빼지 말라는 발화는 조건 해제가 아니다."""
+        draft = {"unsupported_requirements": ["계단 없음"]}
+        for message in ("계단 없음 조건 빼지 마", "계단 없음 조건 해제하지 마", "계단 없음 조건은 필요없지 않아"):
+            with self.subTest(message=message):
+                self.assertEqual(self.check(message, {"unsupported_requirements": []},
+                                            {"unsupported_requirements": message}, draft), {})
+
 
 if __name__ == "__main__":
     unittest.main()
