@@ -6,7 +6,7 @@
 import { state, candidateById } from './state.js';
 import { walkRoute, transitRoute, mapConfig } from './api.js';
 import { isSignedIn, isSaved, savePlace, startDemo, savedPlaces } from './saved.js';
-import { $, el, photo, formatDate, formatTime, checkedAt, isDebug } from './util.js';
+import { $, el, photo, formatDate, formatTime, checkedAt, isDebug, speakKo, talkFor } from './util.js';
 
 let walkTicket = 0;
 let route = null; // 지금 S08 의 출발·도착·도보·대중교통 결과
@@ -85,6 +85,7 @@ export function renderPlace(id) {
   saveBtn.textContent = saved ? '내 나들이 보기' : '내 나들이에 저장';
   saveBtn.disabled = false;
   $('#s04-note').hidden = true;
+  $('#s04-bye').hidden = true;
 }
 
 /* ---------------- 저장 (S06) ---------------- */
@@ -104,7 +105,18 @@ function doSave(id) {
   if (r === 'failed') { note('저장하지 못했어요. 브라우저 저장 공간을 확인하고 다시 눌러 주세요.', true); return; }
   renderPlace(id);
   note(r === 'already' ? '이미 내 나들이에 있어요.' : '내 나들이에 저장했어요. 이 브라우저에서만 볼 수 있어요.');
+  if (r === 'saved') sayBye();
 }
+
+/** 저장한 뒤 까치가 나와서 배웅해요 */
+function sayBye() {
+  const bye = $('#s04-bye');
+  bye.hidden = false;
+  bye.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  speakKo(BYE_TEXT);
+  talkFor($('#s04-bye-bird'), 2600);
+}
+const BYE_TEXT = '잘 다녀오세요. 좋은 나들이 되세요!';
 
 function openSheet() { $('#sheet-save').hidden = false; $('#sheet-save .sheet__panel').focus(); }
 function closeSheet() { $('#sheet-save').hidden = true; }

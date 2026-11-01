@@ -495,3 +495,13 @@ body.map-full-open #s08 .topbar { z-index: 41; }
 
 /* 알림 시연 화면에서는 휴대폰 바깥을 무난한 밝은 회색으로 (누런 베이지 대신) */
 body:has(#snotify.is-active) .app { background: #E9EBED; }
+
+/* 저장 뒤 까치 배웅 (11/1) */
+.bye { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-card); background: var(--bg-soft); animation: pop .35s ease-out; }
+.bye__bird { width: 84px; flex: none; }
+.bye__bird img { width: 100%; height: auto; transform-origin: 50% 90%; animation: breathe 3.2s ease-in-out infinite; }
+.bye__bird.is-talking img { animation: talk .42s ease-in-out infinite alternate; }
+.bye__say { margin: 0; display: flex; flex-direction: column; gap: 2px; }
+.bye__say strong { font-size: var(--fs-title-m); color: var(--brand-primary); }
+.bye__say span { font-size: var(--fs-body-m); }
+@media (prefers-reduced-motion: reduce) { .bye, .bye__bird img { animation: none !important; } }
