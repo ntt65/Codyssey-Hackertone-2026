@@ -4,7 +4,7 @@
     "김동조 · Lab678 개발. 현재 작업폴더 D:/git/lab678, 브랜치 dj/agent. 기존 dj/develop 브랜치와 개인 기록/백업 보존."
   ],
   "objective": [
-    "????? ?? ??????dj/agent push ? ?? ??67/develop ?? PR68 ?? ??. ??? ???? ??? ??? ???? ?? LLM/?? ?? ??? ????."
+    "develop 대비 dj/agent 전체 개선을 이슈67에 보완 완료. 이전의 발화 이해·근거·날짜/시각·부분 보류·재확인부터 음성·추천·UI·검증·커밋 근거까지 기록했다. PR68은 미병합 유지."
   ],
   "permissions": [
     "2026-11-01 사용자 “실행해”: 사전 제시한 4단계(자료 보존→D:/git/lab678을 dj/agent로 전환→상태 검증→별도 작업폴더 제거) 승인. 작업 전 계획과 TEAM_WORKFLOW/하네스 절차 읽기 필수.",
@@ -13,8 +13,9 @@
     "최종계획서 쓰기 전 develop pull 요청. origin/develop 1876fe6 fetch, 이미 HEAD 조상으로 새 커밋 없음. 2026-11-01 ‘진행’으로 최종계획 A~D 승인. E 정책과 이슈/PR·push·배포는 별도 요청.",
     "plan_dj는 개인 개발용·Git/공유 색인 제외. 원본 D:/git/lab678/plan_dj의 src/ZIP/대화/완료 이력은 삭제하지 않는다.",
     "완료 작업의 로컬 커밋 상시 요청은 dj/agent에 적용하되 Push는 별도 명시 요청. 전체 완료 보고문을 커밋 메시지로 그대로 기록, AI 공동명의 금지·사용자 명의. 11/1 13:00 KST 이후 커밋 금지.",
-    "2026-11-01 ????? ??? ????: ??? ??/?? ?????? ?????? ????? ????? ?? ?? ?? ??. ???? ?????? ?????? ??, E ???push?PR??? ??.",
-    "?? ??: ???? push?? issue? ???? ???? ??? ?? ?? LLM? ???? ?? ?? ? ???? develop?? pr?? ??? ????. dj/agent push????develop PR ??, ??/??????? ??."
+    "2026-11-01 사용자 ‘개선계획 세우고 개선해’: 재현한 후보/조건 불일치·보류 미해제·복합 문장·동명 장소·의미 검증 개선 실시 승인. 프론트와 백엔드·관련 테스트·기록 포함, E 정책 제외.",
+    "후속 명시 ‘끝나면 push하고 issue에 작업내용 개선내용 테스트 내용 다른 LLM이 분석할수 있는 자료 다 올려주고 develop으로 pr해줘 머지는 하지마’: dj/agent push·이슈·develop PR 승인, 병합/자동병합·배포 금지.",
+    "최신 ‘현재 dj/agent branch가 develop branch보다 개선된점 issue에 다 적어놔’: 이전 대화 이해 개선을 포함한 전체 diff의 이슈 기록 보완 승인. 서비스 코드 변경 없음."
   ],
   "completed": [
     "origin/develop을 Fetch해 252c07c03b060a77ddd874f48b0f99ed4cbb1416에서 dj/agent/worktree 생성. 기존 main/develop/dj/develop 이동 없음.",
@@ -26,13 +27,13 @@
     "별도 폴더 dj/agent를 detach한 뒤 실제 D:/git/lab678을 dj/agent로 checkout 확인. 기존 dj/develop/main/develop 참조 유지. 활성 계획6개를 기존 plan_dj로 이전.",
     "본 폴더 dj/agent·develop 조상·기존 브랜치 유지 확인. 서비스73파일 Git내용 동일(LF/CRLF만1건), 원본 개인 기록765개 불변·기존README ZIP보존. 별도 작업폴더의 미추적14파일 전부 보존 후 해당 폴더만 제거, 등록 작업폴더는 본 폴더1개.",
     "Naito음성점검: 기존키로모델목록200·11개, 채팅1회200/claude-sonnet-4-6/text/입력30출력6토큰 확인. 인증문서401, 새TTS생성0. 키/소스/설정불변. 상세 plan_dj/naito-voice-capability-check-20261101.md.",
-    "?? ?? ??: ?? ?? ????? ???, ?? ??, ?? ??, ?? ???, ?????? ??. ???134, UI ??/??, ????15, ?? ??????? HTTP/CORS ?? PASS. ?? agent-remediation-review.md. ?? ?? ?? c453e30. https://github.com/Lab678-Hackathon/lab678/issues/67 ? /pull/68 ??, ?? ??/??? ??."
+    "대화·추천 결함 보완 완료: 후보 조건 소속·카드 스냅샷, 보류 해제, 복합 문장, 동명 출발지, 부정·관심어 보존. 구현 검증 c453e30에서 백엔드134·UI 대화/추천·독립회귀15·실제 브라우저/로컬 HTTP PASS. 이슈67 및 PR68 게시, 미병합 확인."
   ],
   "in_progress": [
-    "?? ?? ?? ?? ??. ?? ??? ?? ??67/PR68? ????? ?? ?? ?? ??."
+    "진행 중인 기능 구현 없음. 이슈67의 전체 개선 목록을 다시 읽어 필수 항목을 확인했고, 깨진 인계 상태 한글을 사용자 원문·실제 결과로 복구했다."
   ],
   "next": [
-    "?? LLM/?? ??67? docs/development/agent-remediation-review.md?? ?????. PR68? develop ???? ??/????/?? ??. ?? AI??? API???? QA? ?? docstring7?? ?? ?? ??."
+    "다른 LLM/팀은 이슈67의 develop 대비 전체 개선 목록과 agent-remediation-review.md부터 독립 검토한다. PR68 머지/자동머지/배포 금지. 실 API·실기기 QA 및 기존 docstring7건, 미지원 시간 표현은 후속 검토."
   ],
   "open_questions": [
     "기본 브라우저 음성/TourAPI/코스·길찾기/검색·60분/CORS는 소스가 존재하므로 재개발로 분류하지 않는다. 새 기준 전체 QA·실기기·배포 완료와는 구분한다.",
@@ -42,7 +43,7 @@
     "Claude제품음성모드를Naito채팅키로직접호출하는공개계약없음. 별도MediaTTS는제공자료에있으나현재키권한/정확한본문/음색/스트리밍·차감미확인. 과거400을미지원확정으로확대금지."
   ],
   "read_next": [
-    "docs/development/agent-remediation-review.md: ??? ?? ???????????????. ?? ??/???? plan_dj ? .local? ??.",
+    "docs/development/agent-remediation-review.md와 GitHub 이슈67: 공유용 개선 근거·재현·계약·테스트·한계. 개인 계획/보존본은 plan_dj 및 .local에 유지.",
     "plan_dj/README.md → TODO.md → execution-plan.md. 본 폴더 전환 근거는 root-checkout-migration-20261101.md/JSON과 보존 ZIP. 과거 정리 매니페스트의 별도 경로는 이력이다.",
     "공통 운영 TEAM_WORKFLOW.md, 개인 승인 AGENTS.md/engineering-loop. 실제 최신 코드와 현재 Git 상태를 우선한다.",
     "reports/20261101-dj-agent-setup.md에 준비 결과·검증 한계 기록. 개인 정리 근거는 plan_dj/cleanup-manifest.json과 .local/agent-setup-verification-20261101.json.",

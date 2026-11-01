@@ -254,6 +254,7 @@ lab678/
         20261101-agent-clarification.md
         20261101-agent-dialogue-b.md
         20261101-agent-fixes-a.md
+        20261101-agent-full-issue.md
         20261101-agent-grounding.md
         20261101-agent-http-contract.md
         20261101-agent-negation-fixes.md

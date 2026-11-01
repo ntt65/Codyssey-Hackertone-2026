@@ -68,14 +68,14 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [docs/AGENTS.md](../../docs/AGENTS.md) | 문서 작업 | `6943f61f8205` |
 | [docs/README.md](../../docs/README.md) | docs | `6f5e3f0160f6` |
 | [docs/development/README.md](../../docs/development/README.md) | LAB678 · 김동조 개발 작업 맥락 | `fefb130a8df0` |
-| [docs/development/agent-remediation-review.md](../../docs/development/agent-remediation-review.md) | 대화·추천 에이전트 개선 및 재검토 자료 | `eb652d592003` |
+| [docs/development/agent-remediation-review.md](../../docs/development/agent-remediation-review.md) | 대화·추천 에이전트 개선 및 재검토 자료 | `4fd85d5cf104` |
 | [docs/development/automatic-voice.md](../../docs/development/automatic-voice.md) | 자동 음성 대화·종료 설정 | `c953304f4258` |
 | [docs/development/chat-conditions.md](../../docs/development/chat-conditions.md) | 대화 조건 처리 코어와 연결 제안 | `99996fc7f1fc` |
 | [docs/development/chat-ui-handoff.md](../../docs/development/chat-ui-handoff.md) | 팀 화면 채팅 연결 · 로컬 검증과 인계 | `969cfd58f695` |
 | [docs/development/conversation-validation.md](../../docs/development/conversation-validation.md) | 자연어 대화·추천 추가 구간 검증 | `febb45abfa52` |
 | [docs/development/course-alternatives-progress.md](../../docs/development/course-alternatives-progress.md) | 시간 부족 → 동의 → 대안 선택 진행표 | `a662e7da1bee` |
 | [docs/development/culture-sources.md](../../docs/development/culture-sources.md) | 서울시 조회 확대와 국문 문화시설 연결 | `27085042b590` |
-| [docs/development/current-state.md](../../docs/development/current-state.md) | 현재 상태와 다음 할 일 | `d7948d02c45f` |
+| [docs/development/current-state.md](../../docs/development/current-state.md) | 현재 상태와 다음 할 일 | `e880ac27f028` |
 | [docs/development/demo-login-server-progress.md](../../docs/development/demo-login-server-progress.md) | 데모 로그인·해커톤 서버 검토 진행표 | `ca878f31c5f8` |
 | [docs/development/demo-profile-design.md](../../docs/development/demo-profile-design.md) | 인증 없는 이용·체험 프로필·로컬 저장 설계안 | `87e1d5b21681` |
 | [docs/development/deployment-keys.md](../../docs/development/deployment-keys.md) | 공공데이터·Naito 배포 키 처리 | `6666b0215a8f` |
@@ -232,6 +232,7 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [docs/development/reports/20261101-agent-clarification.md](../../docs/development/reports/20261101-agent-clarification.md) | 여러 조건을 한 번에 말했을 때 모호한 항목을 화면이 계속 확인할 수 있도록, 대화 API의 보류 응답에 `clarification_fields`를 추가했습니다. 기존 응답 필드는 유지하며 허용된 필드명만 전달합니다. | `cdd708572df4` |
 | [docs/development/reports/20261101-agent-dialogue-b.md](../../docs/development/reports/20261101-agent-dialogue-b.md) | 대화 화면에서 듣는 중 버튼을 ‘말씀 끝 · 보내기 ▶’로 표시하고, 다시 말하기와 처리 중 입력 보존을 추가했습니다. 서버가 해석을 보류하거나 충돌을 알리면 안내하고 자동 추천을 멈추며, 취소된 이전 응답은 적용하지 않습니다. | `34fcf577480c` |
 | [docs/development/reports/20261101-agent-fixes-a.md](../../docs/development/reports/20261101-agent-fixes-a.md) | 에이전트가 출발지와 목적지를 혼동하거나 무료·예산·필수 조건을 잘못 반영하는 경우와 밤 12시를 낮 12시로 받아들이는 경우를 보류하도록 백엔드를 보완했습니다. | `ede782ecbfcb` |
+| [docs/development/reports/20261101-agent-full-issue.md](../../docs/development/reports/20261101-agent-full-issue.md) | 이슈 #67을 develop 대비 dj/agent 전체 개선 목록으로 보완했습니다. 이전의 발화 근거·날짜와 시각·출발지·부분 보류·재확인 개선부터 음성·추천·카드·테스트까지 전후 사례와 코드·커밋 근거를 정리했습니다. | `1456213c7ca1` |
 | [docs/development/reports/20261101-agent-grounding.md](../../docs/development/reports/20261101-agent-grounding.md) | 백엔드의 발화 근거·시각 검증 1단계를 구현했습니다. 모델이 말하지 않은 출발지나 발화와 다른 날짜·시각을 제안하면 보류하고, 모호한 시각이나 시작·종료 대상을 임의로 확정하지 않도록 했습니다. 세 공급자에 공통 검증을 연결했습니다. | `e23026ec9e66` |
 | [docs/development/reports/20261101-agent-http-contract.md](../../docs/development/reports/20261101-agent-http-contract.md) | 보류된 조건을 사용자가 다시 확인했을 때 화면이 같은 값의 재확인과 관련 없는 답변을 구분할 수 있도록 대화 API에 `interpreted_fields`를 추가했습니다. 검증된 필드명만 전달하고 원문과 값은 포함하지 않습니다. | `3b4794db034c` |
 | [docs/development/reports/20261101-agent-negation-fixes.md](../../docs/development/reports/20261101-agent-negation-fixes.md) | 추가 점검에서 확인한 부정 표현과 조건 해제 오류를 보완했습니다. 무료·유료의 부정, 예산의 ‘이상’과 ‘이내’, 출발하지 않는 장소·시각, 명시적으로 해제하지 않은 제외·필수 조건을 구분하도록 했습니다. | `9442cb177f68` |
@@ -260,7 +261,7 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [docs/development/reports/voice-wave-and-compatibility.md](../../docs/development/reports/voice-wave-and-compatibility.md) | 화면은 모바일 폭에서 검사했지만, **맥북·휴대폰의 자동 음성 대화는 실제 기기 확인이 필요합니다.** 브라우저 음성 인식에는 지원 차이가 있습니다. [MDN 공식 호환성 안내](https://developer.mozilla.org/en-US/docs | `e86f5f6e2737` |
 | [docs/development/screen-spec-review.md](../../docs/development/screen-spec-review.md) | 화면명세 v0.1 수신·구현 대조 체크표 | `6be14b542825` |
 | [docs/development/service-key-status.md](../../docs/development/service-key-status.md) | 키별 실제 동작·앱 반영 점검 | `20d43495185e` |
-| [docs/development/state.json](../../docs/development/state.json) | 구조화 설정·상태 데이터 | `17a299ccdf0f` |
+| [docs/development/state.json](../../docs/development/state.json) | 구조화 설정·상태 데이터 | `cabdb69b0985` |
 | [docs/development/tasks.md](../../docs/development/tasks.md) | LAB678 · 김동조 개발 할 일 | `555cf41b5052` |
 | [docs/development/team-backend-guide.md](../../docs/development/team-backend-guide.md) | LAB678 · 동료와 LLM을 위한 개발 참조·실행 안내 | `a8cfdbe6a06b` |
 | [docs/development/team-integration-checklist.md](../../docs/development/team-integration-checklist.md) | 팀 의견 대조 · 최종 UI 연결 우선 체크표 | `a9c94afd0cf6` |
