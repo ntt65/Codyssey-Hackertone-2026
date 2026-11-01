@@ -8,7 +8,7 @@
 import { state, save, resetChat } from './state.js';
 import { requestRecommend, requestChat, searchPlaces } from './api.js';
 import { parseUtterance, longEnough } from './parse.js';
-import { $, el, button, formatDate, formatTime, todayIso, minutes, hhmm, isTest, isDebug, talkFor, unlockSpeech, photo } from './util.js';
+import { $, el, button, formatDate, formatTime, todayIso, minutes, hhmm, isTest, isDebug, talkFor, unlockSpeech, photo, SPEECH_RATE } from './util.js';
 
 const QA_START = { label: '청량리역', lat: 37.5805961, lng: 127.0482573 };
 /**
@@ -256,10 +256,11 @@ function speak(text, then) {
   talkFor($('#float-bird'), talkMs);
   if (!state.sound || !('speechSynthesis' in window)) { if (then) setTimeout(then, 1200); return; }
   try {
+    const busy = speechSynthesis.speaking || speechSynthesis.pending; // 홈 인사를 읽던 중이면
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'ko-KR';
-    u.rate = 0.95;
+    u.rate = SPEECH_RATE;
     const ko = speechSynthesis.getVoices().find((v) => v.lang?.startsWith('ko'));
     if (ko) u.voice = ko;
     let done = false;
@@ -277,7 +278,9 @@ function speak(text, then) {
     u.onend = finish;
     u.onerror = finish;
     setTimeout(finish, 1500 + text.length * 180); // onend 가 안 오는 브라우저 대비
-    speechSynthesis.speak(u);
+    // 끊은 직후 바로 말하면 Chrome이 첫 인사를 버리기도 해서 (홈 인사 → 대화 첫 인사) 잠깐 쉬었다 말해요
+    if (busy) setTimeout(() => speechSynthesis.speak(u), 150);
+    else speechSynthesis.speak(u);
   } catch { if (then) setTimeout(then, 1200); }
 }
 
