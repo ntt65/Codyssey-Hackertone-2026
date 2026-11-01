@@ -4,8 +4,9 @@
 > 문화활동을 경험하고 싶지만 선택이 막막한 시니어가 AI와 대화하며 자신에게 맞는 나들이를 결정하도록 돕습니다.  
 > Codyssey AI 해커톤 2026 · 팀 Lab678 (손희영 · 정민규 · 김동조)
 
+- **시연용 알림 화면:** https://oneul-nadeuli.vercel.app/#/notify  
+  배포 앱과 같은 앱이에요. 주소 끝의 `#/notify`만 달라서 앱 첫 화면 대신 **휴대폰 잠금화면에 까치 알림이 오는 장면**부터 시작해요. 실제 예약 푸시는 아직 없어서, "정해진 시간에 까치가 먼저 말을 건다"는 흐름을 보여 주려고 만든 시연용 시작 화면이에요. 알림을 누르면 배포 앱 첫 화면(까치 깨우기)으로 이어져요.
 - **배포 앱:** https://oneul-nadeuli.vercel.app
-- **시연용 알림 화면:** https://oneul-nadeuli.vercel.app/#/notify (까치가 알림으로 먼저 인사하는 첫 장면)
 - **백엔드 API:** https://oneul-nadeuli-api.onrender.com (무료 서버라 처음 접속 시 30초~1분 깨어나는 시간이 있어요)
 - **Figma:** https://www.figma.com/design/UYxmWJohkX8djuFBoNoDEG
 - **기획 문서:** [PRD v0.7.0](docs/planning/PRD.md) · [MVP 화면명세서 v0.3.0](docs/planning/Lab_678_MVP_화면명세서.md)
