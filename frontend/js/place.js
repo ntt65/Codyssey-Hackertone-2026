@@ -104,8 +104,8 @@ function doSave(id) {
   const r = savePlace(c);
   if (r === 'failed') { note('저장하지 못했어요. 브라우저 저장 공간을 확인하고 다시 눌러 주세요.', true); return; }
   renderPlace(id);
-  note(r === 'already' ? '이미 내 나들이에 있어요.' : '내 나들이에 저장했어요. 이 브라우저에서만 볼 수 있어요.');
-  if (r === 'saved') sayBye();
+  if (r === 'already') note('이미 내 나들이에 있어요.');
+  else sayBye(); // 저장 안내 글 대신 까치가 배웅해요
 }
 
 /** 저장한 뒤 까치가 나와서 배웅해요 */
