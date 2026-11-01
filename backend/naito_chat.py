@@ -7,7 +7,7 @@ from threading import BoundedSemaphore
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-from chat_conditions import apply_interpretation
+from chat_conditions import FIELDS, apply_interpretation
 from chat_grounding import clarification_text, ground_payload
 from chat_prompt import SYSTEM
 from outing import InputError, KST
@@ -118,9 +118,13 @@ def chat(data):
         result = apply_interpretation(draft, proposal, confirmed, revision, revision)
         blocked = getattr(proposal, "blocked_fields", ())
         if blocked:
+            if any(not isinstance(field, str) or field not in FIELDS for field in blocked):
+                raise ValueError("AI 보류 필드를 확인해 주세요.")
+            blocked = tuple(dict.fromkeys(blocked))
             result["assistant_text"] = clarification_text(blocked)
             result["ready_to_search"] = False
             result["interpretation_status"] = "needs_clarification"
+            result["clarification_fields"] = list(blocked)
         elif not proposal or not any(value is not None for value in proposal.values()):
             result["assistant_text"] = "이번 말씀은 조건에 반영하지 못했어요. 입력 칸에서 확인하거나 출발지·날짜·시각·대표 분류를 다시 말씀해 주세요."
             result["ready_to_search"] = False
