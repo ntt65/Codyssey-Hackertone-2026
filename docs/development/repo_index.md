@@ -68,14 +68,14 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [docs/AGENTS.md](../../docs/AGENTS.md) | 문서 작업 | `6943f61f8205` |
 | [docs/README.md](../../docs/README.md) | docs | `6f5e3f0160f6` |
 | [docs/development/README.md](../../docs/development/README.md) | LAB678 · 김동조 개발 작업 맥락 | `fefb130a8df0` |
-| [docs/development/agent-remediation-review.md](../../docs/development/agent-remediation-review.md) | 대화·추천 에이전트 개선 및 재검토 자료 | `92629df6b2a3` |
+| [docs/development/agent-remediation-review.md](../../docs/development/agent-remediation-review.md) | 대화·추천 에이전트 개선 및 재검토 자료 | `eb652d592003` |
 | [docs/development/automatic-voice.md](../../docs/development/automatic-voice.md) | 자동 음성 대화·종료 설정 | `c953304f4258` |
 | [docs/development/chat-conditions.md](../../docs/development/chat-conditions.md) | 대화 조건 처리 코어와 연결 제안 | `99996fc7f1fc` |
 | [docs/development/chat-ui-handoff.md](../../docs/development/chat-ui-handoff.md) | 팀 화면 채팅 연결 · 로컬 검증과 인계 | `969cfd58f695` |
 | [docs/development/conversation-validation.md](../../docs/development/conversation-validation.md) | 자연어 대화·추천 추가 구간 검증 | `febb45abfa52` |
 | [docs/development/course-alternatives-progress.md](../../docs/development/course-alternatives-progress.md) | 시간 부족 → 동의 → 대안 선택 진행표 | `a662e7da1bee` |
 | [docs/development/culture-sources.md](../../docs/development/culture-sources.md) | 서울시 조회 확대와 국문 문화시설 연결 | `27085042b590` |
-| [docs/development/current-state.md](../../docs/development/current-state.md) | 현재 상태와 다음 할 일 | `8d9217384e66` |
+| [docs/development/current-state.md](../../docs/development/current-state.md) | 현재 상태와 다음 할 일 | `d7948d02c45f` |
 | [docs/development/demo-login-server-progress.md](../../docs/development/demo-login-server-progress.md) | 데모 로그인·해커톤 서버 검토 진행표 | `ca878f31c5f8` |
 | [docs/development/demo-profile-design.md](../../docs/development/demo-profile-design.md) | 인증 없는 이용·체험 프로필·로컬 저장 설계안 | `87e1d5b21681` |
 | [docs/development/deployment-keys.md](../../docs/development/deployment-keys.md) | 공공데이터·Naito 배포 키 처리 | `6666b0215a8f` |
@@ -238,6 +238,7 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [docs/development/reports/20261101-agent-recommendation-c.md](../../docs/development/reports/20261101-agent-recommendation-c.md) | 출발지 검색 후보에 주소를 함께 표시하고 선택 전에는 기존 출발지를 유지하도록 했습니다. 무료·예산·관심사·제외 등 서버가 검증한 선호와 명시적 해제를 추천 요청까지 전달합니다. | `179c3ec86b19` |
 | [docs/development/reports/20261101-agent-remediation-backend.md](../../docs/development/reports/20261101-agent-remediation-backend.md) | 대화 해석에서 무료·출발지·음악·실내외·장소 수의 반대 의미와 관심어 임의 삭제를 차단했습니다. 정상 요청·정정·명시적 해제는 허용하고, 같은 이름의 출발지도 검색·선택·변경 동의를 거치도록 했습니다. | `85e596e8ba19` |
 | [docs/development/reports/20261101-agent-remediation-frontend.md](../../docs/development/reports/20261101-agent-remediation-frontend.md) | 추천 후보에 검색 당시 조건을 연결해 무료 조건 변경 후 이전 유료 후보가 다시 노출되는 문제를 수정했습니다. 명시적 선택 후 관련 보류를 해제하고, 복합 문장을 해석하며, 과거 카드의 거리·조건과 취소된 요청의 경계를 보존합니다. | `ed9c739b107b` |
+| [docs/development/reports/20261101-agent-remediation-published.md](../../docs/development/reports/20261101-agent-remediation-published.md) | 개선·검증 후 `dj/agent`를 push했습니다. | `3ed52d7364f9` |
 | [docs/development/reports/20261101-agent-remediation-validation.md](../../docs/development/reports/20261101-agent-remediation-validation.md) | 실제 브라우저에서 로컬 백엔드의 CORS·대화 검증·무료 필터·동명 장소 선택을 함께 확인하는 검증 도구와 다른 LLM용 분석 자료를 추가했습니다. 작업 범위·재현 사례·수정 근거·실행 방법·한계를 기록하고 상태와 색인을 갱신했습니다. | `f52ba4ae0b46` |
 | [docs/development/reports/20261101-dj-agent-setup.md](../../docs/development/reports/20261101-dj-agent-setup.md) | 완료했습니다. 최신 원격 develop의 `252c07c`에서 **`dj/agent`**를 분기했습니다. | `2a2b9c9d11c6` |
 | [docs/development/reports/20261101-final-agent-plan.md](../../docs/development/reports/20261101-final-agent-plan.md) | `develop`을 다시 가져와 확인했습니다. 원격에 새 커밋은 없고 현재 `dj/agent`가 최신 `origin/develop`을 포함합니다. | `5c149bb36e90` |
@@ -259,7 +260,7 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [docs/development/reports/voice-wave-and-compatibility.md](../../docs/development/reports/voice-wave-and-compatibility.md) | 화면은 모바일 폭에서 검사했지만, **맥북·휴대폰의 자동 음성 대화는 실제 기기 확인이 필요합니다.** 브라우저 음성 인식에는 지원 차이가 있습니다. [MDN 공식 호환성 안내](https://developer.mozilla.org/en-US/docs | `e86f5f6e2737` |
 | [docs/development/screen-spec-review.md](../../docs/development/screen-spec-review.md) | 화면명세 v0.1 수신·구현 대조 체크표 | `6be14b542825` |
 | [docs/development/service-key-status.md](../../docs/development/service-key-status.md) | 키별 실제 동작·앱 반영 점검 | `20d43495185e` |
-| [docs/development/state.json](../../docs/development/state.json) | 구조화 설정·상태 데이터 | `96130af25dbb` |
+| [docs/development/state.json](../../docs/development/state.json) | 구조화 설정·상태 데이터 | `17a299ccdf0f` |
 | [docs/development/tasks.md](../../docs/development/tasks.md) | LAB678 · 김동조 개발 할 일 | `555cf41b5052` |
 | [docs/development/team-backend-guide.md](../../docs/development/team-backend-guide.md) | LAB678 · 동료와 LLM을 위한 개발 참조·실행 안내 | `a8cfdbe6a06b` |
 | [docs/development/team-integration-checklist.md](../../docs/development/team-integration-checklist.md) | 팀 의견 대조 · 최종 UI 연결 우선 체크표 | `a9c94afd0cf6` |

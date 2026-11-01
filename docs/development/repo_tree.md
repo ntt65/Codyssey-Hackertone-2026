@@ -260,6 +260,7 @@ lab678/
         20261101-agent-recommendation-c.md
         20261101-agent-remediation-backend.md
         20261101-agent-remediation-frontend.md
+        20261101-agent-remediation-published.md
         20261101-agent-remediation-validation.md
         20261101-dj-agent-setup.md
         20261101-final-agent-plan.md
