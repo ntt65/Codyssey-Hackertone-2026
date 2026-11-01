@@ -314,7 +314,7 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .chat-card__body h3, .saved-card__body h3 { font-size: var(--fs-body-l); line-height: 1.4; }
 .chat-card__meta { font-size: var(--fs-caption); color: var(--brand-primary); font-weight: 700; }
 .chat-card__dist { font-size: var(--fs-caption); color: var(--text-secondary); }
-.chat-card__warn { font-size: var(--fs-caption); color: var(--status-warn-text); font-weight: 700; }
+.chat-card__warn { font-size: var(--fs-caption); color: var(--status-warn-text); font-weight: 500; opacity: .75; } /* 확인 안내는 조금 연하게 (11/1) */
 .chat-card .btn, .saved-card .btn { margin-top: 6px; }
 .chat__bottom { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; padding: 10px var(--gutter) max(14px, env(safe-area-inset-bottom)); background: var(--bg-canvas); border-top: 1px solid var(--border-default); display: flex; flex-direction: column; gap: 10px; z-index: 20; }
 .chat__actions { display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; margin: 0 calc(-1 * var(--gutter)); padding: 2px var(--gutter); scrollbar-width: none; -webkit-overflow-scrolling: touch; }
