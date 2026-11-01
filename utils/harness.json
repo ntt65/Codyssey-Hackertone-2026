@@ -24,7 +24,7 @@
     "design",
     "docs/development"
   ],
-  "branch": "dj/develop",
+  "branch": "dj/agent",
   "commit_deadline": "2026-11-01T13:00:00+09:00",
   "state_file": "docs/development/state.json",
   "repo_indexes": [

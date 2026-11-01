@@ -13,11 +13,22 @@
 
 ## 개인 개발 작업 맥락
 
-`dj/develop` 작업을 이어갈 때는 [현재 상태와 다음 할 일](docs/development/current-state.md)을 먼저 확인해요. [저장소 색인](docs/development/repo_index.md)·[기능/함수 역색인](docs/development/repo_reverse_index.md)·[구조](docs/development/repo_tree.md)로 파일을 좁히고, 필요한 경우에만 [개발 맥락](docs/development/README.md)과 [대화·작업 기록](docs/development/discussion-log.md)의 해당 부분을 읽어요. 공통 운영 규칙은 계속 `TEAM_WORKFLOW.md`를 기준으로 삼아요.
+현재 작업폴더는 `D:\git\lab678\.local\worktrees\dj-agent`, 브랜치는 `dj/agent`예요. 원본 `D:\git\lab678`의 `dj/develop`과 개인 백업은 보존해요. 최신 사용자 허락은 **분기·복사본 정리만**이며 기능 구현·프론트 수정·Push·배포는 포함하지 않아요. 남은 일은 `plan_dj/README.md`에서 시작해요.
 
-김동조님은 완료한 작업을 작업 단위로 커밋하도록 상시 요청했어요. 이 요청에 따라 `dj/develop`에서 작업별로 커밋하며, push는 별도 명시 요청이 있을 때만 해요.
+`dj/agent` 작업을 이어갈 때는 [현재 상태와 다음 할 일](docs/development/current-state.md)을 먼저 확인해요. [저장소 색인](docs/development/repo_index.md)·[기능/함수 역색인](docs/development/repo_reverse_index.md)·[구조](docs/development/repo_tree.md)로 파일을 좁히고, 필요한 경우에만 [개발 맥락](docs/development/README.md)과 [대화·작업 기록](docs/development/discussion-log.md)의 해당 부분을 읽어요. 공통 운영 규칙은 계속 `TEAM_WORKFLOW.md`를 기준으로 삼아요.
+
+김동조님은 완료한 작업을 작업 단위로 커밋하도록 상시 요청했어요. 이 요청에 따라 `dj/agent`에서 작업별로 커밋하며, push는 별도 명시 요청이 있을 때만 해요.
 
 커밋 메시지는 작업 완료 후 사용자에게 출력하는 보고문 전체를 요약하거나 바꾸지 않고 그대로 기록해요. 이 최신 사용자 지시를 짧은 커밋 메시지 권장보다 우선해요.
+
+## 개인 작업 승인 절차 — 2026-11-01 사용자 명시
+
+- **조사·원인 분석 → 개발계획 → 구체적인 실시계획 → 사용자 검토·보완 → 명시적 허락 → 승인된 범위의 실시·검증** 순서를 지켜요. 상세 기준은 [구현 전 승인 절차](docs/development/engineering-loop.md#구현-전-승인-절차--필수)를 따라요.
+- 승인 전에는 조사·계획·기록만 해요. 개선 의견, 예시 대화, “좋겠다”, 진행 상황 질문, 자유 형식 답변을 구현 허락으로 해석하지 않아요. 이전의 “분석만” 또는 수정 금지를 임의로 해제하지 않아요.
+- 실시계획에 대상 파일·담당·허용/제외 범위·검증·복구 방법을 적고, 사용자가 무엇을 허락했는지 원문 근거와 함께 기록해요. 승인된 동일 범위는 계속 진행하되 범위가 달라지면 다시 허락받아요.
+- **프론트엔드는 김동조 담당이 아니므로 수정하지 않아요.** UI 파일·우회 사본·패치를 만들어 금지를 우회하지 않아요. 관련 원인과 담당자에게 전달할 제안만 정리해요. 예외는 사용자가 구체적으로 금지를 해제할 때만 가능해요.
+- 실제 작업은 `dj/agent`에서만 해요. `main`·`develop` 변경, 병합·push·배포 권한을 개인 작업 승인에서 추정하지 않아요.
+- 하네스 통과·루프 시작·완료 작업의 커밋 상시 요청은 구현 승인이 아니에요. 현재 하네스는 사용자 허락을 기술적으로 강제하는 장치가 아니므로 승인 확인을 생략하지 않아요.
 
 ## 작업 계획·색인·진행 보고
 

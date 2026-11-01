@@ -3,8 +3,9 @@
 자동 생성. 비밀값·의존성·런타임 폴더는 제외. 색인 자체는 목록에 포함하되 재귀 해시하지 않는다.
 
 ```text
-lab678/
+dj-agent/
   .env.example
+  .git
   .github/
     ISSUE_TEMPLATE/
       bug.md
@@ -243,6 +244,7 @@ lab678/
         20261031-team-chat-connected.md
         20261031-team-flow-connected.md
         20261031-user-preferences-kakao-review.md
+        20261101-dj-agent-setup.md
         automatic-voice-session.md
         common-automatic-dialogue.md
         conversation-validation.md
@@ -316,6 +318,40 @@ lab678/
   frontend/
     AGENTS.md
     README.md
+    assets/
+      home-hero.jpg
+      icons/
+        type-default.png
+        type-exhibition.png
+        type-festival-event.png
+        type-hands-on.png
+        type-historic-visit.png
+        type-performance.png
+      kkachi-face.png
+      kkachi-hello.png
+      kkachi-sleep.png
+      kkachi-wake.png
+      landing-autumn.jpg
+      landing-spring.jpg
+      place-craft.jpg
+      place-museum.jpg
+      place-palace.jpg
+    css/
+      app.css
+      tokens.css
+    dev_server.py
+    index.html
+    js/
+      api.js
+      app.js
+      chat.js
+      landing.js
+      parse.js
+      place.js
+      saved.js
+      state.js
+      util.js
+      weather.js
   utils/
     AGENTS.md
     README.md

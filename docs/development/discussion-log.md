@@ -590,3 +590,14 @@ MDN제한지원·Chrome온라인인식과WebKit Safari/Siri설정자료확인. �
 원격 기획 갱신 기록: ['PRD v0.7.0·MVP 화면명세 v0.3.0 정본 갱신. develop 기준 브랜치에서 문서 전용 브랜치 docs/prd-v0.7.0-screen-v0.3.0 생성, 정본·안내·추적성·색인 갱신, 요청된 임시 원본만 정리. 링크/ID/diff 검증 통과. 커밋 eafcff7aeee14ab145cf51a37d98badb4e2d947b Push, PR #17 https://github.com/Lab678-Hackathon/lab678/pull/17 생성, 열려 있음·미병합.']
 
 이전 개발 화면을 최신 PRD 완료로 표시하지 않는다. H04/H05/H07의 자동추천/대화내3카드, H11의 검증정보 게이트, 상세/내부지도/저장 연결을 후속 추적으로 남긴다. 실제 사용자 Windows5턴과 수정후 모의43구간은 별도이며 MacBook/휴대폰/공개재배포는 미검증이다. 비밀값5개 대조 결과 추적파일160개 누출0건, 키파일/plan_dj/.local 제외 유지.
+
+
+## 2026-11-01 · dj/agent 분기·계획 복사본 정리 승인 실행
+
+사용자는 최신 develop을 조상으로 dj/agent를 만들고 개인 계획을 복사/정리하는 실시계획 v1에 “분기·복사본 정리만 승인”이라고 명시했다. 기능 구현·프론트 수정·Push·배포는 제외다. 원격 develop을 Fetch해 252c07c를 고정하고 D:/git/lab678/.local/worktrees/dj-agent에 dj/agent를 별도 생성했다. 기존 D:/git/lab678의 dj/develop·main/develop·작업 파일·개인 백업은 보존했다.
+
+원본 개인 자료 763개를 바이트 검증 복사한 뒤 새 복사본만 정리했다. 활성 계획은 README/TODO/실시계획/미정/보존자산/정리매니페스트 6파일로 통합했으며 미완료5개·별도/미정2개를 남겼다. 개인 고도화의 구현 완료와 최신 develop 미반영을 구분해 이식/검증 대기로 유지하고, 프론트 관련 요구는 담당자 전달 범위로 남겼다. 원본 파일 삭제0. plan_dj는 Git/공유색인 제외다.
+
+현재 승인 규칙을 AGENTS/engineering-loop에 이관하고 새 작업폴더의 개인 브랜치 기준만 utils/harness.json에 맞췄다. 서비스·프론트·도구 스크립트 기능 변경이나 개인 AI 이식, 실제 키 복사·서버 실행·TTS 설치/합성은 하지 않았다. 과거 이력의 Push/구현 허락을 이 브랜치의 새 작업 승인으로 재사용하지 않는다. 준비 검증 결과는 이번 완료 보고에 기록한다.
+
+준비 검증: 원본 추적375/개인763파일 SHA256 전부 불변, 원본 checkout·main/develop/dj/develop 불변. 새 develop 조상·서비스/프론트/하네스 스크립트 동일 확인. 설정 diff는 개인 branch 항목뿐, 활성 계획6파일·Git/공유색인 제외·문서링크·생성색인/상태 정상. 전체 정적 하네스는 기준 코드에 이미 있던 OfficialImageTest/EndpointTest 클래스 설명 누락2건으로 FAIL이며 무관한 테스트를 고치지 않았다. 코드/기능 QA나 실제 음성 검증은 미실시. 전체 보고 reports/20261101-dj-agent-setup.md.
