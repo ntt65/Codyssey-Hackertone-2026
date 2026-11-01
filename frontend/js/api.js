@@ -145,3 +145,13 @@ export async function transitRoute(from, to) {
   if (status === 200 && data?.status === 'no_results') return { kind: 'no_results', message: data.message || '이 구간의 대중교통 경로를 찾지 못했어요.' };
   return { kind: 'error', message: data?.message || '대중교통 경로를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.' };
 }
+
+/**
+ * 행사 문의 전화번호 (서울시 문화포털 상세 페이지의 '문의' 칸)
+ * @param {string} url 공식 안내 주소
+ * @returns {Promise<string[]>} 번호 목록, 없거나 실패하면 []
+ */
+export async function eventContact(url) {
+  const r = await post('/preview/contact', { url });
+  return r?.status === 200 && r.data?.status === 'ready' ? r.data.phones : [];
+}

@@ -16,9 +16,10 @@ from map_config import map_config
 from places import search_places
 from naito_chat import chat
 from tour_places import culture_places
+from contact import event_contact
 from team_app import app_directory, app_asset
 
-POST_PATHS = {"/preview/recommend", "/preview/voice", "/preview/walk", "/preview/transit", "/preview/places", "/preview/chat", "/preview/culture-places"}
+POST_PATHS = {"/preview/recommend", "/preview/voice", "/preview/walk", "/preview/transit", "/preview/places", "/preview/chat", "/preview/culture-places", "/preview/contact"}
 
 
 def allowed_origins():
@@ -146,6 +147,10 @@ class Preview(BaseHTTPRequestHandler):
                 raise ValueError("요청 형식을 확인해 주세요.")
             if self.path == "/preview/culture-places":
                 status, body = culture_places(data)
+                self.reply(status, body)
+                return
+            if self.path == "/preview/contact":
+                status, body = event_contact(data)
                 self.reply(status, body)
                 return
             if self.path == "/preview/chat":
