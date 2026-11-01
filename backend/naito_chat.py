@@ -129,6 +129,11 @@ def chat(data):
             result["assistant_text"] = "이번 말씀은 조건에 반영하지 못했어요. 입력 칸에서 확인하거나 출발지·날짜·시각·대표 분류를 다시 말씀해 주세요."
             result["ready_to_search"] = False
             result["interpretation_status"] = "no_supported_change"
+        # 모델 후보가 유효하고 보류되지 않은 필드명만 내보낸다. 값과 원문은 포함하지 않는다.
+        interpreted = [field for field, value in proposal.items()
+                       if isinstance(field, str) and field in FIELDS and value is not None and field not in blocked]
+        if interpreted:
+            result["interpreted_fields"] = interpreted
         result["source"] = "naito"
         result["model"] = model
         return 200, result

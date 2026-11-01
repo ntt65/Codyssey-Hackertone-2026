@@ -56,6 +56,7 @@ class NaitoChatTests(unittest.TestCase):
         self.assertEqual(result["updated_condition_draft"]["category"], "국악")
         self.assertFalse(result["ready_to_search"])
         self.assertNotIn("clarification_fields", result)
+        self.assertEqual(result["interpreted_fields"], ["category"])
 
     def test_errors_do_not_disclose_or_replace(self):
         """공급자 오류/비JSON/사실 생성은 오류로 남기고 키·원문·가짜 초안을 노출하지 않는다."""
@@ -87,6 +88,7 @@ class NaitoChatTests(unittest.TestCase):
         self.assertEqual(result["interpretation_status"], "no_supported_change")
         self.assertFalse(result["ready_to_search"])
         self.assertNotIn("clarification_fields", result)
+        self.assertNotIn("interpreted_fields", result)
 
     def test_provider_reply_cannot_clear_required_condition(self):
         """모의 공급자의 필수 조건 무단 삭제는 보류하고 기존 초안을 보존한다."""
@@ -102,6 +104,25 @@ class NaitoChatTests(unittest.TestCase):
         self.assertEqual(result["interpretation_status"], "needs_clarification")
         self.assertFalse(result["ready_to_search"])
         self.assertEqual(result["clarification_fields"], ["unsupported_requirements"])
+        self.assertNotIn("interpreted_fields", result)
+
+    def test_interpreted_fields_preserve_reconfirmation_and_omit_blocked(self):
+        """기존 값 재확인과 명시 해제는 필드명으로만 내보내고 보류와 null은 제외한다."""
+        from chat_grounding import GroundedProposal
+        draft = {"free_only": False, "category": "전시"}
+        proposal = GroundedProposal({"free_only": False, "category": "전시", "start_at": None}, ("start_query",))
+        with patch("naito_chat.settings", return_value=("secret-test", "mock-model")), \
+                patch("naito_chat.extract_conditions", return_value=proposal):
+            status, result = chat(dict(self.data, message="비공개 발화", condition_draft=draft))
+        self.assertEqual(status, 200)
+        self.assertEqual(result["interpreted_fields"], ["free_only", "category"])
+        self.assertEqual(result["clarification_fields"], ["start_query"])
+        self.assertNotIn("비공개 발화", json.dumps(result, ensure_ascii=False))
+        with patch("naito_chat.settings", return_value=("secret-test", "mock-model")), \
+                patch("naito_chat.extract_conditions", return_value=GroundedProposal({"free_only": False}, ("free_only",))):
+            status, result = chat(dict(self.data, condition_draft=draft))
+        self.assertEqual(status, 200)
+        self.assertNotIn("interpreted_fields", result)
 
     def test_clarification_fields_validate_and_do_not_leak(self):
         """보류 필드에는 허용 이름만 한 번 노출하고 원문은 포함하지 않는다."""
