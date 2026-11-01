@@ -35,6 +35,10 @@ let placeOptions = [];
 let recognizer = null;
 let voiceMode = false; // 말로 대화 화면이면 까치가 질문한 뒤 다시 들어요
 let discardVoice = false;
+// 새 대화/재입력 뒤 도착한 이전 대화 결과와 음성 콜백을 구분해요.
+let chatGeneration = 0;
+let activeChat = null;
+let lastTurn = null;
 
 /* ---------------- 조건 ---------------- */
 
@@ -165,8 +169,13 @@ function actions() {
   const box = $('#chat-actions');
   box.replaceChildren();
   const chip = (label, fn, cls = 'chip') => box.append(button(label, cls, fn));
-  if (busy) return;
+  if (busy) {
+    if (activeChat) chip('다시 말하기', retryLastTurn);
+    return;
+  }
+  if (recognizer) { chip('다시 말하기', retryLastTurn); return; }
   const last = state.messages[state.messages.length - 1];
+  if (lastTurn) chip('다시 말하기', retryLastTurn);
   if (last?.retry) { chip('같은 조건으로 다시 찾기', () => search()); return; }
   if (last?.music && !state.pending) {
     ['국악', '클래식', '콘서트'].forEach((c) => chip(c, () => answer(c, { category: c })));
@@ -198,7 +207,7 @@ function actions() {
   } else if (state.shown.length) {
     chip('다른 곳 보여줘', () => { userSays('다른 곳도 보여줘'); other(); });
     chip('더 가까운 곳', () => { userSays('더 가까운 곳으로 알려줘'); closer(); });
-    chip('새로 이야기하기', () => { resetChat(); start(); }, 'chip chip--ghost');
+    chip('새로 이야기하기', () => { newChat(); start(); }, 'chip chip--ghost');
   }
 }
 
@@ -248,6 +257,9 @@ function liveBubble() {
  * 까치가 말하는 동안에는 마이크를 켜지 않아요 (자기 목소리를 다시 듣지 않게).
  */
 function speak(text, then) {
+  const generation = chatGeneration;
+  const originalThen = then;
+  then = originalThen ? () => { if (generation === chatGeneration) originalThen(); } : null;
   const avatar = [...document.querySelectorAll('#chat-log .msg--ai .msg__avatar')].pop(); // 방금 말한 까치
   const ms = Math.min(600 + text.length * 70, 5000);
   talkFor(avatar, ms);
@@ -316,7 +328,7 @@ function updateVoiceUi() {
   $('#chat-mic').classList.toggle('is-listening', on);
   $('#chat-mic').setAttribute('aria-label', on ? '듣는 중 · 누르면 보내요' : '말하기');
   $('#voice-main').classList.toggle('is-listening', on);
-  $('#voice-main-label').textContent = on ? '말하기 마치기' : '말하기';
+  $('#voice-main-label').textContent = on ? '말씀 끝 · 보내기 ▶' : '말하기';
   $('#voice-wave').hidden = !on;
   $('#listen-bird').classList.toggle('is-listening', on); // 듣는 중엔 귀 기울이듯 움직여요
   $('#float-bird').classList.toggle('is-listening', on);
@@ -424,6 +436,7 @@ function listen(auto = false) {
     eng.interimResults = true;
     eng.continuous = true;
     eng.onresult = (e) => {
+      if (s.done) return;
       const { fin, mid } = joinResults(e.results);
       if (isEcho(`${fin} ${mid}`)) return; // 까치 목소리를 마이크가 다시 들은 것이면 무시
       s.finalText = fin;
@@ -431,7 +444,7 @@ function listen(auto = false) {
       show();
       clearTimeout(s.timers.noSpeech);
       clearTimeout(s.timers.quiet);
-      s.timers.quiet = setTimeout(() => s.finish('quiet'), VOICE.endOfSpeechMs); // 마지막 말 뒤 4초 조용하면 보내요
+      if (!s.stopping) s.timers.quiet = setTimeout(() => s.finish('quiet'), VOICE.endOfSpeechMs); // 마지막 말 뒤 4초 조용하면 보내요
     };
     eng.onerror = (e) => {
       if (e.error === 'not-allowed' || e.error === 'service-not-allowed') s.finish('denied');
@@ -452,15 +465,58 @@ function listen(auto = false) {
   if (voiceMode) { $('#chat-log').append(liveBubble()); scrollEnd(); }
   s.timers.noSpeech = setTimeout(() => { if (!text()) s.finish('nospeech'); }, VOICE.noSpeechMs);
   s.timers.max = setTimeout(() => s.finish('max'), VOICE.maxTalkMs);
-  try { begin(); } catch { recognizer = null; s.done = true; clear(); updateVoiceUi(); }
+  try { begin(); render(); } catch { recognizer = null; s.done = true; clear(); updateVoiceUi(); }
 }
 
 /** 말하기 마치기: 지금까지 들은 말만 바로 보내요 */
 function stopListening() {
-  if (!session || session.done) return;
-  session.stopping = true;
+  if (!session || session.done || session.stopping) return;
+  const current = session;
+  current.stopping = true;
+  clearTimeout(current.timers.quiet);
   try { recognizer?.stop(); } catch { /* 무시 */ }
-  setTimeout(() => session?.finish('user'), 800); // 브라우저가 늦으면 그때까지 들은 말로 보내요
+  current.timers.stop = setTimeout(() => current.finish('user'), 800); // 브라우저가 늦으면 그때까지 들은 말로 보내요
+}
+
+/** 현재 발화만 취소해 다시 입력한다. 뒤에서 고친 조건은 덮어쓰지 않는다. */
+function retryLastTurn() {
+  if (recognizer) {
+    discardVoice = true;
+    session?.finish('discard');
+    discardVoice = false;
+    if (voiceMode) listen();
+    else { $('#chat-input').value = ''; $('#chat-input').focus(); }
+    return;
+  }
+  if (!lastTurn) return;
+  ++chatGeneration;
+  activeChat = null;
+  busy = false;
+  const turn = lastTurn;
+  lastTurn = null;
+  if (turn.after && (JSON.stringify(d()) !== JSON.stringify(turn.after) || JSON.stringify(state.pending) !== JSON.stringify(turn.pendingAfter))) {
+    say('조건이 바뀌어 이전 내용은 그대로 두었어요. 고칠 조건을 다시 말씀해 주세요.', { ask: true });
+    return;
+  }
+  if (turn.after) state.draft = JSON.parse(JSON.stringify(turn.before));
+  state.pending = turn.pendingBefore;
+  state.revision += 1;
+  save();
+  if (voiceMode) { say('다시 말씀해 주세요.', { ask: true }); }
+  else { $('#chat-input').value = turn.text; render(); $('#chat-input').focus(); }
+}
+
+/** 이전 요청과 음성 세션을 무효화하고 새 대화를 시작한다. */
+function newChat() {
+  ++chatGeneration;
+  ++ticket;
+  activeChat = null;
+  lastTurn = null;
+  busy = false;
+  if (recognizer) { discardVoice = true; session?.finish('discard'); }
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  resetChat();
+  placeOptions = [];
 }
 
 /** 글자로 입력하기: 채팅 화면으로. 듣던 말은 입력 칸에 넣어 고칠 수 있게 */
@@ -495,41 +551,71 @@ function fromServerDraft(sd) {
   return out;
 }
 
-/** 문장 해석: AI 대화 API 가 있으면 쓰고, 없으면 규칙 해석 */
+/** 서버 해석을 받고 보류와 오류를 변경 후보와 구분한다. */
 async function interpret(text) {
   const history = state.messages.slice(-7, -1).filter((m) => m.text)
     .map((m) => ({ role: m.role === 'ai' ? 'assistant' : 'user', content: m.text.slice(0, 1000) }));
   try {
     const r = await requestChat({ message: text, condition_draft: toServerDraft(), confirmed_fields: [], revision: state.revision, conversation_context: history });
     if (r.kind === 'ok') {
-      state.revision += 1;
       const p = fromServerDraft(r.data.updated_condition_draft);
       // 서버 AI 는 공연·체험·축제 묶음을 몰라서 "전체"로 줄 수 있어요. 문장에 묶음 말이 있으면 그걸 써요.
       const local = parseUtterance(text).category;
-      if (GROUP[local] && (!p.category || p.category === '전체')) p.category = local;
+      if (!r.data.interpretation_status && GROUP[local] && (!p.category || p.category === '전체')) p.category = local;
       if (r.data.music_followup || r.data.updated_condition_draft?.music_followup) p.ask = r.data.assistant_text;
-      return p;
+      return { changes: p, response: r.data };
     }
-  } catch { /* 규칙 해석으로 */ }
-  const p = parseUtterance(text);
-  if (p.useHere) p.useHere = true;
-  return p;
+    return { error: r.message || '대화 해석을 사용할 수 없어요. 다시 시도하거나 아래에서 직접 선택해 주세요.' };
+  } catch { return { error: '대화 해석을 사용하지 못했어요. 다시 시도하거나 아래에서 직접 선택해 주세요.' }; }
 }
 
 /** 사용자 한마디 처리 */
 async function handle(text) {
   if (busy) return;
+  const generation = ++chatGeneration;
+  const before = JSON.parse(JSON.stringify(d()));
+  const previousPending = JSON.parse(JSON.stringify(state.pending));
+  const requestRevision = state.revision;
+  lastTurn = { text, before, after: null, pendingBefore: previousPending, pendingAfter: previousPending };
   userSays(text);
   // 결과 뒤 짧은 요청
   if (state.shown.length && /다른\s*(곳|데)|딴\s*데/.test(text) && !/에서 출발/.test(text)) { other(); return; }
   if (state.shown.length && /가까운/.test(text)) { closer(); return; }
   busy = true;
+  activeChat = generation;
   render();
-  const p = await interpret(text);
+  const result = await interpret(text);
+  if (generation !== chatGeneration) return;
+  if (requestRevision !== state.revision || JSON.stringify(before) !== JSON.stringify(d())) {
+    activeChat = null;
+    busy = false;
+    lastTurn = null;
+    say('조건이 바뀌어 이전 응답은 적용하지 않았어요. 다시 말씀해 주세요.', { ask: true });
+    return;
+  }
+  activeChat = null;
   busy = false;
+  if (result.error) { say(result.error); return; }
+  state.revision += 1;
+  const p = result.changes;
   const { useHere: here, startQuery, ask, ...changes } = p;
   patch(changes);
+  lastTurn.after = JSON.parse(JSON.stringify(d()));
+  lastTurn.pendingAfter = JSON.parse(JSON.stringify(state.pending));
+  if (result.response.interpretation_status === 'needs_clarification' || result.response.interpretation_status === 'no_supported_change') {
+    say(result.response.assistant_text || '조건을 다시 말씀해 주세요.', { ask: true });
+    return;
+  }
+  if (result.response.conflicts?.length) {
+    say(result.response.assistant_text || '바꿀 조건을 다시 확인해 주세요.', { ask: true });
+    return;
+  }
+  if (result.response.field_errors?.length) { say(result.response.field_errors[0].message, { ask: true }); return; }
   if (ask) { say(ask, { ask: true, music: true }); return; } // AI 가 음악 종류를 되물을 때
+  if (result.response.ready_to_search === false && !missing() && !startQuery) {
+    say(result.response.assistant_text || '조건을 다시 확인해 주세요.', { ask: true });
+    return;
+  }
   if (here) { await useHere(); return; }
   if (startQuery && !d().startLocation) { await findStart(startQuery); return; }
   if (startQuery && state.lastRequest) { await findStart(startQuery, true); return; }
@@ -771,7 +857,7 @@ export function renderChat(opts = {}) {
   const mode = opts.voice === true ? 'voice' : opts.voice === false ? 'text' : (state.mode || 'text');
   setMode(mode);
   // 홈에서 '말로 대화 시작하기'로 다시 들어왔는데 아직 아무 말도 안 했으면, 인사부터 다시 해요 (예전엔 말없이 마이크만 켜졌어요)
-  if (opts.voice === true && !state.messages.some((m) => m.role === 'user')) { resetChat(); placeOptions = []; }
+  if (opts.voice === true && !state.messages.some((m) => m.role === 'user')) newChat();
   const fresh = !state.messages.length;
   start();
   if (mode === 'voice' && !fresh) { // 이어서 하는 대화면 까치가 마지막 말을 다시 해 주고 들어요
@@ -792,7 +878,7 @@ export function initChat() {
   $('#chat-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const v = $('#chat-input').value.trim();
-    if (!v) return;
+    if (!v || busy) return;
     $('#chat-input').value = '';
     handle(v);
   });
@@ -801,5 +887,5 @@ export function initChat() {
   $('#voice-to-text').addEventListener('click', toText);
   window.addEventListener('hashchange', () => { if (recognizer) { discardVoice = true; session?.finish('discard'); } });
   $('#chat-sound').addEventListener('click', () => { unlockSpeech(); setSound(!state.sound); });
-  $('#chat-new').addEventListener('click', () => { resetChat(); placeOptions = []; start(); });
+  $('#chat-new').addEventListener('click', () => { newChat(); start(); });
 }
