@@ -169,7 +169,6 @@ function savedCard(p) {
 /** S01: 저장이 있을 때만 미리보기 (D06) */
 function renderHome() {
   const list = savedPlaces();
-  $('#s01 [data-signed-in]').hidden = !isSignedIn();
   $('#home-saved').hidden = !list.length;
   $('#home-saved-list').replaceChildren(...list.slice(0, 1).map(savedCard));
   talkFor($('#home-bird'), 2200);
