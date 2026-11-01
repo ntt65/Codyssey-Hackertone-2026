@@ -601,3 +601,5 @@ MDN제한지원·Chrome온라인인식과WebKit Safari/Siri설정자료확인. �
 현재 승인 규칙을 AGENTS/engineering-loop에 이관하고 새 작업폴더의 개인 브랜치 기준만 utils/harness.json에 맞췄다. 서비스·프론트·도구 스크립트 기능 변경이나 개인 AI 이식, 실제 키 복사·서버 실행·TTS 설치/합성은 하지 않았다. 과거 이력의 Push/구현 허락을 이 브랜치의 새 작업 승인으로 재사용하지 않는다. 준비 검증 결과는 이번 완료 보고에 기록한다.
 
 준비 검증: 원본 추적375/개인763파일 SHA256 전부 불변, 원본 checkout·main/develop/dj/develop 불변. 새 develop 조상·서비스/프론트/하네스 스크립트 동일 확인. 설정 diff는 개인 branch 항목뿐, 활성 계획6파일·Git/공유색인 제외·문서링크·생성색인/상태 정상. 전체 정적 하네스는 기준 코드에 이미 있던 OfficialImageTest/EndpointTest 클래스 설명 누락2건으로 FAIL이며 무관한 테스트를 고치지 않았다. 코드/기능 QA나 실제 음성 검증은 미실시. 전체 보고 reports/20261101-dj-agent-setup.md.
+
+최종 후속 비교: 10:27:24 초기 원본375/763파일 전체 해시 통과 뒤 기존 폴더의 공용state/current-state 및 개인 current-state/development-only-handoff/local-korean-tts-proposal 5문서가 별도로 갱신됐다. 이 작업은 새 worktree에만 기록했으며 기존 문서의 후속 갱신을 덮어쓰거나 원복하지 않았다. 원본 파일 삭제0, 원본 제품코드·기존 ZIP 해시 불변, 보호 로컬 브랜치 유지. 이 차이를 전체 보고와 사설 검증JSON에 명시한다.
