@@ -78,18 +78,17 @@
         <div class="home__say">
           <strong>오늘은 나들이가 어떠세요?</strong>
           <span class="muted" id="home-say">하고 싶은 나들이를<br>편하게 말해 주세요.</span>
-          <span class="credit-mini" id="home-weather-credit" hidden>날씨 © Open-Meteo</span>
         </div>
       </div>
-      <button class="btn btn--primary btn--icon" type="button" data-go="/chat?voice">
+      <button class="btn btn--primary btn--icon home__start" type="button" data-go="/chat?voice">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>말로 대화 시작하기
       </button>
       <button class="btn btn--outline" type="button" data-go="/chat?text">글자로 이야기하기</button>
-      <p class="home__example muted">“내일 오후에 종로에서 전시 보고 싶어요.”</p>
       <div id="home-saved" hidden>
         <h2 class="home__section-title">내 나들이</h2>
         <div id="home-saved-list"></div>
       </div>
+      <span class="credit-mini home__credit" id="home-weather-credit" hidden>날씨 © Open-Meteo</span>
     </div>
   </section>
 
