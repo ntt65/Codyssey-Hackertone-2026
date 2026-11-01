@@ -4,7 +4,7 @@
     "김동조 · Lab678. 작업폴더 D:/git/lab678, 현재 새 dj/develop. 기준 origin/develop e5697e21d02b76336c6db7fe2208675f9aff6ca4. 원본 dj/agent d541ea5, 검증 코드 b6355a0 보존."
   ],
   "objective": [
-    "사용자 실사용 후 ‘이대로 푸시·이슈 자세히·PR발행’ 승인. e5697e2 직계 기반의 검증 dj/develop을 게시하고 새 develop PR을 발행한다. dj/agent 전체 merge 없이 엔진/최소 UI 선택 이식·비교1073→662행·원형 보존을 상세 기록. 현재 게시 사전검사 진행."
+    "검증 이식본 e7163aa를 dj/develop에 push하고 develop 대상 PR69 발행 완료. 기존 Issue67을 현재 대상 설계/의도/계약/비교/검증/한계 중심으로 상세 재작성. e569 직접 부모·djagent 전체merge0·프론트1073→662변경행과 보호UI 근거를 명시. 현재 게시 결과 문서 정리 후 팀 검토/사용자 QA 대기."
   ],
   "permissions": [
     "최신 사용자 ‘다 되면 계획 저장하고 보여주고 시작해’, ‘체크리스트를 만들어 하나씩 체크하면서 실행 점검 보완 진행해’로 계획 M0~M5 실시 승인. 계획/명세 저장·링크 제시 후 시작했다. 이전 ‘일단 계획’ 제한은 이 최신 실시 지시로 갱신됐다.",
@@ -24,25 +24,26 @@
     "M2: 핵심4모듈 source동일+agent_v3.py 분리. naito_chat version분기3줄/기존 SYSTEM·provider와 도메인 보존. target backend241/241·표적141/141 PASS. 중간 chat_dialogue 미이식.",
     "M3: agent-session.js와 기존 api/state/chat/place/app의 최소 접점. 선택버튼/현재batch/후보별상세·원점/복귀/실제모호origin popup 구현. HTML dialog10줄·CSS12줄만 추가, 보호 assets/weather/util/saved/tokens 변경0.",
     "M4: 실제HTTP/store/DOM23/23·legacy상태15/15·기존HTTP/대화/추천 PASS. 일반back TTS/nativeback STT·TTS/fork sound=true TTS를 재현하고 최소수정 후 동일assert통과. 늦은선택응답뒤홈유지/조건·선택보존 통과. 실제모델/원천/장치추가0.",
-    "M5: backend7256/frontend32388로5173실행,제공8파일/v3open/미검증선택거절/모델0/lease반납확인. 이슈67전체35463자·PR68본문27101자 재조회일치. 도구26PASS/기존docstring7FAIL·신규정적0·문서색인정합PASS. 체크리스트전부완료/인계보존."
+    "M5: backend7256/frontend32388로5173실행,제공8파일/v3open/미검증선택거절/모델0/lease반납확인. 이슈67전체35463자·PR68본문27101자 재조회일치. 도구26PASS/기존docstring7FAIL·신규정적0·문서색인정합PASS. 체크리스트전부완료/인계보존.",
+    "게시: 검증본44파일을 사용자명의/원문보고문으로 e7163aa커밋(단일부모e569,b635조상아님). oldremote80을별도backupref로보존후exact80 leasepush·develop불변확인. PR69 open/mergedfalse/base develop/head djdevelop 및본문확인. 기존Issue67현행대상상세본문재작성. 키패턴0/runtime28해시검증본동일."
   ],
   "in_progress": [
-    "게시manifest/secret/hash·원격tip/기준확인→검증본원자commit→이전원격보존/leasepush→기존Issue67상세갱신/새PR→최종기록진행. 코드28파일은직전검증archive와해시동일,기존open대상PR없음확인."
+    "PR69 팀 검토와 사용자 기기 QA 대기. 로컬 http://127.0.0.1:5173/의 현재 이식본 유지. 후속 개선은 새 재현 근거·승인 범위로만 진행하며 merge/deploy하지 않는다."
   ],
   "next": [
-    "현재검증본게시및새PR발행을완료하고실제URL/SHA/조상·원형보존·검증/한계를보고. develop병합/배포0,source djagent d541과oldtarget80보존. 이후피드백은새근거있는최소수정만."
+    "실제 PR69/Issue67 링크·검증코드SHA와최소UI근거를최종보고. 원격head/조상/develop불변·작업폴더clean 확인 후 팀 검토/사용자피드백대기. 자동merge/배포/새기능개발0."
   ],
   "open_questions": [
-    "구현 중 handshake직후canonicalnull1회관측은후속비재현/직접원인미확정. 최종23시나리오는통과했으나 실제사용에서재현되면대화/응답경계추가수집. 과거소스502/200조회0직접원인과별개로기록.",
-    "HTML/CSS 예외는선택접점/모호출발지dialog국소범위. 보호21파일중index/app.css만차이,assets/weather/util/saved/tokens유지. 추가전체설정/날짜/회차/찜/취소기능은후속제안.",
-    "기존원격80에서새검증본으로교체해야하는게시상황. 최신요청에따라oldtip별도보존→exact80기대lease가드만허용. 원격전진시중단해차이검토,자동merge/무조건force/delete금지.",
-    "단일프로세스임시store/TTL·공급자결측/조회범위·영화작품/회차미연동한계유지. 실제모델평가예산을자동초기화하거나기기QA로대체하지않음. 기본마감커밋제한과현재대상게시승인범위는분리."
+    "초기handshake직후canonicalnull1회는후속비재현/직접원인미확정. 최종HTTP-DOM23통과와구분. 실제사용재현시응답경계수집. 과거source502/200조회0직접원인과별개로기록.",
+    "HTML/CSS는dialog10줄/전용12줄,assets/weather/util/saved/tokens/landing/parse기준동일. 최소JS세션/선택/복귀접점은변경됐으므로frontend무변경이라고하지않음. 추가찜/일정/회차/취소는후속범위.",
+    "원격djdevelop은새이식코드게시,이전80tip은dj/develop-before-engine-20261101에보존. latestuserpush/PR요청으로이번게시예외만허용했고기본guard/날짜조작0. main/develop병합·배포는미승인/미실시.",
+    "메모리store/TTL·공급자결측/조회범위·영화작품/회차미연동·실기기QA한계유지. backend241/표적141/DOM23/legacy15와기존API·대화·추천/도구26PASS,전체하네스는기존docstring7FAIL. GitHub CI의별도status보고는확인시점없음."
   ],
   "read_next": [
-    "docs/development/agent-engine-migration-plan.md: 승인 원문·M0~M5 체크표·새 기준·파일/보호 범위·최소 popup/버튼·검증/복구. 현재 target 진행으로 갱신한다.",
-    "docs/development/agent-implementation-spec.md: 소스 dj/agent의 현행 의도/3축/실제 기능/계약/실패/검증/한계. source 코드 b6355a0, docs d541ea5를 git show로 선택 참조한다.",
-    ".local/engine-port-checkout.json, engine-port-baseline.json, engine-port-protected-baseline.json, migration-docs-packet.json: 실제 기준선/보존/보호 파일 근거. 실제 env/키는 읽기/복사/게시하지 않는다.",
-    "TEAM_WORKFLOW.md·AGENTS.md·docs/development/engineering-loop.md·각 폴더 AGENTS와 utils/README를 준수하되 최신 사용자 지시의 target dj/develop 실시 승인이 과거 branch 제한을 갱신한다.",
-    "backend/README.md·docs/development/team-backend-guide.md·기존 API 명세, docs/planning/README.md→PRD/화면명세. 기존 source 성적/기획팀 검토와 실제 target QA를 구분한다."
+    "docs/development/agent-engine-publication.md: PR69/Issue67·검증코드e716/직접부모e569·source전체merge0·backup/lease게시·최소UI변경비교.",
+    "docs/development/agent-engine-port-progress.md: targetbaseline134→backend241/DOM23·legacy15/HTTP/대화/추천·도구26·음성3결함재현/수정·7기존정적FAIL.",
+    "docs/development/agent-engine-migration-plan.md와agent-implementation-spec.md: 승인범위/3축/실제기능·데이터/API/store·복구/한계. source성적253/19/9와target성적구분.",
+    "TEAM_WORKFLOW.md·AGENTS.md·engineering-loop.md·utils/README.md: 실제targetdj/develop/최신게시승인·원문보고커밋·병합금지·후속작업범위.",
+    ".local/engine-port-published-code.json, engine-port-push-proof.json, engine-port-completed.json:검증본/조상/lease·oldtip보존/소스해시근거. 실제env·키·개인browserstorage공개0."
   ]
 }

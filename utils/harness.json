@@ -50,7 +50,8 @@
       "utils/scripts/check_agent_v3.cjs",
       "docs/development/agent-implementation-spec.md",
       "docs/development/agent-engine-migration-plan.md",
-      "docs/development/agent-engine-port-progress.md"
+      "docs/development/agent-engine-port-progress.md",
+      "docs/development/agent-engine-publication.md"
     ],
     "정식 문화정보 조회 확대·국문 문화시설": [
       "backend/culture_config.py",

@@ -96,3 +96,5 @@
 | 합계 | 기존8파일 +1014/-59 =1073변경행 | 기존7+신규1파일 +633/-29 =662변경행 |
 
 새 adapter132줄도 대상 합계에 포함했다. 변경행은 검토 범위 지표이며 기능 품질/UX의 정량 점수가 아니다. HTML은 dialog10줄, CSS는 origin 전용12줄을 제외하면 기준과 동일하다. assets16개·weather/util/saved/tokens/landing/parse는 변경0이다. 전체 history 엔진/이전·홈 아이콘 신설을 옮기지 않고 기존 hashrouter와 화면을 유지했다.
+
+게시 코드 e7163aa를 dj/develop에 push했고 [PR69](https://github.com/Lab678-Hackathon/lab678/pull/69)를 develop 대상으로 발행했다. 단일 직접 부모 e5697e2, source b6355a0가 조상이 아님을 확인했다. 이전 원격80 tip은 별도 보존 후 lease 조건으로만 갱신했다. 이 문서의 앞선 로컬 미커밋/미게시 상태는 M5 당시 이력이다. 자세한 게시 범위·조상·비교는 [게시 기록](agent-engine-publication.md)을 따른다.

@@ -17,6 +17,8 @@
 
 후속 사용자 **“이대로 푸시 … PR발행해”**로 현재 검증본의 커밋·push와 새 `dj/develop → develop` PR 발행을 승인받았어요. 이전 원격 tip80d481b는 보존 ref를 먼저 만든 뒤, 조회한 SHA가 같을 때만 lease로 새 검증본을 게시해요. 마감 제한에 대한 이 게시 요청의 예외를 기록하고 공통 guard/날짜는 바꾸지 않아요. 이전의 미게시/새 PR 미승인 표시는 당시 기록이며, 병합·배포 금지는 유지해요.
 
+게시 코드 `e7163aa`의 직접 부모가 develop `e5697e2`이고 source `b6355a0`가 조상이 아님을 확인했어요. [PR69](https://github.com/Lab678-Hackathon/lab678/pull/69)는 open/미병합이며 [게시 기록](docs/development/agent-engine-publication.md)과 [이슈67](https://github.com/Lab678-Hackathon/lab678/issues/67)에 설계·프론트 최소 변경·검증·한계를 정리했어요. 이후 추가 개발·병합·배포는 이 게시 요청에서 추정하지 않아요.
+
 `dj/agent` 작업을 이어갈 때는 [현재 상태와 다음 할 일](docs/development/current-state.md)을 먼저 확인해요. [저장소 색인](docs/development/repo_index.md)·[기능/함수 역색인](docs/development/repo_reverse_index.md)·[구조](docs/development/repo_tree.md)로 파일을 좁히고, 필요한 경우에만 [개발 맥락](docs/development/README.md)과 [대화·작업 기록](docs/development/discussion-log.md)의 해당 부분을 읽어요. 공통 운영 규칙은 계속 `TEAM_WORKFLOW.md`를 기준으로 삼아요.
 
 김동조님은 완료한 작업을 작업 단위로 커밋하도록 상시 요청했어요. 이 요청에 따라 `dj/agent`에서 작업별로 커밋하며, push는 별도 명시 요청이 있을 때만 해요.

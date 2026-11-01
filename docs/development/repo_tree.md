@@ -83,6 +83,7 @@ lab678/
       README.md
       agent-engine-migration-plan.md
       agent-engine-port-progress.md
+      agent-engine-publication.md
       agent-implementation-spec.md
       agent-remediation-review.md
       automatic-voice.md
@@ -278,6 +279,7 @@ lab678/
         20261101-dj-agent-setup.md
         20261101-engine-port-local.md
         20261101-engine-port-publish-code.md
+        20261101-engine-port-published.md
         20261101-final-agent-plan.md
         20261101-root-location-commit.md
         automatic-voice-session.md
