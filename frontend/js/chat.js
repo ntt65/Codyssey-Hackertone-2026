@@ -27,7 +27,13 @@ const GROUP = {
 const serverCategory = (cat) => (GROUP[cat] ? '전체' : cat);
 /** 묶음 분류면 장르 이름으로 골라요 */
 const inGroup = (cat, c) => !GROUP[cat] || GROUP[cat].test(c.genre || '');
-const FIELD_NAME = { startLocation: '출발지', date: '날짜', time: '시간', category: '보고 싶은 것' };
+const FIELD_NAME = { startLocation: '출발지', date: '날짜', time: '시간', category: '보고 싶은 것',
+  categories: '관심 분야', free_only: '무료 여부', budget_krw: '관람 예산', keywords: '관심어',
+  exclude_terms: '제외 조건', walking_preference: '걷기 선호', indoor_outdoor: '실내외 선호',
+  unsupported_requirements: '필수 조건', music_followup: '음악 취향' };
+// 서버가 검증하는 이름을 그대로 보관해 false·빈 목록·any 해제를 잃지 않아요.
+const PREFERENCE_FIELDS = ['categories', 'music_followup', 'free_only', 'budget_krw', 'keywords',
+  'exclude_terms', 'walking_preference', 'indoor_outdoor', 'unsupported_requirements'];
 const MAX_CARDS = 3;
 let ticket = 0;
 let busy = false;
@@ -69,6 +75,11 @@ function summary() {
   if (d().date) parts.push(formatDate(d().date));
   if (d().startTime && d().endTime) parts.push(`${formatTime(d().startTime)}–${formatTime(d().endTime)}`);
   if (d().category) parts.push(CATEGORY_LABEL[d().category] || d().category);
+  if (d().free_only === true) parts.push('무료만');
+  if (typeof d().budget_krw === 'number') parts.push(`관람료 ${d().budget_krw.toLocaleString()}원 이내`);
+  if (d().keywords?.length) parts.push(`관심: ${d().keywords.join(', ')}`);
+  if (d().exclude_terms?.length) parts.push(`제외: ${d().exclude_terms.join(', ')}`);
+  if (d().walking_preference === 'short') parts.push('적게 걷기 선호');
   return parts.join(' · ');
 }
 
@@ -76,7 +87,26 @@ function summary() {
 function patch(changes) {
   const searched = !!state.lastRequest;
   const conflicts = [];
+  // 대표 분류와 복수 분류는 하나의 변경으로 확인해 서로 다르게 저장되지 않아요.
+  const group = ['category', 'categories', 'music_followup'];
+  const related = Object.fromEntries(group.filter((key) => Object.hasOwn(changes, key)).map((key) => [key, changes[key]]));
+  const categoryChanged = Object.entries(related).some(([key, value]) => {
+    const before = key === 'categories' && d().categories == null && d().category ? [serverCategory(d().category)]
+      : key === 'music_followup' && d().music_followup == null ? false : d()[key];
+    return JSON.stringify(before) !== JSON.stringify(value);
+  });
+  const hasExistingCategory = d().category != null || d().categories != null;
+  if (categoryChanged && searched && hasExistingCategory) {
+    const field = Object.hasOwn(related, 'categories') && JSON.stringify(d().categories) !== JSON.stringify(related.categories)
+      ? 'categories' : 'category';
+    const before = field === 'categories' ? (d().categories ?? [serverCategory(d().category)]) : d().category;
+    const after = field === 'categories' ? related.categories : (related.category ?? d().category);
+    conflicts.push({ field, before, after, related });
+  } else {
+    Object.assign(d(), related);
+  }
   for (const [k, v] of Object.entries(changes)) {
+    if (group.includes(k)) continue;
     if (v == null || v === '') continue;
     const before = d()[k];
     const same = JSON.stringify(before) === JSON.stringify(v);
@@ -84,7 +114,11 @@ function patch(changes) {
     if (searched && before != null && k !== 'startQuery') conflicts.push({ field: k, before, after: v });
     else d()[k] = v;
   }
-  if (conflicts.length) state.pending = conflicts[0];
+  if (conflicts.length) {
+    state.pending = conflicts[0];
+    state.pendingQueue = conflicts.slice(1);
+    state.pendingApplied = false;
+  }
   save();
 }
 
@@ -94,6 +128,9 @@ const show = (field, v) => {
   if (field === 'date') return formatDate(v);
   if (field === 'startTime' || field === 'endTime') return formatTime(v);
   if (field === 'category') return CATEGORY_LABEL[v] || String(v);
+  if (field === 'free_only') return v ? '무료만' : '유료도 포함';
+  if (field === 'budget_krw') return v === 'any' ? '예산 제한 없음' : `${Number(v).toLocaleString()}원`;
+  if (Array.isArray(v)) return v.length ? v.join(', ') : '제한 없음';
   return String(v);
 };
 
@@ -123,6 +160,7 @@ function card(c, index) {
   const body = el('div', 'chat-card__body');
   body.append(el('p', 'chat-card__meta', `${index + 1} · ${meta || '문화행사'}`), el('h3', null, c.title), el('p', 'muted', c.venue || '장소 이름 확인 필요'));
   body.append(el('p', 'chat-card__dist', c.distance_km != null ? `출발지에서 직선 약 ${c.distance_km}km` : '거리 확인 필요'));
+  (c.preference_reasons || []).forEach((reason) => body.append(el('p', 'chat-card__meta', reason)));
   const warns = [];
   if (!c.opening_info) warns.push('운영시간 확인 필요');
   if (!c.price_info && c.fee_type !== '무료') warns.push('가격 확인 필요');
@@ -188,6 +226,17 @@ function actions() {
     chip(`${show(p.field, p.before)} 유지`, () => resolvePending(false));
     return;
   }
+  if (placeOptions.length) {
+    placeOptions.forEach((p) => {
+      const address = p.road_address || p.address;
+      chip(address && address !== p.label ? `${p.label} · ${address}` : p.label, () => {
+        placeOptions = [];
+        answer(`${p.label}에서 출발해요`, { startLocation: { label: p.label, lat: p.lat, lng: p.lng, ...(address ? { address } : {}) } });
+      });
+    });
+    if (d().startLocation) chip('기존 출발지 유지', () => { placeOptions = []; say('기존 출발지를 그대로 둘게요.'); });
+    return;
+  }
   const need = missing();
   if (need === 'category') CATEGORIES.forEach(([c, label]) => chip(label, () => answer(label, { category: c })));
   else if (need === 'date') {
@@ -201,7 +250,6 @@ function actions() {
     chip('오후 2시–5시', () => answer('오후 2시부터 5시까지요', { startTime: '14:00', endTime: '17:00' }));
     chip('오전 10시–12시', () => answer('오전 10시부터 12시까지요', { startTime: '10:00', endTime: '12:00' }));
   } else if (need === 'startLocation') {
-    placeOptions.forEach((p) => chip(p.label, () => answer(`${p.label}에서 출발해요`, { startLocation: { label: p.label, lat: p.lat, lng: p.lng } })));
     chip('현재 위치 사용', useHere, 'chip chip--primary');
     if (isTest()) chip('QA 고정: 청량리역', () => answer('청량리역에서 출발해요', { startLocation: QA_START }));
   } else if (state.shown.length) {
@@ -494,12 +542,16 @@ function retryLastTurn() {
   busy = false;
   const turn = lastTurn;
   lastTurn = null;
-  if (turn.after && (JSON.stringify(d()) !== JSON.stringify(turn.after) || JSON.stringify(state.pending) !== JSON.stringify(turn.pendingAfter))) {
+  if (turn.after && (JSON.stringify(d()) !== JSON.stringify(turn.after) || JSON.stringify(state.pending) !== JSON.stringify(turn.pendingAfter)
+      || JSON.stringify(state.pendingQueue || []) !== JSON.stringify(turn.pendingQueueAfter || [])
+      || !!state.pendingApplied !== !!turn.pendingAppliedAfter)) {
     say('조건이 바뀌어 이전 내용은 그대로 두었어요. 고칠 조건을 다시 말씀해 주세요.', { ask: true });
     return;
   }
   if (turn.after) state.draft = JSON.parse(JSON.stringify(turn.before));
   state.pending = turn.pendingBefore;
+  state.pendingQueue = turn.pendingQueueBefore || [];
+  state.pendingApplied = !!turn.pendingAppliedBefore;
   state.revision += 1;
   save();
   if (voiceMode) { say('다시 말씀해 주세요.', { ask: true }); }
@@ -536,6 +588,10 @@ function toServerDraft() {
   const out = { request_kind: 'place' };
   if (d().startLocation) out.start_location = d().startLocation;
   if (d().category) out.category = serverCategory(d().category);
+  if (d().date) out.date = d().date;
+  for (const field of PREFERENCE_FIELDS) {
+    if (Object.hasOwn(d(), field)) out[field] = d()[field];
+  }
   if (d().date && d().startTime) out.start_at = `${d().date}T${d().startTime}:00+09:00`;
   if (d().date && d().endTime) out.end_at = `${d().date}T${d().endTime}:00+09:00`;
   return out;
@@ -543,7 +599,10 @@ function toServerDraft() {
 
 function fromServerDraft(sd) {
   const out = {};
-  if (sd.category) out.category = sd.category;
+  if (sd.category) out.category = GROUP[d().category] && sd.category === '전체' ? d().category : sd.category;
+  for (const field of PREFERENCE_FIELDS) {
+    if (Object.hasOwn(sd, field)) out[field] = sd[field];
+  }
   if (sd.start_at) { out.date = sd.start_at.slice(0, 10); out.startTime = sd.start_at.slice(11, 16); }
   if (sd.end_at) out.endTime = sd.end_at.slice(11, 16);
   if (sd.start_location?.lat != null) out.startLocation = sd.start_location;
@@ -575,8 +634,12 @@ async function handle(text) {
   const generation = ++chatGeneration;
   const before = JSON.parse(JSON.stringify(d()));
   const previousPending = JSON.parse(JSON.stringify(state.pending));
+  const previousQueue = JSON.parse(JSON.stringify(state.pendingQueue || []));
+  const previousApplied = !!state.pendingApplied;
   const requestRevision = state.revision;
-  lastTurn = { text, before, after: null, pendingBefore: previousPending, pendingAfter: previousPending };
+  lastTurn = { text, before, after: null, pendingBefore: previousPending, pendingAfter: previousPending,
+    pendingQueueBefore: previousQueue, pendingQueueAfter: previousQueue,
+    pendingAppliedBefore: previousApplied, pendingAppliedAfter: previousApplied };
   userSays(text);
   // 결과 뒤 짧은 요청
   if (state.shown.length && /다른\s*(곳|데)|딴\s*데/.test(text) && !/에서 출발/.test(text)) { other(); return; }
@@ -602,11 +665,15 @@ async function handle(text) {
   patch(changes);
   lastTurn.after = JSON.parse(JSON.stringify(d()));
   lastTurn.pendingAfter = JSON.parse(JSON.stringify(state.pending));
+  lastTurn.pendingQueueAfter = JSON.parse(JSON.stringify(state.pendingQueue || []));
+  lastTurn.pendingAppliedAfter = !!state.pendingApplied;
   if (result.response.interpretation_status === 'needs_clarification' || result.response.interpretation_status === 'no_supported_change') {
     say(result.response.assistant_text || '조건을 다시 말씀해 주세요.', { ask: true });
     return;
   }
   if (result.response.conflicts?.length) {
+    const location = result.response.conflicts.find((item) => item.field === 'start_query' && typeof item.after === 'string');
+    if (location) { await findStart(location.after, true); return; }
     say(result.response.assistant_text || '바꿀 조건을 다시 확인해 주세요.', { ask: true });
     return;
   }
@@ -667,20 +734,23 @@ function nothingUnderstood(asked) {
 /** 빠른 답 버튼 */
 function answer(text, changes) {
   userSays(text);
+  if (Object.hasOwn(changes, 'category')) {
+    changes = { ...changes, categories: [serverCategory(changes.category)], music_followup: false };
+  }
   patch(changes);
   next();
 }
 
 /** 출발지 이름 → 장소 검색 → 사용자가 고르면 확정 */
 async function findStart(query, changing = false) {
+  const generation = chatGeneration;
   busy = true;
   say(`${josa(`"${query}"`, '을', '를')} 찾아볼게요.`);
   const r = await searchPlaces(query).catch(() => ({ kind: 'error' }));
+  if (generation !== chatGeneration) return;
   busy = false;
   if (r.kind === 'ready' && r.places.length) {
     placeOptions = r.places.slice(0, 3);
-    if (changing) state.pending = null;
-    if (changing) d().startLocation = null;
     save();
     say('어디에서 출발하실지 아래에서 골라 주세요.');
     return;
@@ -709,11 +779,16 @@ async function useHere() {
 /** 바꿀지 확인 응답 */
 function resolvePending(accept) {
   const p = state.pending;
-  state.pending = null;
-  if (accept) d()[p.field] = p.after;
+  state.pending = (state.pendingQueue || []).shift() || null;
+  if (accept) {
+    if (p.related) Object.assign(d(), p.related);
+    else d()[p.field] = p.after;
+    state.pendingApplied = true;
+  }
   save();
   userSays(accept ? `${josa(show(p.field, p.after), '으로')} 바꿔 주세요` : `${show(p.field, p.before)} 그대로 둘게요`);
-  if (accept) search();
+  if (state.pending) next();
+  else if (state.pendingApplied) { state.pendingApplied = false; save(); next(); }
   else say('알겠어요. 원래 조건은 그대로 두었어요.');
 }
 
@@ -723,6 +798,10 @@ function next() {
     const p = state.pending;
     const name = FIELD_NAME[p.field] || (p.field.includes('Time') ? '시간' : p.field);
     say(`${josa(name, '을', '를')} ${show(p.field, p.before)}에서 ${josa(show(p.field, p.after), '으로')} 바꿀까요? 다른 조건은 그대로 둘게요.`);
+    return;
+  }
+  if (d().unsupported_requirements?.length) {
+    say(`아직 확인할 수 없는 필수 조건이에요: ${d().unsupported_requirements.join(', ')}. 이 조건을 유지할지 다시 말씀해 주세요.`, { ask: true });
     return;
   }
   const need = missing();
@@ -742,13 +821,17 @@ function next() {
 /* ---------------- 추천 ---------------- */
 
 function requestBody() {
-  return {
+  const body = {
     request_kind: 'place',
     start_location: d().startLocation,
     start_at: `${d().date}T${d().startTime}:00+09:00`,
     end_at: `${d().date}T${d().endTime}:00+09:00`,
     category: serverCategory(d().category),
   };
+  for (const field of PREFERENCE_FIELDS) {
+    if (Object.hasOwn(d(), field)) body[field] = d()[field];
+  }
+  return body;
 }
 
 /** 조건이 다 모이면 확인 단계 없이 바로 찾아요 */
@@ -771,19 +854,17 @@ async function search() {
     return;
   }
   if (res.kind === 'error') { say(`${res.message}`, { retry: true }); return; }
-  state.lastRequest = body;
-  state.sourceCheckedAt = res.data.source_checked_at || null;
   const list = (res.data.candidates || []).filter((c) => inGroup(d().category, c)); // 공연·체험·축제는 장르로 골라요
   if (!list.length) {
-    state.pool = [];
-    say('조건에 맞는 곳을 찾지 못했어요. 날짜나 시간, 보고 싶은 것을 바꿔 말씀해 주시면 다시 찾아볼게요.');
+    say(`조건에 맞는 곳을 찾지 못했어요.${state.shown.length ? ' 이전에 보여 드린 곳은 그대로 둘게요.' : ''} 날짜나 시간, 보고 싶은 것을 바꿔 말씀해 주세요.`);
     return;
   }
-  // 출발지에서 가까운 순서로 (서버는 받은 순서대로 줘요)
-  list.sort((a, b) => (a.distance_km ?? 1e9) - (b.distance_km ?? 1e9));
+  state.lastRequest = body;
+  state.sourceCheckedAt = res.data.source_checked_at || null;
   list.forEach((c) => { state.candidates[c.id] = c; });
   state.pool = list.map((c) => c.id);
-  showCards(state.pool.slice(0, MAX_CARDS), distanceText(state.pool.slice(0, MAX_CARDS), list.length));
+  const notes = [...(res.data.preference_notes || []), res.data.coverage_note].filter(Boolean).join(' ');
+  showCards(state.pool.slice(0, MAX_CARDS), `${distanceText(state.pool.slice(0, MAX_CARDS), list.length)}${notes ? ` ${notes}` : ''}`);
 }
 
 /**
@@ -793,11 +874,11 @@ async function search() {
 function distanceText(ids, total) {
   const ds = ids.map((id) => state.candidates[id]?.distance_km).filter((v) => v != null);
   const n = ids.length;
-  const head = `${total > n ? `찾은 ${total}곳 중 ` : ''}출발지에서 직선 거리가 짧은 순서로 ${n}곳을 골랐어요.`;
+  const head = `${total > n ? `찾은 ${total}곳 중 ` : ''}조건에 맞춰 ${n}곳을 골랐어요.`;
   if (!ds.length) return `${head} 운영시간과 예약은 꼭 다시 확인해 주세요.`;
   const lo = Math.min(...ds), hi = Math.max(...ds);
   const range = lo === hi ? `직선 약 ${lo}km` : `직선 약 ${lo}~${hi}km`;
-  if (lo > 5) return `${head} 다만 가장 가까운 곳도 직선 약 ${lo}km 떨어져 있어요 (보여 드린 곳 ${range}). 더 가까운 곳을 원하시면 보고 싶은 것을 "아무거나"로 넓히거나 날짜·출발지를 바꿔 말씀해 주세요.`;
+  if (lo > 5) return `${head} 보여 드린 곳은 ${range} 떨어져 있어요. 더 가까운 곳을 원하시면 날짜·출발지나 관심 조건을 바꿔 말씀해 주세요.`;
   return `${head} (${range}) 운영시간과 예약은 꼭 다시 확인해 주세요.`;
 }
 
@@ -820,7 +901,7 @@ async function other() {
   busy = false;
   if (res.kind === 'ready') {
     res.data.candidates.forEach((c) => { state.candidates[c.id] = c; });
-    const more = res.data.candidates.filter((c) => inGroup(d().category, c)).sort((a, b) => (a.distance_km ?? 1e9) - (b.distance_km ?? 1e9))
+    const more = res.data.candidates.filter((c) => inGroup(d().category, c))
       .map((c) => c.id).filter((id) => !state.shown.includes(id));
     state.pool.push(...more.filter((id) => !state.pool.includes(id)));
     if (more.length) { showCards(more.slice(0, MAX_CARDS), '같은 조건으로 새로 찾은 곳이에요.'); return; }
@@ -834,7 +915,7 @@ function closer() {
   const byDist = state.pool.map((id) => state.candidates[id]).filter((c) => c?.distance_km != null)
     .sort((a, b) => a.distance_km - b.distance_km).map((c) => c.id);
   const top = byDist.slice(0, MAX_CARDS);
-  if (!top.length || top.every((id) => lastCards.includes(id))) {
+  if (!top.length || top.every((id, index) => id === lastCards[index])) {
     say('지금 보여 드린 곳이 이 조건에서 가장 가까운 곳이에요. 출발지를 바꾸시면 다시 찾아볼게요.');
     return;
   }

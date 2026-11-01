@@ -19,6 +19,8 @@ const empty = () => ({
   pool: [],
   shown: [],
   pending: null,
+  pendingQueue: [],
+  pendingApplied: false,
   lastRequest: null,
   sourceCheckedAt: null,
   sound: false,
