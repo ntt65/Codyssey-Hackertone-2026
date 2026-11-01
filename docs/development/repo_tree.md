@@ -20,6 +20,9 @@ lab678/
     AGENTS.md
     README.md
     chat_conditions.py
+    chat_grounding.py
+    chat_prompt.py
+    contact.py
     course.py
     culture.env.example
     culture_config.py
@@ -41,7 +44,10 @@ lab678/
     team_culture.js
     team_preferences.js
     team_voice_actions.js
+    test_agent_integration.py
     test_chat_conditions.py
+    test_chat_grounding.py
+    test_contact.py
     test_course.py
     test_culture_sources.py
     test_deployment_keys.py
@@ -66,6 +72,7 @@ lab678/
     README.md
     development/
       README.md
+      agent-remediation-review.md
       automatic-voice.md
       chat-conditions.md
       chat-ui-handoff.md
@@ -243,6 +250,22 @@ lab678/
         20261031-team-chat-connected.md
         20261031-team-flow-connected.md
         20261031-user-preferences-kakao-review.md
+        20261101-agent-cards-d.md
+        20261101-agent-clarification.md
+        20261101-agent-dialogue-b.md
+        20261101-agent-fixes-a.md
+        20261101-agent-full-issue.md
+        20261101-agent-grounding.md
+        20261101-agent-http-contract.md
+        20261101-agent-negation-fixes.md
+        20261101-agent-recommendation-c.md
+        20261101-agent-remediation-backend.md
+        20261101-agent-remediation-frontend.md
+        20261101-agent-remediation-published.md
+        20261101-agent-remediation-validation.md
+        20261101-dj-agent-setup.md
+        20261101-final-agent-plan.md
+        20261101-root-location-commit.md
         automatic-voice-session.md
         common-automatic-dialogue.md
         conversation-validation.md
@@ -316,6 +339,40 @@ lab678/
   frontend/
     AGENTS.md
     README.md
+    assets/
+      home-hero.jpg
+      icons/
+        type-default.png
+        type-exhibition.png
+        type-festival-event.png
+        type-hands-on.png
+        type-historic-visit.png
+        type-performance.png
+      kkachi-face.png
+      kkachi-hello.png
+      kkachi-sleep.png
+      kkachi-wake.png
+      landing-autumn.jpg
+      landing-spring.jpg
+      place-craft.jpg
+      place-museum.jpg
+      place-palace.jpg
+    css/
+      app.css
+      tokens.css
+    dev_server.py
+    index.html
+    js/
+      api.js
+      app.js
+      chat.js
+      landing.js
+      parse.js
+      place.js
+      saved.js
+      state.js
+      util.js
+      weather.js
   utils/
     AGENTS.md
     README.md
@@ -323,7 +380,12 @@ lab678/
     index.md
     reverse_index.md
     scripts/
+      agent_http_fixture.py
       catalog.py
+      check_agent_dialogue.cjs
+      check_agent_http.cjs
+      check_agent_recommendation.cjs
+      check_agent_regressions.cjs
       check_chat_api.py
       check_chat_live.py
       check_chat_ui.cjs

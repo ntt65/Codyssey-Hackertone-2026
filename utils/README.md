@@ -1,6 +1,8 @@
 # 재사용 개발 도구
 
-이 폴더는 김동조의 `dj/develop` 작업을 위한 개발 도구다. 공통 운영은 [TEAM_WORKFLOW.md](../TEAM_WORKFLOW.md)를 따르며 서비스 구현·기술 스택 채택을 뜻하지 않는다. 핵심 도구는 Python 표준 라이브러리만 사용한다. PDF 읽기 도구는 선택적으로 번들 pypdf를 사용한다. Python 3.10 이상 문법을 사용하고 이번 실행 환경에서 별도로 검증한다.
+이 폴더는 김동조의 `dj/agent` 작업을 위한 개발 도구다. 공통 운영은 [TEAM_WORKFLOW.md](../TEAM_WORKFLOW.md)를 따르며 서비스 구현·기술 스택 채택을 뜻하지 않는다. 핵심 도구는 Python 표준 라이브러리만 사용한다. PDF 읽기 도구는 선택적으로 번들 pypdf를 사용한다. Python 3.10 이상 문법을 사용하고 이번 실행 환경에서 별도로 검증한다.
+
+**구현 전 승인:** [조사 → 계획 → 실시계획 → 검토·보완 → 명시적 허락](../docs/development/engineering-loop.md#구현-전-승인-절차--필수)을 먼저 따른다. 하네스 통과는 구현 허락이 아니다. 사용자가 프론트 수정 금지를 해제했으며 현재 최종계획을 작성한다. Push·배포는 별도 요청이 필요하다.
 
 ## 적게 읽고 정확히 작업하기
 
@@ -35,6 +37,12 @@ python utils/scripts/harness.py --tests
 PDF는 번들 Python에서 `-X utf8 utils/scripts/read_pdf.py 입력.pdf --output .local/pdf-review`로 읽는다. 기본 Python에는 pypdf가 없을 수 있다. 가림 출력은 비밀값 검출을 보장하는 보안 도구가 아니며 원문·이미지는 로컬에서 확인하고 공개 커밋 여부를 별도 판단한다.
 
 ## 자동 갱신
+
+### 대화·추천 회귀 검증
+
+`node scripts/check_agent_dialogue.cjs`, `node scripts/check_agent_recommendation.cjs`, `node scripts/check_agent_regressions.cjs`는 실제 프론트 DOM에 모의 API/음성을 연결한다. 저장소 루트에서 실행할 때는 경로 앞에 `utils/`를 붙인다. 조건 보존, 보류 해제, 재추천, 취소·늦은 응답을 검사한다.
+
+`node scripts/check_agent_http.cjs`는 별도 origin의 브라우저에서 실제 로컬 Python HTTP 서버로 요청하고 CORS·조건 검증·장소 선택·추천 필터를 함께 검사한다. 이 도구가 `agent_http_fixture.py`를 자식 프로세스로 실행·정리하며, 외부 AI/카카오/문화 데이터 공급자만 고정하고 실제 환경 파일은 읽지 않는다. 실행에는 Node·Python과 Playwright/Chromium이 필요하다. 설치 위치가 별도이면 `PLAYWRIGHT_MODULE`, `CHROMIUM_PATH`, `PYTHON`으로 지정한다. 실제 외부 API·실기기·배포 검증을 대신하지 않는다.
 
 ```powershell
 python utils/scripts/watch.py

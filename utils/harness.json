@@ -24,7 +24,7 @@
     "design",
     "docs/development"
   ],
-  "branch": "dj/develop",
+  "branch": "dj/agent",
   "commit_deadline": "2026-11-01T13:00:00+09:00",
   "state_file": "docs/development/state.json",
   "repo_indexes": [
@@ -78,7 +78,16 @@
     ],
     "Naito 채팅·모델 설정·HTTP 검증": [
       "backend/naito_chat.py",
+      "backend/chat_prompt.py",
+      "backend/chat_grounding.py",
+      "backend/test_chat_grounding.py",
       "backend/test_naito_chat.py",
+      "backend/test_agent_integration.py",
+      "utils/scripts/check_agent_dialogue.cjs",
+      "utils/scripts/check_agent_recommendation.cjs",
+      "utils/scripts/check_agent_regressions.cjs",
+      "utils/scripts/check_agent_http.cjs",
+      "utils/scripts/agent_http_fixture.py",
       "utils/scripts/check_chat_api.py",
       "utils/scripts/check_chat_live.py",
       "docs/development/naito-usage.md",
