@@ -114,16 +114,22 @@ export function unlockSpeech() {
  * 한국어로 읽어 주기. 실패해도 화면 글자는 그대로예요.
  * @param {string} text
  */
+/** 까치 말 속도 (예전 0.95 → 1.1 → 1.3, 11/1). 홈·대화·배웅 모두 이 값을 써요 */
+export const SPEECH_RATE = 1.3;
+
 export function speakKo(text) {
   try {
     if (!('speechSynthesis' in window)) return;
+    const busy = speechSynthesis.speaking || speechSynthesis.pending;
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'ko-KR';
-    u.rate = 1.3; // 1.1에서 1.2배 더 빠르게 (11/1)
+    u.rate = SPEECH_RATE;
     const ko = speechSynthesis.getVoices().find((v) => v.lang?.startsWith('ko'));
     if (ko) u.voice = ko;
-    speechSynthesis.speak(u);
+    // 말하던 걸 끊은 직후 바로 말하면 Chrome이 새 말을 버리기도 해서 잠깐 쉬었다 말해요
+    if (busy) setTimeout(() => speechSynthesis.speak(u), 150);
+    else speechSynthesis.speak(u);
   } catch { /* 무시 */ }
 }
 
