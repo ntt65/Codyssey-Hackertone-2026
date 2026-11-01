@@ -120,7 +120,7 @@ export function speakKo(text) {
     speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = 'ko-KR';
-    u.rate = 0.95;
+    u.rate = 1.1; // 예전 0.95보다 약 1.15배 빠르게 (11/1)
     const ko = speechSynthesis.getVoices().find((v) => v.lang?.startsWith('ko'));
     if (ko) u.voice = ko;
     speechSynthesis.speak(u);
