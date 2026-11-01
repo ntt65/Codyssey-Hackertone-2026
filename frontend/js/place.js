@@ -116,7 +116,7 @@ function sayBye() {
   speakKo(BYE_TEXT);
   talkFor($('#s04-bye-bird'), 2600);
 }
-const BYE_TEXT = '잘 다녀오세요. 좋은 나들이 되세요!';
+const BYE_TEXT = '잘 다녀오세요. 다녀와서 어땠는지 저한테도 들려주세요!';
 
 function openSheet() { $('#sheet-save').hidden = false; $('#sheet-save .sheet__panel').focus(); }
 function closeSheet() { $('#sheet-save').hidden = true; }
