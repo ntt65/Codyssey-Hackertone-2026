@@ -34,7 +34,7 @@ async function main() {
       if (url.includes('/preview/chat')) {
         chatBody = route.request().postDataJSON();
         const updated = { ...chatBody.condition_draft, categories: ['전체'], music_followup: false,
-          free_only: false, budget_krw: 'any', exclude_terms: [], keywords: ['국악'] };
+          keywords: ['국악'] };
         const changes = chatBody.message === '무료와 예산' ? { free_only: true, budget_krw: 10000 } : {};
         const conflicts = chatBody.message === '시청으로 출발지 변경'
           ? [{ field: 'start_query', before: chatBody.condition_draft.start_location, after: '시청' }] : [];
@@ -54,7 +54,8 @@ async function main() {
         if (mode === 'error') { await route.fulfill({ status: 502, json: { status: 'error', message: '조회 실패' } }); return; }
         if (mode === 'empty') { await route.fulfill({ status: 200, json: { status: 'no_results', candidates: [] } }); return; }
         const candidates = [
-          { id: 'far', title: '관심 국악', venue: '공연장', genre: '국악', distance_km: 7, preference_reasons: ['공식 행사 정보에 관심어 포함: 국악'] },
+          { id: 'far', title: '관심 국악', venue: '공연장', genre: '국악', distance_km: 7, preference_reasons: ['공식 행사 정보에 관심어 포함: 국악'],
+            checks_required: ['예약 가능 여부·실제 이동시간 확인', '요일·휴관·회차별 시간 확인'] },
           { id: 'near', title: '가까운 국악', venue: '공연장', genre: '국악', distance_km: 1 },
         ];
         await route.fulfill({ status: 200, json: { status: 'ready', candidates, coverage_note: '조회 범위 안내' } });
@@ -86,6 +87,8 @@ async function main() {
     assert.equal(await page.locator('.chat-card').first().getAttribute('data-id'), 'far', '서버 순위 유지');
     assert.match(await page.locator('#chat-log').innerText(), /조회 범위 안내/);
     assert.match(await page.locator('#chat-log').innerText(), /공식 행사 정보에 관심어 포함/);
+    assert.match(await page.locator('#chat-log').innerText(), /예약 가능 여부·실제 이동시간 확인/);
+    assert.match(await page.locator('#chat-log').innerText(), /요일·휴관·회차별 시간 확인/);
     let state = await page.evaluate(() => JSON.parse(sessionStorage.getItem('lab678_chat')));
     assert.equal(state.draft.category, '공연', '서버 전체는 화면 묶음 공연을 지우지 않음');
     await page.getByRole('button', { name: '더 가까운 곳' }).click();
@@ -118,10 +121,10 @@ async function main() {
     await page.locator('#chat-input').fill('시청으로 출발지 변경');
     await page.locator('#chat-form').evaluate((form) => form.requestSubmit());
     await page.getByRole('button', { name: '시청 · 서울 중구 세종대로' }).click();
-    await page.getByRole('button', { name: '시청으로 바꾸기' }).waitFor();
+    await page.getByRole('button', { name: '시청 · 서울 중구 세종대로로 바꾸기' }).waitFor();
     state = await page.evaluate(() => JSON.parse(sessionStorage.getItem('lab678_chat')));
     assert.equal(state.draft.startLocation.label, '서울역', '확인 전 기존 출발지 유지');
-    await page.getByRole('button', { name: '시청으로 바꾸기' }).click();
+    await page.getByRole('button', { name: '시청 · 서울 중구 세종대로로 바꾸기' }).click();
     await page.getByText('조회 실패').last().waitFor();
     state = await page.evaluate(() => JSON.parse(sessionStorage.getItem('lab678_chat')));
     assert.equal(state.draft.startLocation.label, '시청');
@@ -142,6 +145,18 @@ async function main() {
     assert.equal(mixedBody.free_only, true, '먼저 수락한 변경은 마지막 거절 후에도 재검색');
     assert.equal(mixedBody.budget_krw, 'any');
     assert.match(await page.locator('#chat-cond').innerText(), /무료만/);
+    await page.evaluate(async () => {
+      const { state, save } = await import('/js/state.js');
+      state.draft.startLocation = { label: '시청', address: '서울 중구 세종대로', lat: 37.56, lng: 126.98 };
+      save();
+    });
+    await page.locator('#chat-input').fill('시청으로 출발지 변경');
+    await page.locator('#chat-form').evaluate((form) => form.requestSubmit());
+    await page.getByRole('button', { name: '시청 · 경기 수원시 효원로' }).click();
+    await page.getByRole('button', { name: '시청 · 경기 수원시 효원로로 바꾸기' }).waitFor();
+    await page.getByRole('button', { name: '시청 · 서울 중구 세종대로 유지' }).click();
+    state = await page.evaluate(() => JSON.parse(sessionStorage.getItem('lab678_chat')));
+    assert.equal(state.draft.startLocation.address, '서울 중구 세종대로', '동명 출발지 변경을 거절하면 기존 주소 유지');
     console.log('PASS: 조건 왕복·그룹·순위·거리순·조회 범위·0건·오류·주소 선택·혼합 변경 확인');
   } finally {
     if (browser) await browser.close();

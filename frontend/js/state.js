@@ -4,7 +4,7 @@
  *
  * draft: 지금까지 정해진 조건 {startLocation, startQuery, date, startTime, endTime, category}
  * confirmed: 사용자가 확인한 조건 이름들 (바꾸려면 변경 전후 확인)
- * messages: 대화 [{role:'user'|'ai', text, cards?: string[], note?}]
+ * messages: 대화 [{role:'user'|'ai', text, cards?: string[], cardSnapshots?: object, note?}]
  * candidates: 지금까지 받은 후보 (id → 후보). 카드·상세·지도·저장이 같은 객체를 써요.
  * shown: 대화에 보여준 후보 id 순서 / pending: 확인 기다리는 변경 {field, before, after}
  */
@@ -22,6 +22,8 @@ const empty = () => ({
   pendingQueue: [],
   pendingApplied: false,
   lastRequest: null,
+  poolContext: null,
+  clarification: null,
   sourceCheckedAt: null,
   sound: false,
   mode: 'text',
