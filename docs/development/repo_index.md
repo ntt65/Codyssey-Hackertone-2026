@@ -7,12 +7,11 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | 파일 | 개요 | 상태 / 해시 |
 |---|---|---|
 | [.env.example](../../.env.example) | 설정·자료 파일; 필요할 때 원문 확인 | `815ba0e63859` |
-| [.git](../../.git) | 설정·자료 파일; 필요할 때 원문 확인 | `6c4534639870` |
 | [.github/ISSUE_TEMPLATE/bug.md](../../.github/ISSUE_TEMPLATE/bug.md) | --- | `4864828de1ee` |
 | [.github/ISSUE_TEMPLATE/task.md](../../.github/ISSUE_TEMPLATE/task.md) | --- | `1ee33bbd2c25` |
 | [.github/pull_request_template.md](../../.github/pull_request_template.md) | ## 무엇을 했나요 | `ec68f1c48e6b` |
 | [.gitignore](../../.gitignore) | 설정·자료 파일; 필요할 때 원문 확인 | `77b6eb2fdbf9` |
-| [AGENTS.md](../../AGENTS.md) | Lab678 · AI 작업 안내 | `ca13e055ff8b` |
+| [AGENTS.md](../../AGENTS.md) | Lab678 · AI 작업 안내 | `9943bc62d88f` |
 | [CLAUDE.md](../../CLAUDE.md) | @AGENTS.md | `a853633c4e5c` |
 | [GEMINI.md](../../GEMINI.md) | @AGENTS.md | `a853633c4e5c` |
 | [README.md](../../README.md) | 오늘 나들이 · Lab678 | `c2b19f364f84` |
@@ -69,12 +68,12 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [docs/development/conversation-validation.md](../../docs/development/conversation-validation.md) | 자연어 대화·추천 추가 구간 검증 | `febb45abfa52` |
 | [docs/development/course-alternatives-progress.md](../../docs/development/course-alternatives-progress.md) | 시간 부족 → 동의 → 대안 선택 진행표 | `a662e7da1bee` |
 | [docs/development/culture-sources.md](../../docs/development/culture-sources.md) | 서울시 조회 확대와 국문 문화시설 연결 | `27085042b590` |
-| [docs/development/current-state.md](../../docs/development/current-state.md) | 현재 상태와 다음 할 일 | `c75123dcbaec` |
+| [docs/development/current-state.md](../../docs/development/current-state.md) | 현재 상태와 다음 할 일 | `de1f8c2ab472` |
 | [docs/development/demo-login-server-progress.md](../../docs/development/demo-login-server-progress.md) | 데모 로그인·해커톤 서버 검토 진행표 | `ca878f31c5f8` |
 | [docs/development/demo-profile-design.md](../../docs/development/demo-profile-design.md) | 인증 없는 이용·체험 프로필·로컬 저장 설계안 | `87e1d5b21681` |
 | [docs/development/deployment-keys.md](../../docs/development/deployment-keys.md) | 공공데이터·Naito 배포 키 처리 | `6666b0215a8f` |
-| [docs/development/discussion-log.md](../../docs/development/discussion-log.md) | LAB678 · 김동조 대화·작업 기록 | `2649baa25611` |
-| [docs/development/engineering-loop.md](../../docs/development/engineering-loop.md) | 개발 도구·반복 검증·컨텍스트 운영 | `2510cf466073` |
+| [docs/development/discussion-log.md](../../docs/development/discussion-log.md) | LAB678 · 김동조 대화·작업 기록 | `db7b3688c34a` |
+| [docs/development/engineering-loop.md](../../docs/development/engineering-loop.md) | 개발 도구·반복 검증·컨텍스트 운영 | `15c1e1bce669` |
 | [docs/development/examples/course-selected-place.live.json](../../docs/development/examples/course-selected-place.live.json) | 구조화 설정·상태 데이터 | `2c89a9a3ae68` |
 | [docs/development/examples/demo-users.sample.json](../../docs/development/examples/demo-users.sample.json) | 구조화 설정·상태 데이터 | `f148990a7ff7` |
 | [docs/development/examples/naito-chat.live.json](../../docs/development/examples/naito-chat.live.json) | 구조화 설정·상태 데이터 | `0dfca98bb171` |
@@ -222,7 +221,8 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [docs/development/reports/20261031-team-chat-connected.md](../../docs/development/reports/20261031-team-chat-connected.md) | 팀 화면 복사본에 실제 AI 채팅을 연결했습니다. | `5ca2c00c2742` |
 | [docs/development/reports/20261031-team-flow-connected.md](../../docs/development/reports/20261031-team-flow-connected.md) | 희영님 프론트와 백엔드의 첫 연결을 확인했습니다. | `fca80fdf4ac7` |
 | [docs/development/reports/20261031-user-preferences-kakao-review.md](../../docs/development/reports/20261031-user-preferences-kakao-review.md) | 사용자 선호 저장과 카카오 로그인 활용 범위를 확인했습니다. | `df79496b6b1f` |
-| [docs/development/reports/20261101-dj-agent-setup.md](../../docs/development/reports/20261101-dj-agent-setup.md) | 완료했습니다. 최신 원격 develop의 `252c07c`에서 **`dj/agent`**를 분기했습니다. | `a98eaa45b4e9` |
+| [docs/development/reports/20261101-dj-agent-setup.md](../../docs/development/reports/20261101-dj-agent-setup.md) | 완료했습니다. 최신 원격 develop의 `252c07c`에서 **`dj/agent`**를 분기했습니다. | `2a2b9c9d11c6` |
+| [docs/development/reports/20261101-root-location-commit.md](../../docs/development/reports/20261101-root-location-commit.md) | dj/agent의 본 작업폴더 전환과 승인 범위 기록을 한 작업으로 커밋했습니다. | `d03510c5f2bf` |
 | [docs/development/reports/automatic-voice-session.md](../../docs/development/reports/automatic-voice-session.md) | **자동 음성 대화를 연결했습니다.** [최신 화면](http://127.0.0.1:5175/?#/search)을 Chrome에서 새로고침해 주세요. | `89c4c83ccc10` |
 | [docs/development/reports/common-automatic-dialogue.md](../../docs/development/reports/common-automatic-dialogue.md) | 자동 대화와 화면 이동을 로컬 통합 화면에 연결했습니다. | `0e90a23f2f4d` |
 | [docs/development/reports/conversation-validation.md](../../docs/development/reports/conversation-validation.md) | 추가 테스트를 완료했습니다. **이번 검사에서 새 오류는 발견되지 않았습니다.** | `fbb6d5175cdc` |
@@ -240,7 +240,7 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [docs/development/reports/voice-wave-and-compatibility.md](../../docs/development/reports/voice-wave-and-compatibility.md) | 화면은 모바일 폭에서 검사했지만, **맥북·휴대폰의 자동 음성 대화는 실제 기기 확인이 필요합니다.** 브라우저 음성 인식에는 지원 차이가 있습니다. [MDN 공식 호환성 안내](https://developer.mozilla.org/en-US/docs | `e86f5f6e2737` |
 | [docs/development/screen-spec-review.md](../../docs/development/screen-spec-review.md) | 화면명세 v0.1 수신·구현 대조 체크표 | `6be14b542825` |
 | [docs/development/service-key-status.md](../../docs/development/service-key-status.md) | 키별 실제 동작·앱 반영 점검 | `20d43495185e` |
-| [docs/development/state.json](../../docs/development/state.json) | 구조화 설정·상태 데이터 | `4325dee6cafe` |
+| [docs/development/state.json](../../docs/development/state.json) | 구조화 설정·상태 데이터 | `ae3c8a4a0990` |
 | [docs/development/tasks.md](../../docs/development/tasks.md) | LAB678 · 김동조 개발 할 일 | `555cf41b5052` |
 | [docs/development/team-backend-guide.md](../../docs/development/team-backend-guide.md) | LAB678 · 동료와 LLM을 위한 개발 참조·실행 안내 | `a8cfdbe6a06b` |
 | [docs/development/team-integration-checklist.md](../../docs/development/team-integration-checklist.md) | 팀 의견 대조 · 최종 UI 연결 우선 체크표 | `a9c94afd0cf6` |
@@ -308,12 +308,12 @@ Python 함수·클래스는 AST, JS/TS는 이름 있는 선언·화살표 함수
 | [frontend/js/parse.js](../../frontend/js/parse.js) | AI 대화 연결이 없을 때 쓰는 규칙 기반 해석기. | `c384db51157c` |
 | [frontend/js/place.js](../../frontend/js/place.js) | S04 장소 상세 (지도 보기 = 주 행동, 내 나들이에 저장 = 보조) · S08 지도와 도보 경로 · S06 저장 시트. | `06aebcc369ae` |
 | [frontend/js/saved.js](../../frontend/js/saved.js) | 체험 모드와 내 나들이 저장 (S06·S07). 로그인 없이 이 브라우저(localStorage)에만 저장해요. | `4b5ee1e1c71f` |
-| [frontend/js/state.js](../../frontend/js/state.js) | 대화·추천 상태. 새로고침해도 대화와 결과가 남도록 sessionStorage 에 보관해요. | `5dbfbb2bdb66` |
+| [frontend/js/state.js](../../frontend/js/state.js) | 대화·추천 상태. 새로고침해도 대화와 결과가 남도록 sessionStorage 에 보관해요. | `417910f7dc71` |
 | [frontend/js/util.js](../../frontend/js/util.js) | 여러 화면이 같이 쓰는 작은 도구: 요소 만들기, 날짜·시각 표시, 저장소 읽기/쓰기. | `e28384abd02f` |
 | [frontend/js/weather.js](../../frontend/js/weather.js) | 날씨 인사. 서울의 지금 날씨를 Open-Meteo(무료, 키 없음)에서 받아 까치가 먼저 건넬 말을 코드가 정해요. | `9b257963a8cb` |
 | [utils/AGENTS.md](../../utils/AGENTS.md) | utils 작업 | `606b01a12f06` |
-| [utils/README.md](../../utils/README.md) | 재사용 개발 도구 | `c2a4e23af8b9` |
-| [utils/harness.json](../../utils/harness.json) | 구조화 설정·상태 데이터 | `5da88fa8e6ce` |
+| [utils/README.md](../../utils/README.md) | 재사용 개발 도구 | `fa73c13459a9` |
+| [utils/harness.json](../../utils/harness.json) | 구조화 설정·상태 데이터 | `c7052c1e9026` |
 | [utils/index.md](../../utils/index.md) | 자동 생성 색인 | `generated` |
 | [utils/reverse_index.md](../../utils/reverse_index.md) | 자동 생성 색인 | `generated` |
 | [utils/scripts/catalog.py](../../utils/scripts/catalog.py) | Build deterministic code indexes without importing source modules. | `ecb99cd9ca5b` |

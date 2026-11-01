@@ -3,9 +3,8 @@
 자동 생성. 비밀값·의존성·런타임 폴더는 제외. 색인 자체는 목록에 포함하되 재귀 해시하지 않는다.
 
 ```text
-dj-agent/
+lab678/
   .env.example
-  .git
   .github/
     ISSUE_TEMPLATE/
       bug.md
@@ -245,6 +244,7 @@ dj-agent/
         20261031-team-flow-connected.md
         20261031-user-preferences-kakao-review.md
         20261101-dj-agent-setup.md
+        20261101-root-location-commit.md
         automatic-voice-session.md
         common-automatic-dialogue.md
         conversation-validation.md

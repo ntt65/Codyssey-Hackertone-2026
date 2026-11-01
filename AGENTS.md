@@ -13,7 +13,7 @@
 
 ## 개인 개발 작업 맥락
 
-현재 작업폴더는 `D:\git\lab678\.local\worktrees\dj-agent`, 브랜치는 `dj/agent`예요. 원본 `D:\git\lab678`의 `dj/develop`과 개인 백업은 보존해요. 최신 사용자 허락은 **분기·복사본 정리만**이며 기능 구현·프론트 수정·Push·배포는 포함하지 않아요. 남은 일은 `plan_dj/README.md`에서 시작해요.
+현재 작업폴더는 **`D:\git\lab678`**, 브랜치는 **`dj/agent`**예요. 기존 `dj/develop` 브랜치와 개인 백업은 보존해요. 최신 사용자 허락 “실행해”는 사전 제시한 **자료 보존 → 본 폴더 전환 → 상태 검증 → 별도 작업폴더 제거** 4단계에 한해 적용해요. 기능 구현·프론트 수정·Push·배포는 포함하지 않아요. 모든 작업 전에 계획을 말하고 `TEAM_WORKFLOW.md`와 하네스 운영 절차를 읽어요. 남은 일은 `plan_dj/README.md`에서 시작해요.
 
 `dj/agent` 작업을 이어갈 때는 [현재 상태와 다음 할 일](docs/development/current-state.md)을 먼저 확인해요. [저장소 색인](docs/development/repo_index.md)·[기능/함수 역색인](docs/development/repo_reverse_index.md)·[구조](docs/development/repo_tree.md)로 파일을 좁히고, 필요한 경우에만 [개발 맥락](docs/development/README.md)과 [대화·작업 기록](docs/development/discussion-log.md)의 해당 부분을 읽어요. 공통 운영 규칙은 계속 `TEAM_WORKFLOW.md`를 기준으로 삼아요.
 

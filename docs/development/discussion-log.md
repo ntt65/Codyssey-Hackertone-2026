@@ -603,3 +603,9 @@ MDN제한지원·Chrome온라인인식과WebKit Safari/Siri설정자료확인. �
 준비 검증: 원본 추적375/개인763파일 SHA256 전부 불변, 원본 checkout·main/develop/dj/develop 불변. 새 develop 조상·서비스/프론트/하네스 스크립트 동일 확인. 설정 diff는 개인 branch 항목뿐, 활성 계획6파일·Git/공유색인 제외·문서링크·생성색인/상태 정상. 전체 정적 하네스는 기준 코드에 이미 있던 OfficialImageTest/EndpointTest 클래스 설명 누락2건으로 FAIL이며 무관한 테스트를 고치지 않았다. 코드/기능 QA나 실제 음성 검증은 미실시. 전체 보고 reports/20261101-dj-agent-setup.md.
 
 최종 후속 비교: 10:27:24 초기 원본375/763파일 전체 해시 통과 뒤 기존 폴더의 공용state/current-state 및 개인 current-state/development-only-handoff/local-korean-tts-proposal 5문서가 별도로 갱신됐다. 이 작업은 새 worktree에만 기록했으며 기존 문서의 후속 갱신을 덮어쓰거나 원복하지 않았다. 원본 파일 삭제0, 원본 제품코드·기존 ZIP 해시 불변, 보호 로컬 브랜치 유지. 이 차이를 전체 보고와 사설 검증JSON에 명시한다.
+
+## 2026-11-01 · 작업 위치 정정과 본 폴더 dj/agent 전환
+
+사용자는 실제 D:/git/lab678이 dj/develop인 상태에서 별도 작업폴더를 전환 완료처럼 안내한 문제를 지적했다. “뭘하기전에 무조건 계획부터”를 요구했고 자료 보존→본 폴더 전환→실제 상태 검증→별도 작업폴더 제거 4단계에 “실행해”라고 승인했다. TEAM_WORKFLOW와 하네스 운영 절차를 다시 읽고 이 범위만 실행한다. 기존 변경 문서2개는 별도 stash와 개인 보존 ZIP에 저장하고 D:/git/lab678을 기존 dj/agent로 checkout했다. 기존 브랜치와 개인 백업/이력을 보존하며 기능 구현·프론트 수동 수정·병합·Push·배포는 하지 않는다. 별도 폴더 제거는 보존·경로 검증 후 실행한다.
+
+이전 실행 결과: 본 폴더의 실제 branch dj/agent와 develop 조상을 확인하고 별도 작업폴더를 제거했다. 제거 직전 정확한 등록 경로·detached/clean 상태·미추적14파일 전부의 ZIP 바이트 일치·원본 개인 기록765개와 이전 README 보존·기존 브랜치 참조를 검증했다. 서비스73파일은 Git내용 동일하다. raw 해시1건 차이(state.js)는 LF/CRLF만으로 확인했으며 수동 코드 수정 없이 검증 기준과 원인을 기록했다. 원본 문서2개는 scoped stash와 보존 ZIP에 유지한다. 현재 등록 작업폴더는 D:/git/lab678 하나이며 dj/agent다.

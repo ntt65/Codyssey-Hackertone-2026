@@ -52,7 +52,7 @@
 | [frontend/js/parse.js](../frontend/js/parse.js) | AI 대화 연결이 없을 때 쓰는 규칙 기반 해석기. | `c384db51157c` |
 | [frontend/js/place.js](../frontend/js/place.js) | S04 장소 상세 (지도 보기 = 주 행동, 내 나들이에 저장 = 보조) · S08 지도와 도보 경로 · S06 저장 시트. | `06aebcc369ae` |
 | [frontend/js/saved.js](../frontend/js/saved.js) | 체험 모드와 내 나들이 저장 (S06·S07). 로그인 없이 이 브라우저(localStorage)에만 저장해요. | `4b5ee1e1c71f` |
-| [frontend/js/state.js](../frontend/js/state.js) | 대화·추천 상태. 새로고침해도 대화와 결과가 남도록 sessionStorage 에 보관해요. | `5dbfbb2bdb66` |
+| [frontend/js/state.js](../frontend/js/state.js) | 대화·추천 상태. 새로고침해도 대화와 결과가 남도록 sessionStorage 에 보관해요. | `417910f7dc71` |
 | [frontend/js/util.js](../frontend/js/util.js) | 여러 화면이 같이 쓰는 작은 도구: 요소 만들기, 날짜·시각 표시, 저장소 읽기/쓰기. | `e28384abd02f` |
 | [frontend/js/weather.js](../frontend/js/weather.js) | 날씨 인사. 서울의 지금 날씨를 Open-Meteo(무료, 키 없음)에서 받아 까치가 먼저 건넬 말을 코드가 정해요. | `9b257963a8cb` |
 | [utils/scripts/catalog.py](../utils/scripts/catalog.py) | Build deterministic code indexes without importing source modules. | `ecb99cd9ca5b` |
