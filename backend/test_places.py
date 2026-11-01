@@ -3,6 +3,7 @@ import io
 import json
 import unittest
 from urllib.error import HTTPError, URLError
+from urllib.parse import parse_qs, urlsplit
 from unittest.mock import patch
 
 from outing import InputError
@@ -44,6 +45,21 @@ class PlaceSearchTests(unittest.TestCase):
         self.assertIsNone(first["road_address"])
         self.assertIsNone(first["official_url"])
 
+    def test_keyword_preserves_provider_category_role_without_inference(self):
+        """원 분류경로·PK6주차장 그룹을 보존하고 결측을 관광명소로 채우지 않는다."""
+        item = self.fixture(category_name="교통,수송 > 교통시설 > 주차장",
+                            category_group_code="PK6", category_group_name="주차장")
+        result = normalize_places(dict(meta=dict(total_count=1), documents=[item]), "keyword")
+        place = result["places"][0]
+        self.assertEqual(place["category_name"], item["category_name"])
+        self.assertEqual(place["category_group_code"], "PK6")
+        self.assertEqual(place["category_group_name"], "주차장")
+        self.assertEqual((place["id"], place["lat"], place["lng"]), ("kakao:keyword:123", 37.58, 127.04))
+        missing = normalize_places(dict(meta=dict(total_count=1), documents=[self.fixture()]), "keyword")["places"][0]
+        self.assertIsNone(missing["category_name"])
+        self.assertIsNone(missing["category_group_code"])
+        self.assertIsNone(missing["category_group_name"])
+
     def test_empty_vs_invalid_source(self):
         """정상0건과 좌표 손상·목록 누락을 구분하며 일부 손상 행은 별도 집계한다."""
         self.assertEqual(normalize_places(dict(meta=dict(total_count=0),documents=[]),"keyword")["status"],"no_results")
@@ -72,6 +88,40 @@ class PlaceSearchTests(unittest.TestCase):
             status,body=search_places(dict(query="검증"))
         self.assertEqual((status,body["status"]),(503,"unconfigured"))
         call.assert_not_called()
+
+    def test_origin_bias_and_actual_straight_distance(self):
+        """사용자가 선택한 원점을 카카오 거리순 조회에 전달하고 실제 좌표의 직선거리를 계산한다."""
+        item = self.fixture()
+        raw = json.dumps(dict(meta=dict(total_count=1), documents=[item])).encode()
+        origin = {"lat": 37.58, "lng": 127.04}
+        with patch("places.api_key", return_value="private-secret"), patch("places.urlopen", return_value=io.BytesIO(raw)) as call:
+            status, result = search_places(dict(query="영화관", origin=origin))
+        query = parse_qs(urlsplit(call.call_args.args[0].full_url).query)
+        self.assertEqual(status, 200)
+        self.assertEqual(query["x"], ["127.04"])
+        self.assertEqual(query["y"], ["37.58"])
+        self.assertEqual(query["sort"], ["distance"])
+        self.assertNotIn("radius", query)
+        self.assertEqual(query["query"], ["영화관"])
+        self.assertTrue(result["origin_applied"])
+        self.assertEqual(result["places"][0]["distance_km"], 0)
+        self.assertNotIn("price", result["places"][0])
+        self.assertNotIn("opening_hours", result["places"][0])
+
+    def test_invalid_origin_before_network_and_legacy_query(self):
+        """잘못된 원점을 외부 호출 전에 거절하고 원점 없는 기존 검색 계약을 보존한다."""
+        for origin in ({}, {"lat": 37}, {"lat": True, "lng": 127}, {"lat": 91, "lng": 127},
+                       {"lat": 37, "lng": "nan"}, {"lat": 37, "lng": 127, "radius": 1000}):
+            with self.subTest(origin=origin), patch("places.api_key") as key, self.assertRaises(InputError):
+                search_places(dict(query="영화관", origin=origin))
+            key.assert_not_called()
+        raw = json.dumps(dict(meta=dict(total_count=1), documents=[self.fixture()])).encode()
+        with patch("places.api_key", return_value="key"), patch("places.urlopen", return_value=io.BytesIO(raw)) as call:
+            _, result = search_places(dict(query="서울역"))
+        query = parse_qs(urlsplit(call.call_args.args[0].full_url).query)
+        self.assertNotIn("x", query)
+        self.assertNotIn("sort", query)
+        self.assertFalse(result["origin_applied"])
 
     def test_failures(self):
         """권한·쿼터·시간초과·손상 응답의 공개 오류만 반환하며 공급자 상세는 숨긴다."""

@@ -70,7 +70,7 @@ async function main() {
         budget_krw: 'any', exclude_terms: [], categories: ['전체'] },
       messages: [], revision: 0, sound: false, mode: 'text',
     })));
-    await page.goto(`${base}/#/chat?text`);
+    await page.goto(`${base}/?agent=legacy#/chat?text`);
     await page.locator('#chat-input').fill('국악 좋아요');
     await page.locator('#chat-form').evaluate((form) => form.requestSubmit());
     await page.locator('.chat-card').first().waitFor();

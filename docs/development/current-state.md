@@ -7,57 +7,53 @@
 
 ## 사용자·팀·브랜치
 
-- 김동조 · Lab678 개발. 현재 작업폴더 D:/git/lab678, 브랜치 dj/agent. 기존 dj/develop 브랜치와 개인 기록/백업 보존.
+- 김동조 · Lab678. 작업폴더 D:/git/lab678, 현재 새 dj/develop. 기준 origin/develop e5697e21d02b76336c6db7fe2208675f9aff6ca4. 원본 dj/agent d541ea5, 검증 코드 b6355a0 보존.
 
 ## 현재 목표
 
-- develop 대비 dj/agent 전체 개선을 이슈67에 보완 완료. 이전의 발화 이해·근거·날짜/시각·부분 보류·재확인부터 음성·추천·UI·검증·커밋 근거까지 기록했다. PR68은 미병합 유지.
+- 사용자 실사용 후 ‘이대로 푸시·이슈 자세히·PR발행’ 승인. e5697e2 직계 기반의 검증 dj/develop을 게시하고 새 develop PR을 발행한다. dj/agent 전체 merge 없이 엔진/최소 UI 선택 이식·비교1073→662행·원형 보존을 상세 기록. 현재 게시 사전검사 진행.
 
 ## 승인된 범위·운영
 
-- 2026-11-01 사용자 “실행해”: 사전 제시한 4단계(자료 보존→D:/git/lab678을 dj/agent로 전환→상태 검증→별도 작업폴더 제거) 승인. 작업 전 계획과 TEAM_WORKFLOW/하네스 절차 읽기 필수.
-- 조사→개발계획→실시계획→검토·보완→명시적 허락→실시·검증. 의견·샘플·질문·시간경과를 승인으로 추정하지 않는다. 같은 승인 범위만 계속 진행한다.
-- 2026-11-01 ‘그냥 프론트 코드도 수정하는 걸로 바꾸자 ... 나중에 이슈 PR날리면 팀장이 취사 선택’: 기존 프론트 수정 금지를 명시 해제. 기존 UI/UX 존중, 최종 선택은 팀장.
-- 최종계획서 쓰기 전 develop pull 요청. origin/develop 1876fe6 fetch, 이미 HEAD 조상으로 새 커밋 없음. 2026-11-01 ‘진행’으로 최종계획 A~D 승인. E 정책과 이슈/PR·push·배포는 별도 요청.
-- plan_dj는 개인 개발용·Git/공유 색인 제외. 원본 D:/git/lab678/plan_dj의 src/ZIP/대화/완료 이력은 삭제하지 않는다.
-- 완료 작업의 로컬 커밋 상시 요청은 dj/agent에 적용하되 Push는 별도 명시 요청. 전체 완료 보고문을 커밋 메시지로 그대로 기록, AI 공동명의 금지·사용자 명의. 11/1 13:00 KST 이후 커밋 금지.
-- 2026-11-01 사용자 ‘개선계획 세우고 개선해’: 재현한 후보/조건 불일치·보류 미해제·복합 문장·동명 장소·의미 검증 개선 실시 승인. 프론트와 백엔드·관련 테스트·기록 포함, E 정책 제외.
-- 후속 명시 ‘끝나면 push하고 issue에 작업내용 개선내용 테스트 내용 다른 LLM이 분석할수 있는 자료 다 올려주고 develop으로 pr해줘 머지는 하지마’: dj/agent push·이슈·develop PR 승인, 병합/자동병합·배포 금지.
-- 최신 ‘현재 dj/agent branch가 develop branch보다 개선된점 issue에 다 적어놔’: 이전 대화 이해 개선을 포함한 전체 diff의 이슈 기록 보완 승인. 서비스 코드 변경 없음.
+- 최신 사용자 ‘다 되면 계획 저장하고 보여주고 시작해’, ‘체크리스트를 만들어 하나씩 체크하면서 실행 점검 보완 진행해’로 계획 M0~M5 실시 승인. 계획/명세 저장·링크 제시 후 시작했다. 이전 ‘일단 계획’ 제한은 이 최신 실시 지시로 갱신됐다.
+- ‘develop을 깨끗히 카피해서 엔진 이식, 이전 dj/develop은 신경쓰지마’로 새 기준 선택. 이전 local80d481b는 dj/develop-before-engine-20261101에 보존하고 새 dj/develop을 e5697e2에서 생성했다. main/develop/원격 이전 브랜치는 변경하지 않는다.
+- 최소 프론트 원칙. 엔진4모듈/신규 실행 adapter·API/세션/표시/선택의 최소 JS 허용. 사용자 ‘편의성이 높은 단추나 팝업’에 따라 선택 버튼/실제 모호 출발지 dialog의 국소 HTML/CSS 허용. assets/weather/util/saved 정책·전체 history/외형 교체 제외.
+- 장소·가격·시간·ID·좌표는 실제 도구와 코드로 판정. LLM은 의미 후보/실제 원문 관련성만 판단. 없는 영화 회차·예약·운영·무료·도보시간을 만들지 않는다. 기존 provider/키/모델 설정 재사용, 실제 env 내용은 읽거나 출력하지 않는다.
+- 최신 ‘이대로 푸시 … PR발행해’로 대상 검증본 commit/push·기존Issue67 상세갱신·dj/develop→develop 신규PR 승인. 이전tip80은별도원격보존후 기대SHA일치시에만 lease갱신. 무조건force·타인새tip덮기·main/develop변경/merge·배포는미승인.
+- 사용자명의/AI표시0/보고문원문으로이번검증본과게시기록을커밋. 기본마감제한과충돌하는이번명시push요청예외를기록하고guard/날짜조작0. 소스 b635/d541 djagent게시와대상게시를구분하며향후무제한개발승인으로확대하지않음.
+- 실마이크/GPS/화면·사용성 QA는 사용자 담당. 현재 모델/source는 fixture로 격리한다. 소스의 B34/60·C25/30·원천12/12 사용량은 이식 대상 성적/새 예산이 아니며 자동 재시도/예산 초기화0. .local/plan_dj·실제 env/키/브라우저 저장은 게시 제외.
 
 ## 완료·검증
 
-- origin/develop을 Fetch해 252c07c03b060a77ddd874f48b0f99ed4cbb1416에서 dj/agent/worktree 생성. 기존 main/develop/dj/develop 이동 없음.
-- plan_dj 763개를 새 폴더에 바이트 검증 복사 후 새 복사본의 중복/과거 자료만 정리. 원본 삭제0. 새 활성 계획6파일, 미완료5개+분리/미정2개.
-- 기본 구현 완료 항목은 새 구현 TODO에서 제외. 개인 고도화는 develop에 없어 이식·검증 대기로 유지. 프론트 요구는 담당자 전달로 분리.
-- AGENTS·engineering-loop 승인 규칙 이관, utils/harness.json 개인 브랜치 기준을 dj/agent로 설정. 서비스/프론트·하네스 스크립트 기능 변경 없음.
-- 준비검증 때 원본375/763 해시 일치 확인. 최종 비교는 원본 코드/ZIP 불변·삭제0, 진행기록5개 후속 갱신 보존. 새 develop 조상/코드 동일/계획6·제외·링크·색인/상태 정상, 기존 설명 누락2건 유지.
-- 본 폴더 변경 문서2개·기존 계획README와 별도 폴더 미추적14파일을 보존 ZIP으로 검증 저장. 원본 계획766파일 해시 기록. 변경 문서2개만 scoped stash에 보관.
-- 별도 폴더 dj/agent를 detach한 뒤 실제 D:/git/lab678을 dj/agent로 checkout 확인. 기존 dj/develop/main/develop 참조 유지. 활성 계획6개를 기존 plan_dj로 이전.
-- 본 폴더 dj/agent·develop 조상·기존 브랜치 유지 확인. 서비스73파일 Git내용 동일(LF/CRLF만1건), 원본 개인 기록765개 불변·기존README ZIP보존. 별도 작업폴더의 미추적14파일 전부 보존 후 해당 폴더만 제거, 등록 작업폴더는 본 폴더1개.
-- Naito음성점검: 기존키로모델목록200·11개, 채팅1회200/claude-sonnet-4-6/text/입력30출력6토큰 확인. 인증문서401, 새TTS생성0. 키/소스/설정불변. 상세 plan_dj/naito-voice-capability-check-20261101.md.
-- 대화·추천 결함 보완 완료: 후보 조건 소속·카드 스냅샷, 보류 해제, 복합 문장, 동명 출발지, 부정·관심어 보존. 구현 검증 c453e30에서 백엔드134·UI 대화/추천·독립회귀15·실제 브라우저/로컬 HTTP PASS. 이슈67 및 PR68 게시, 미병합 확인.
+- 소스 engine+QA b6355a0 및 전체 명세/이식 계획 d541ea5를 dj/agent에 push하고 원격 SHA 확인. GitHub 다중 계정 선택 ntt65를 명시해 인증 대기를 해결. 이슈67 현행 설계 전면 개편, 기존 PR68 본문 갱신. PR68은 외부 과거 병합 이력이다.
+- M1: 새 local dj/develop=e5697e2 생성. 이전 local 이름만 보존. checkout 전 source 작업폴더 clean 확인, 변경 직후 제품 tree diff0 확인. 개발 명세/계획 두 파일을 해시 검증 packet에서 같은 경로로 복사했다.
+- 대상 기준선 실제 실행: backend134/134 PASS, utils26/26 PASS, 기존 offline chat API503/400/CORS204/mock200 PASS. harness는 기존 docstring7건과 문서2개 복사에 따른 색인stale3건으로 FAIL. 보호21파일 해시 저장. 실제 모델/source0.
+- 기존 사용자 시험 backend33148/frontend28644의 명령을 검증하고 종료 확인. 초기 Stop-Process 오류 후 실제 잔여 프로세스를 다시 검증/정리했다. 기존 서버 메모리와 새 checkout 파일을 섞어 시험하지 않는다.
+- 소스 최종 검증은 backend253/표적59/HTTP-DOM19/navigation9/legacy17·15·HTTP 통과였다. 이는 소스의 이력이며 현재 대상 성적이 아니다. 상세 실패/수정/실모델 평가와 한계는 원본 개발 명세에 보존.
+- M2: 핵심4모듈 source동일+agent_v3.py 분리. naito_chat version분기3줄/기존 SYSTEM·provider와 도메인 보존. target backend241/241·표적141/141 PASS. 중간 chat_dialogue 미이식.
+- M3: agent-session.js와 기존 api/state/chat/place/app의 최소 접점. 선택버튼/현재batch/후보별상세·원점/복귀/실제모호origin popup 구현. HTML dialog10줄·CSS12줄만 추가, 보호 assets/weather/util/saved/tokens 변경0.
+- M4: 실제HTTP/store/DOM23/23·legacy상태15/15·기존HTTP/대화/추천 PASS. 일반back TTS/nativeback STT·TTS/fork sound=true TTS를 재현하고 최소수정 후 동일assert통과. 늦은선택응답뒤홈유지/조건·선택보존 통과. 실제모델/원천/장치추가0.
+- M5: backend7256/frontend32388로5173실행,제공8파일/v3open/미검증선택거절/모델0/lease반납확인. 이슈67전체35463자·PR68본문27101자 재조회일치. 도구26PASS/기존docstring7FAIL·신규정적0·문서색인정합PASS. 체크리스트전부완료/인계보존.
 
 ## 진행 중
 
-- 진행 중인 기능 구현 없음. 이슈67의 전체 개선 목록을 다시 읽어 필수 항목을 확인했고, 깨진 인계 상태 한글을 사용자 원문·실제 결과로 복구했다.
+- 게시manifest/secret/hash·원격tip/기준확인→검증본원자commit→이전원격보존/leasepush→기존Issue67상세갱신/새PR→최종기록진행. 코드28파일은직전검증archive와해시동일,기존open대상PR없음확인.
 
 ## 다음 할 일 — 순서대로
 
-- 다른 LLM/팀은 이슈67의 develop 대비 전체 개선 목록과 agent-remediation-review.md부터 독립 검토한다. PR68 머지/자동머지/배포 금지. 실 API·실기기 QA 및 기존 docstring7건, 미지원 시간 표현은 후속 검토.
+- 현재검증본게시및새PR발행을완료하고실제URL/SHA/조상·원형보존·검증/한계를보고. develop병합/배포0,source djagent d541과oldtarget80보존. 이후피드백은새근거있는최소수정만.
 
 ## 미정·주의
 
-- 기본 브라우저 음성/TourAPI/코스·길찾기/검색·60분/CORS는 소스가 존재하므로 재개발로 분류하지 않는다. 새 기준 전체 QA·실기기·배포 완료와는 구분한다.
-- 발화 근거/시각 검증을 세 공급자 어댑터에 연결했다. 개인 원본 전체나 평가기는 이식하지 않았다. 이전 개인 평가를 새 브랜치 성적으로 쓰지 않는다.
-- A07 음성 자연스러움/로컬 TTS는 별도 검토, A08 문화Q&A·지속선호·S05 팀 연결은 미정이다. 이번 준비 승인에서 구현 허락을 추정하지 않는다.
-- 이전 작업폴더 안내는 과거 이력이다. 현재 실제 위치는 D:/git/lab678 · dj/agent이며 별도 폴더를 계속 사용하지 않는다. 실제 .env/키는 복사하지 않았다.
-- Claude제품음성모드를Naito채팅키로직접호출하는공개계약없음. 별도MediaTTS는제공자료에있으나현재키권한/정확한본문/음색/스트리밍·차감미확인. 과거400을미지원확정으로확대금지.
+- 구현 중 handshake직후canonicalnull1회관측은후속비재현/직접원인미확정. 최종23시나리오는통과했으나 실제사용에서재현되면대화/응답경계추가수집. 과거소스502/200조회0직접원인과별개로기록.
+- HTML/CSS 예외는선택접점/모호출발지dialog국소범위. 보호21파일중index/app.css만차이,assets/weather/util/saved/tokens유지. 추가전체설정/날짜/회차/찜/취소기능은후속제안.
+- 기존원격80에서새검증본으로교체해야하는게시상황. 최신요청에따라oldtip별도보존→exact80기대lease가드만허용. 원격전진시중단해차이검토,자동merge/무조건force/delete금지.
+- 단일프로세스임시store/TTL·공급자결측/조회범위·영화작품/회차미연동한계유지. 실제모델평가예산을자동초기화하거나기기QA로대체하지않음. 기본마감커밋제한과현재대상게시승인범위는분리.
 
 ## 필요할 때 읽을 자료
 
-- docs/development/agent-remediation-review.md와 GitHub 이슈67: 공유용 개선 근거·재현·계약·테스트·한계. 개인 계획/보존본은 plan_dj 및 .local에 유지.
-- plan_dj/README.md → TODO.md → execution-plan.md. 본 폴더 전환 근거는 root-checkout-migration-20261101.md/JSON과 보존 ZIP. 과거 정리 매니페스트의 별도 경로는 이력이다.
-- 공통 운영 TEAM_WORKFLOW.md, 개인 승인 AGENTS.md/engineering-loop. 실제 최신 코드와 현재 Git 상태를 우선한다.
-- reports/20261101-dj-agent-setup.md에 준비 결과·검증 한계 기록. 개인 정리 근거는 plan_dj/cleanup-manifest.json과 .local/agent-setup-verification-20261101.json.
-- 음성최신점검 plan_dj/naito-voice-capability-check-20261101.md. 기존Claude채팅실제성공과별도MediaTTS미확인을구분. 프론트/코드수정·Push없음.
+- docs/development/agent-engine-migration-plan.md: 승인 원문·M0~M5 체크표·새 기준·파일/보호 범위·최소 popup/버튼·검증/복구. 현재 target 진행으로 갱신한다.
+- docs/development/agent-implementation-spec.md: 소스 dj/agent의 현행 의도/3축/실제 기능/계약/실패/검증/한계. source 코드 b6355a0, docs d541ea5를 git show로 선택 참조한다.
+- .local/engine-port-checkout.json, engine-port-baseline.json, engine-port-protected-baseline.json, migration-docs-packet.json: 실제 기준선/보존/보호 파일 근거. 실제 env/키는 읽기/복사/게시하지 않는다.
+- TEAM_WORKFLOW.md·AGENTS.md·docs/development/engineering-loop.md·각 폴더 AGENTS와 utils/README를 준수하되 최신 사용자 지시의 target dj/develop 실시 승인이 과거 branch 제한을 갱신한다.
+- backend/README.md·docs/development/team-backend-guide.md·기존 API 명세, docs/planning/README.md→PRD/화면명세. 기존 source 성적/기획팀 검토와 실제 target QA를 구분한다.

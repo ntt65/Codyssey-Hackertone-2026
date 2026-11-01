@@ -86,7 +86,7 @@ async function main() {
       await page.locator('#chat-form').evaluate((form) => form.requestSubmit());
     };
     const read = () => page.evaluate(() => JSON.parse(sessionStorage.getItem('lab678_chat')));
-    await page.goto(`${base}/#/chat?text`);
+    await page.goto(`${base}/?agent=legacy#/chat?text`);
     await send('무료만 가능한 가까운 곳');
     await page.locator('.chat-card').first().waitFor();
     assert.equal(chatResponses.length, 1);

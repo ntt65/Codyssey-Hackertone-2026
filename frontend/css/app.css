@@ -370,6 +370,18 @@ a.btn { display: flex; align-items: center; justify-content: center; text-decora
 .sheet__panel h2 { font-size: var(--fs-title-m); }
 .sheet__panel .badge { align-self: flex-start; }
 @keyframes sheet-up { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.origin-picker { position: fixed; inset: auto 0 0; margin: 0 auto; width: min(100%, 430px); max-height: 80dvh; padding: 24px var(--gutter) max(24px, env(safe-area-inset-bottom)); border: 0; border-radius: 24px 24px 0 0; background: var(--bg-canvas); color: var(--text-primary); }
+.origin-picker[open] { display: flex; flex-direction: column; gap: 16px; }
+.origin-picker::backdrop { background: rgba(27, 29, 26, .45); }
+.origin-picker__header { flex: none; }
+.origin-picker__header h2 { margin: 0 0 8px; font-size: var(--fs-title-m); }
+.origin-picker__header p { margin: 0; overflow-wrap: anywhere; }
+.origin-picker__options { display: flex; flex-direction: column; gap: 8px; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.origin-option { width: 100%; flex: none; display: flex; flex-direction: column; gap: 6px; min-height: 72px; padding: 16px; text-align: left; border: 1.5px solid var(--border-default); border-radius: 16px; background: var(--bg-surface); color: var(--text-primary); font: inherit; cursor: pointer; overflow-wrap: anywhere; }
+.origin-option strong { font-size: var(--fs-body-m); }
+.origin-option span { font-size: var(--fs-label); color: var(--text-secondary); }
+.origin-option:focus-visible { outline: 3px solid var(--brand-primary); outline-offset: 2px; }
+.origin-picker > .btn { flex: none; }
 @media (prefers-reduced-motion: reduce) { .home__bird img, .msg__avatar img, .chat__mic.is-listening, .sheet__panel { animation: none !important; } }
 
 /* 말로 대화 화면 (06 · S02 음성 듣기): 위에 까치·상태, 아래로 대화 */

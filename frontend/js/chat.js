@@ -1,12 +1,13 @@
 /**
  * S02 까치와 대화 · S02a 부족·충돌 확인 · S03 대화 안 추천 카드 (PRD v0.7 H02~H10).
  *
- * 흐름: 사용자 말/글 → 조건 해석(/preview/chat, 없으면 규칙 해석) → 빠진 것만 하나씩 질문
- *       → 다 모이면 확인 단계 없이 바로 추천 → 대화 안에 카드 최대 3개 → 상세 보기.
+ * v3는 서버 세션이 대화·조건·질문·표시 후보를 정하고 기존 말풍선과 카드로 보여 줘요.
+ * ?agent=legacy 에서는 기존 조건 해석·단계 수집 흐름을 유지해요.
  * 이미 정한 값과 다른 말이 오면 변경 전후를 물어봐요. 좌표는 장소 검색·현재 위치로만 정해요.
  */
-import { state, save, resetChat } from './state.js';
+import { state, save, resetChat, usesAgentV3 } from './state.js';
 import { requestRecommend, requestChat, searchPlaces } from './api.js';
+import { configureAgent, ensureAgent, sendAgent, releaseAgent, agentConnected } from './agent-session.js';
 import { longEnough } from './parse.js';
 import { $, el, button, formatDate, formatTime, todayIso, minutes, hhmm, isTest, isDebug, talkFor, unlockSpeech, photo, SPEECH_RATE } from './util.js';
 
@@ -45,6 +46,14 @@ let discardVoice = false;
 let chatGeneration = 0;
 let activeChat = null;
 let lastTurn = null;
+let restoringNavigation = false;
+let voiceNavigationEpoch = 0;
+let chatNavigationEpoch = 0;
+let voiceAutoEnabled = true;
+let originQuery = '';
+let originFocus = null;
+
+configureAgent({ onSnapshot: projectAgentSnapshot, onFork: () => { placeOptions = []; closeOriginPicker(); start({ silent: true }); } });
 
 /* ---------------- 조건 ---------------- */
 
@@ -80,6 +89,12 @@ function summary() {
   if (d().keywords?.length) parts.push(`관심: ${d().keywords.join(', ')}`);
   if (d().exclude_terms?.length) parts.push(`제외: ${d().exclude_terms.join(', ')}`);
   if (d().walking_preference === 'short') parts.push('적게 걷기 선호');
+  if (usesAgentV3) {
+    const understanding = state.agent.domain?.understanding;
+    if (understanding?.goal) parts.push(understanding.goal);
+    const tastes = (understanding?.preferences || []).map((p) => `${p.polarity === 'avoid' ? '피하기: ' : ''}${p.value}`);
+    if (tastes.length) parts.push(tastes.join(', '));
+  }
   return parts.join(' · ');
 }
 
@@ -139,17 +154,87 @@ const show = (field, v) => {
 
 /** 까치 말 추가 (소리 켜짐이면 읽어 줘요) */
 function say(text, extra = {}) {
-  const { ask, ...keep } = extra;
+  const { ask, silent, ...keep } = extra;
   state.messages.push({ role: 'ai', text, ...keep });
   save();
   render();
-  speak(text, ask && voiceMode ? () => listen(true) : null);
+  if (!silent) speak(text, ask && voiceMode ? () => listen(true) : null);
 }
 
 function userSays(text) {
   state.messages.push({ role: 'user', text });
   save();
   render();
+}
+
+/** Validate the captured display batch; an old card never borrows current selection rights. */
+function contentSelectionState(candidate) {
+  const context = candidate?.selection_context;
+  const conversation = state.agent.conversation;
+  const batch = state.agent.domain?.display_batch;
+  const enabled = usesAgentV3 && agentConnected() && !!context && !!conversation
+    && context.conversation_id === conversation.conversation_id && context.epoch === conversation.epoch
+    && context.display_batch_id === batch?.id && context.result_execution_key === batch?.execution_key
+    && batch?.candidate_ids?.includes(candidate.id);
+  return { enabled, selected: enabled && state.selectedContent?.id === candidate.id };
+}
+
+/** Create the same explicit selection control in chat and detail without changing their layouts. */
+export function createContentSelectionButton(candidate, id = '') {
+  const control = button('이곳 선택', 'btn btn--outline btn--small', () => selectContent(candidate));
+  control.dataset.selectContent = candidate.id;
+  control.id = id || `content-choice-${encodeURIComponent(candidate.selection_context?.display_batch_id || 'old')}-${encodeURIComponent(candidate.id)}`;
+  control.contentCandidate = candidate;
+  updateContentSelectionButton(control);
+  return control;
+}
+
+/** Reflect canonical selection status without rendering or moving focus. */
+function updateContentSelectionButton(control) {
+  const { enabled, selected } = contentSelectionState(control.contentCandidate);
+  control.disabled = !enabled || busy;
+  control.textContent = selected ? '선택한 곳' : enabled ? '이곳 선택' : '이전 결과 · 선택 불가';
+  control.setAttribute('aria-pressed', String(!!selected));
+  control.title = enabled ? '현재 화면의 이 콘텐츠를 선택해요.' : '이전 결과는 상세를 볼 수 있어요. 선택하려면 현재 대화에서 다시 찾아 주세요.';
+}
+
+/** Update both visible and hidden detail controls after a server revision changes. */
+function refreshContentSelectionControls() {
+  document.querySelectorAll('[data-select-content]').forEach(updateContentSelectionButton);
+}
+
+/** Select only a captured current result and wait for the server before opening its detail. */
+export async function selectContent(candidate) {
+  if (busy) return false;
+  if (!contentSelectionState(candidate).enabled) {
+    const text = '이전 결과는 지금 선택할 수 없어요. 현재 대화의 후보에서 다시 선택해 주세요.';
+    if ($('#s02').classList.contains('is-active')) say(text, { statusNotice: true });
+    else document.dispatchEvent(new CustomEvent('content-selection-error', { detail: text }));
+    return false;
+  }
+  const position = { scrollY: window.scrollY, focusId: document.activeElement?.id || '' };
+  return sendAgentEvent({ type: 'select_content', candidate_id: candidate.id,
+    result_execution_key: candidate.selection_context.result_execution_key,
+    display_batch_id: candidate.selection_context.display_batch_id }, { selectionPosition: position });
+}
+
+/** Open the verified snapshot through the existing data-go router, preserving its chat position. */
+function openSelectedContent(candidate, position) {
+  const batch = state.agent.domain.display_batch;
+  const snapshot = JSON.parse(JSON.stringify(candidate));
+  snapshot.selection_context = { conversation_id: state.agent.conversation.conversation_id,
+    epoch: state.agent.conversation.epoch, display_batch_id: batch.id, result_execution_key: batch.execution_key };
+  state.selectedCandidate = snapshot;
+  save();
+  pauseChatNavigation();
+  if (position && $('#s02').classList.contains('is-active')) {
+    document.getElementById(position.focusId)?.focus({ preventScroll: true });
+    window.scrollTo(0, position.scrollY);
+  }
+  const link = button('', '');
+  link.hidden = true;
+  link.dataset.go = `/place/${encodeURIComponent(candidate.id)}`;
+  document.body.append(link); link.click(); link.remove();
 }
 
 /** 대화 안 추천 카드 */
@@ -170,7 +255,9 @@ function card(c, index) {
   if (isDebug()) body.append(el('code', 'debug-id', `후보 ID: ${c.id}`));
   const more = button('상세 보기', 'btn btn--outline btn--small');
   more.dataset.go = `/place/${encodeURIComponent(c.id)}`;
+  more.addEventListener('click', () => { state.selectedCandidate = JSON.parse(JSON.stringify(c)); save(); });
   body.append(more);
+  if (usesAgentV3) body.append(createContentSelectionButton(c));
   art.append(top, body);
   return art;
 }
@@ -191,7 +278,14 @@ function bubble(m) {
   if (m.summary) col.append(el('p', 'msg__summary', m.summary));
   if (m.cards?.length) {
     const list = el('div', 'chat-cards');
-    m.cards.forEach((id, i) => { const c = m.cardSnapshots?.[id] || state.candidates[id]; if (c) list.append(card(c, i)); });
+    m.cards.forEach((id, i) => {
+      let c = m.cardSnapshots?.[id] || state.candidates[id];
+      if (usesAgentV3 && c && (!m.displayBatch || c.selection_context?.display_batch_id !== m.displayBatch.id
+          || c.selection_context?.result_execution_key !== m.displayBatch.execution_key)) {
+        c = { ...c, selection_context: null };
+      }
+      if (c) list.append(card(c, i));
+    });
     col.append(list);
   }
   if (m.loading) {
@@ -208,6 +302,7 @@ function actions() {
   const box = $('#chat-actions');
   box.replaceChildren();
   const chip = (label, fn, cls = 'chip') => box.append(button(label, cls, fn));
+  if (usesAgentV3) { agentActions(chip); return; }
   if (busy) {
     if (activeChat) chip('다시 말하기', retryLastTurn);
     return;
@@ -274,12 +369,14 @@ function render() {
   actions();
   updateVoiceUi();
   if (recognizer && voiceMode) log.append(liveBubble());
-  scrollEnd();
+  if (!restoringNavigation && $('#s02').classList.contains('is-active')) scrollEnd();
 }
 
 /** 맨 아래 말풍선이 아래 고정 버튼 위에 보이도록 끝까지 내려요 */
 function scrollEnd() {
+  const epoch = voiceNavigationEpoch;
   requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (epoch !== voiceNavigationEpoch || !$('#s02').classList.contains('is-active')) return;
     window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' });
   }));
 }
@@ -312,9 +409,11 @@ function liveBubble() {
  * 까치가 말하는 동안에는 마이크를 켜지 않아요 (자기 목소리를 다시 듣지 않게).
  */
 function speak(text, then) {
+  if (!$('#s02').classList.contains('is-active')) return;
   const generation = chatGeneration;
+  const epoch = voiceNavigationEpoch;
   const originalThen = then;
-  then = originalThen ? () => { if (generation === chatGeneration) originalThen(); } : null;
+  then = originalThen ? () => { if (generation === chatGeneration && epoch === voiceNavigationEpoch && $('#s02').classList.contains('is-active')) originalThen(); } : null;
   const avatar = [...document.querySelectorAll('#chat-log .msg--ai .msg__avatar')].pop(); // 방금 말한 까치
   const ms = Math.min(600 + text.length * 70, 5000);
   talkFor(avatar, ms);
@@ -346,8 +445,11 @@ function speak(text, then) {
     u.onerror = finish;
     setTimeout(finish, 1500 + text.length * 180); // onend 가 안 오는 브라우저 대비
     // 끊은 직후 바로 말하면 Chrome이 첫 인사를 버리기도 해서 (홈 인사 → 대화 첫 인사) 잠깐 쉬었다 말해요
-    if (busy) setTimeout(() => speechSynthesis.speak(u), 150);
-    else speechSynthesis.speak(u);
+    const play = () => {
+      if (generation === chatGeneration && epoch === voiceNavigationEpoch && state.sound && $('#s02').classList.contains('is-active')) speechSynthesis.speak(u);
+    };
+    if (busy) setTimeout(play, 150);
+    else play();
   } catch { if (then) setTimeout(then, 1200); }
 }
 
@@ -357,7 +459,10 @@ function setSound(on) {
   const b = $('#chat-sound');
   b.setAttribute('aria-pressed', String(on));
   b.textContent = on ? '소리 켬' : '소리 끔';
-  if (!on && 'speechSynthesis' in window) speechSynthesis.cancel();
+  if (!on) {
+    ++voiceNavigationEpoch;
+    if ('speechSynthesis' in window) speechSynthesis.cancel();
+  }
 }
 
 /* ---------------- 말하기 ----------------
@@ -450,6 +555,8 @@ let session = null;
  * @param {boolean} auto 까치 질문 뒤 자동으로 듣는 경우
  */
 function listen(auto = false) {
+  if (auto && !voiceAutoEnabled) return;
+  if (!auto) voiceAutoEnabled = true;
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { say('이 브라우저에서는 말하기를 쓸 수 없어요. 아래 칸에 글자로 적어 주세요.'); if (voiceMode) setMode('text'); return; }
   if (recognizer || busy || !$('#s02').classList.contains('is-active')) return;
@@ -457,7 +564,11 @@ function listen(auto = false) {
     if (autoTurns >= VOICE.maxAutoTurns) { updateVoiceUi(); return; }
     autoTurns += 1;
   } else autoTurns = 0;
-  if (auto && 'speechSynthesis' in window && speechSynthesis.speaking) { setTimeout(() => listen(true), 400); autoTurns -= 1; return; } // 까치가 말하는 중엔 켜지 않아요
+  if (auto && 'speechSynthesis' in window && speechSynthesis.speaking) {
+    const epoch = voiceNavigationEpoch;
+    setTimeout(() => { if (epoch === voiceNavigationEpoch) listen(true); }, 400);
+    autoTurns -= 1; return;
+  } // 까치가 말하는 중엔 켜지 않아요
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   discardVoice = false;
   const s = session = { kept: '', finalText: '', interim: '', done: false, timers: {}, startedAt: Date.now() };
@@ -479,8 +590,8 @@ function listen(auto = false) {
     updateVoiceUi();
     const said = text();
     if (discardVoice || reason === 'discard') { if (said && !voiceMode) $('#chat-input').value = said; return; }
-    if (reason === 'denied') { say('마이크를 쓸 수 없어요. 글자로 적어 주셔도 돼요.'); setMode('text'); return; }
-    if (!said) { say('잘 듣지 못했어요. "말하기"를 누르고 다시 말씀해 주세요.'); return; }
+    if (reason === 'denied') { say('마이크를 쓸 수 없어요. 글자로 적어 주셔도 돼요.', { statusNotice: true }); setMode('text'); return; }
+    if (!said) { say('잘 듣지 못했어요. "말하기"를 누르고 다시 말씀해 주세요.', { statusNotice: true }); return; }
     if (!voiceMode) $('#chat-input').value = '';
     handle(said);
   };
@@ -543,6 +654,11 @@ function retryLastTurn() {
     else { $('#chat-input').value = ''; $('#chat-input').focus(); }
     return;
   }
+  if (usesAgentV3) {
+    if (voiceMode) { say('고칠 내용을 말씀해 주세요.', { ask: true, statusNotice: true }); }
+    else { $('#chat-input').value = [...state.messages].reverse().find((m) => m.role === 'user')?.text || ''; $('#chat-input').focus(); }
+    return;
+  }
   if (!lastTurn) return;
   ++chatGeneration;
   activeChat = null;
@@ -569,7 +685,9 @@ function retryLastTurn() {
 
 /** 이전 요청과 음성 세션을 무효화하고 새 대화를 시작한다. */
 function newChat() {
+  if (usesAgentV3) releaseAgent();
   ++chatGeneration;
+  ++voiceNavigationEpoch;
   ++ticket;
   activeChat = null;
   lastTurn = null;
@@ -580,6 +698,8 @@ function newChat() {
   state.clarification = null;
   save();
   placeOptions = [];
+  closeOriginPicker();
+  $('#origin-options')?.replaceChildren();
 }
 
 /** 글자로 입력하기: 채팅 화면으로. 듣던 말은 입력 칸에 넣어 고칠 수 있게 */
@@ -731,6 +851,17 @@ function applyClarificationEvidence(response) {
 /** 사용자 한마디 처리 */
 async function handle(text) {
   if (busy) return;
+  if (usesAgentV3) {
+    userSays(text);
+    if (/^(?:현재\s*위치|지금\s*있는\s*곳|여기서)(?:에서|로)?(?:\s*(?:출발|사용)(?:할게요|해요|해 주세요)?)?[.!?]*$/u.test(text.trim())) { await useHere(false); return; }
+    const origin = spokenOriginChoice(text);
+    if (origin) { closeOriginPicker(); await sendAgentEvent({ type: 'select_origin', place_id: origin.id }); return; }
+    if (/^(?:더\s*)?가까운\s*곳(?:으로|을)?(?:\s*(?:보여\s*줘|보여\s*주세요|알려\s*줘|알려\s*주세요))?[.!?]?$/u.test(text.trim())) {
+      await sendAgentEvent({ type: 'proceed', sort: 'distance' }); return;
+    }
+    await sendAgentEvent({ type: 'message', text });
+    return;
+  }
   const generation = ++chatGeneration;
   placeOptions = [];
   const before = JSON.parse(JSON.stringify(d()));
@@ -882,7 +1013,7 @@ async function findStart(query, changing = false) {
 }
 
 /** 현재 위치 (사용자가 직접 골랐을 때만 권한 요청) */
-async function useHere() {
+async function useHere(recordUser = true) {
   if (!navigator.geolocation) { say('이 기기에서는 현재 위치를 쓸 수 없어요. 출발할 곳 이름을 말씀해 주세요.'); return; }
   busy = true;
   const generation = chatGeneration;
@@ -893,7 +1024,10 @@ async function useHere() {
     if (generation !== chatGeneration) return;
     busy = false;
     if (revision !== state.revision || draft !== JSON.stringify(d())) { render(); return; }
-    answer('현재 위치에서 출발할게요', { startLocation: { label: '현재 위치', lat: pos.coords.latitude, lng: pos.coords.longitude } });
+    if (usesAgentV3) {
+      if (recordUser) userSays('현재 위치에서 출발할게요');
+      sendAgentEvent({ type: 'set_current_location', location: { lat: pos.coords.latitude, lng: pos.coords.longitude } });
+    } else answer('현재 위치에서 출발할게요', { startLocation: { label: '현재 위치', lat: pos.coords.latitude, lng: pos.coords.longitude } });
   }, () => {
     if (generation !== chatGeneration) return;
     busy = false;
@@ -1115,14 +1249,24 @@ function closer() {
 /* ---------------- 시작 ---------------- */
 
 /** 새 대화 첫 인사 */
-function start() {
+function start({ silent = false } = {}) {
   if (!state.messages.length) {
-    say('안녕하세요. 나들이 가고 싶은 곳 편히 말씀해 주세요.', { ask: true });
+    say('안녕하세요. 나들이 가고 싶은 곳 편히 말씀해 주세요.', { ask: !silent, silent });
   } else render();
 }
 
 /** #/chat 들어올 때 */
 export function renderChat(opts = {}) {
+  if (opts.resume) {
+    pauseChatNavigation();
+    restoringNavigation = true;
+    setMode(state.mode || 'text');
+    render();
+    restoringNavigation = false;
+    if (usesAgentV3) ensureAgent().then(refreshContentSelectionControls).catch(() => {});
+    return;
+  }
+  voiceAutoEnabled = true;
   if (opts.voice != null) setSound(opts.voice);
   else setSound(state.sound);
   const mode = opts.voice === true ? 'voice' : opts.voice === false ? 'text' : (state.mode || 'text');
@@ -1131,12 +1275,22 @@ export function renderChat(opts = {}) {
   if (opts.voice === true && !state.messages.some((m) => m.role === 'user')) newChat();
   const fresh = !state.messages.length;
   start();
+  if (usesAgentV3) ensureAgent().then(refreshContentSelectionControls).catch(() => {});
   if (mode === 'voice' && !fresh) { // 이어서 하는 대화면 까치가 마지막 말을 다시 해 주고 들어요
     const last = [...state.messages].reverse().find((m) => m.role === 'ai' && m.text);
     if (opts.voice === true && last) speak(last.text, () => listen(true));
     else setTimeout(() => listen(), 300);
   }
   if (mode === 'text' && opts.voice === false) $('#chat-input').focus();
+}
+
+/** Pause speech on route changes without resetting the conversation, input or server state. */
+export function pauseChatNavigation() {
+  ++voiceNavigationEpoch;
+  ++chatNavigationEpoch;
+  voiceAutoEnabled = false;
+  if (recognizer) { discardVoice = true; session?.finish('discard'); }
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
 }
 
 /** 이벤트 연결 (한 번) */
@@ -1159,4 +1313,184 @@ export function initChat() {
   window.addEventListener('hashchange', () => { if (recognizer) { discardVoice = true; session?.finish('discard'); } });
   $('#chat-sound').addEventListener('click', () => { unlockSpeech(); setSound(!state.sound); });
   $('#chat-new').addEventListener('click', () => { newChat(); start(); });
+  $('#origin-close')?.addEventListener('click', closeOriginPicker);
+  $('#origin-picker')?.addEventListener('cancel', (event) => { event.preventDefault(); closeOriginPicker(); });
+  if (usesAgentV3) window.addEventListener('pagehide', releaseAgent);
+}
+
+/** Project canonical settings into existing labels without applying client patches or old holds. */
+function projectAgentSnapshot(response) {
+  if (!response.state) return;
+  const domain = response.state;
+  const conditions = domain.conditions || {};
+  const draft = {};
+  if (conditions.category) draft.category = conditions.category;
+  for (const field of PREFERENCE_FIELDS) if (Object.hasOwn(conditions, field)) draft[field] = conditions[field];
+  if (conditions.date) draft.date = conditions.date;
+  if (conditions.start_at) { draft.date = conditions.start_at.slice(0, 10); draft.startTime = conditions.start_at.slice(11, 16); }
+  if (conditions.end_at) draft.endTime = conditions.end_at.slice(11, 16);
+  if (conditions.start_location) draft.startLocation = conditions.start_location;
+  if (conditions.start_query) draft.startQuery = conditions.start_query;
+  state.draft = draft;
+  state.revision = response.conversation?.revision ?? state.revision;
+  state.pending = null; state.pendingQueue = []; state.clarification = null;
+  state.selectedContent = domain.selected_content ? JSON.parse(JSON.stringify(domain.selected_content)) : null;
+  placeOptions = domain.origin_options || [];
+  originQuery = domain.origin_query || conditions.start_query || '';
+  if (!placeOptions.length) closeOriginPicker();
+  refreshContentSelectionControls();
+}
+
+/** Render server actions in the original quick-answer area; missing optional slots are not gates. */
+function agentActions(chip) {
+  if (busy) return;
+  if (recognizer) { chip('다시 말하기', retryLastTurn); return; }
+  const domain = state.agent.domain;
+  const pending = domain?.pending_changes?.[0];
+  if (pending) {
+    chip('변경할게요', () => sendAgentEvent({ type: 'confirm_change', pending_id: pending.id }), 'chip chip--primary');
+    chip('기존대로 둘게요', () => sendAgentEvent({ type: 'dismiss_change', pending_id: pending.id }));
+  } else if (state.agent.failedEvent) {
+    chip('다시 시도', () => sendAgentEvent(state.agent.failedEvent));
+  } else if (domain?.last_tool_action?.failed) {
+    chip('같은 조건으로 다시 찾기', () => sendAgentEvent({ type: 'retry_tool', action_id: domain.last_tool_action.id }));
+  } else if (placeOptions.length) {
+    chip('장소 목록 보기', openOriginPicker);
+  } else {
+    const options = [...new Set(state.messages.at(-1)?.dialogueOptions || [])];
+    options.forEach((option) => chip(option, option === '현재 위치 사용' ? () => useHere() : () => handle(option)));
+    if (domain?.active_question?.target === 'start_location' && !options.includes('현재 위치 사용')) chip('현재 위치 사용', () => useHere(), 'chip chip--primary');
+    if (state.shown.length) {
+      chip('다른 곳 보여줘', () => handle('다른 곳도 보여줘'));
+      chip('더 가까운 곳', () => handle('더 가까운 곳으로 알려줘'));
+    }
+  }
+  chip('다시 말하기', retryLastTurn);
+}
+
+/** Normalize spoken landmark aliases, preserving numbered districts and administrative suffixes. */
+function originNameKey(value) {
+  return String(value || '').normalize('NFKC').toLowerCase()
+    .replace(/서울특별시청/gu, '서울시청').replace(/([가-힣]+)광역시청/gu, '$1시청')
+    .replace(/(?:에\s*있는|에\s*위치한)/gu, '')
+    .replace(/(?:에서\s*)?출발(?:할게요|해요|합니다)?|(?:으로|로)\s*(?:해\s*줘|해\s*주세요)|이라니까|이라니깐|이라고|라고요|이요|이에요|예요|입니다|맞아요|그곳/gu, '')
+    .replace(/[\s\p{P}\p{S}]/gu, '').replace(/(?:으로|로|에서|요)$/u, '')
+    .replace(/^시청(?=[가-힣]{2,}시청$)/u, '');
+}
+
+/** Match only actual popup options by exact ordinal, name alias or a unique address region. */
+function spokenOriginChoice(text) {
+  if (!placeOptions.length) return null;
+  const compact = text.replace(/\s+/gu, '');
+  const ordinal = /^(?:첫번째|첫째|1번|일번)(?:이요|요|으로|로|으로할게요|로할게요)?[.!?]?$/u.test(compact) ? 0
+    : /^(?:두번째|둘째|2번|이번)(?:이요|요|으로|로|으로할게요|로할게요)?[.!?]?$/u.test(compact) ? 1
+      : /^(?:세번째|셋째|3번|삼번)(?:이요|요|으로|로|으로할게요|로할게요)?[.!?]?$/u.test(compact) ? 2 : -1;
+  if (ordinal >= 0) return placeOptions[ordinal] || null;
+  const key = originNameKey(text);
+  if (!key) return null;
+  const exact = placeOptions.filter((place) => originNameKey(place.label) === key);
+  if (exact.length === 1) return exact[0];
+  const region = placeOptions.filter((place) => (place.road_address || place.address || '').split(/\s+/u).slice(0, 2)
+    .map((part) => originNameKey(part.replace(/(?:특별자치시|특별시|광역시|특별자치도|도|시|군|구)$/u, ''))).includes(key));
+  return region.length === 1 ? region[0] : null;
+}
+
+/** Show actual ambiguous locations in a small dialog while retaining spoken selection support. */
+function openOriginPicker() {
+  const picker = $('#origin-picker');
+  if (!picker || !placeOptions.length || !$('#s02').classList.contains('is-active')) return;
+  const key = originNameKey(originQuery);
+  placeOptions = placeOptions.map((place, index) => ({ place, index,
+    rank: originNameKey(place.label) === key ? 0 : originNameKey(place.label).includes(key) ? 1 : 2 }))
+    .sort((a, b) => a.rank - b.rank || a.index - b.index).map(({ place }) => place);
+  $('#origin-options').replaceChildren(...placeOptions.map((place) => {
+    const option = button('', 'origin-option', () => {
+      if (busy || !state.agent.domain?.origin_options?.some((item) => item.id === place.id)) return;
+      closeOriginPicker(); userSays(`${place.label}에서 출발해요`);
+      sendAgentEvent({ type: 'select_origin', place_id: place.id });
+    });
+    option.append(el('strong', null, place.label), el('span', null, place.road_address || place.address || '주소 확인 필요'));
+    return option;
+  }));
+  $('#origin-query').textContent = `입력하신 출발지 · ${originQuery}`;
+  if (!picker.open) { originFocus = document.activeElement; picker.showModal(); }
+}
+
+/** Close only the location dialog and restore input focus without discarding real candidates. */
+function closeOriginPicker() {
+  const picker = $('#origin-picker');
+  if (picker?.open) picker.close();
+  const previous = originFocus; originFocus = null;
+  if (previous?.isConnected) previous.focus({ preventScroll: true });
+}
+
+/** Dispatch one server event and render only its canonical text, batch and verified selection. */
+async function sendAgentEvent(event, { selectionPosition = null } = {}) {
+  if (busy) return false;
+  const generation = chatGeneration;
+  const navigationAtSend = chatNavigationEpoch;
+  const routeAtSend = location.hash;
+  busy = true; render(); refreshContentSelectionControls();
+  try {
+    const response = await sendAgent(event);
+    if (!response || generation !== chatGeneration) return false;
+    if (response.kind !== 'ok') {
+      say(response.message, { statusNotice: true });
+      if (!$('#s02').classList.contains('is-active')) document.dispatchEvent(new CustomEvent('content-selection-error', { detail: response.message }));
+      return false;
+    }
+    const data = response.data;
+    const result = data.tool_result;
+    const extra = { ask: !result, dialogueOptions: data.next_action?.options || [] };
+    if (result?.candidates?.length) {
+      const batch = result.display_batch;
+      const canonical = state.agent.domain?.display_batch;
+      if (!batch || !canonical || batch.id !== canonical.id || batch.execution_key !== canonical.execution_key
+          || !Array.isArray(batch.candidate_ids) || batch.candidate_ids.length > MAX_CARDS
+          || JSON.stringify(batch.candidate_ids) !== JSON.stringify(canonical.candidate_ids)
+          || new Set(batch.candidate_ids).size !== batch.candidate_ids.length) {
+        say('표시할 후보 묶음을 확인하지 못했어요. 대화와 기존 결과는 유지했어요.', { statusNotice: true }); return false;
+      }
+      const selected = batch.candidate_ids.map((id) => result.candidates.find((candidate) => candidate.id === id));
+      if (selected.some((candidate) => !candidate)) { say('표시할 후보 정보가 일치하지 않아요. 같은 조건으로 다시 찾아 주세요.', { statusNotice: true }); return false; }
+      selected.forEach((candidate) => {
+        const snapshot = JSON.parse(JSON.stringify(candidate));
+        snapshot.selection_context = { conversation_id: state.agent.conversation.conversation_id,
+          epoch: state.agent.conversation.epoch, display_batch_id: batch.id, result_execution_key: batch.execution_key };
+        state.candidates[candidate.id] = snapshot;
+      });
+      state.pool = result.candidates.map((candidate) => candidate.id);
+      state.shown = [...new Set([...state.shown, ...batch.candidate_ids])];
+      state.poolContext = result.result_context || {};
+      extra.cards = [...batch.candidate_ids]; extra.displayBatch = JSON.parse(JSON.stringify(batch));
+      extra.cardSnapshots = Object.fromEntries(batch.candidate_ids.map((id) => [id, JSON.parse(JSON.stringify(state.candidates[id]))]));
+    }
+    const selectedAction = data.next_action?.type === 'content_selected';
+    if (selectedAction) extra.ask = false;
+    if (event.type === 'message' && !state.messages.some((message) => message.role === 'user' && message.text === event.text)) userSays(event.text);
+    if (data.assistant_text) say(data.assistant_text, extra);
+    if (selectedAction) {
+      const candidate = data.next_action.candidate;
+      if (!candidate?.id || state.selectedContent?.id !== candidate.id
+          || (event.type === 'select_content' && event.candidate_id !== candidate.id)
+          || !state.agent.domain?.display_batch?.candidate_ids?.includes(candidate.id)) {
+        say('선택 확인 정보가 일치하지 않아 이동하지 않았어요. 현재 후보에서 다시 선택해 주세요.', { statusNotice: true }); return false;
+      }
+      busy = false;
+      refreshContentSelectionControls();
+      if (navigationAtSend === chatNavigationEpoch && routeAtSend === location.hash) openSelectedContent(candidate, selectionPosition);
+      return true;
+    }
+    if (data.next_action?.selection_error && !$('#s02').classList.contains('is-active')) document.dispatchEvent(new CustomEvent('content-selection-error', { detail: data.assistant_text }));
+    if (placeOptions.length) openOriginPicker();
+    save();
+    return !data.next_action?.selection_error;
+  } catch (error) {
+    if (generation !== chatGeneration || error.name === 'AbortError') return false;
+    state.agent.failedEvent = event;
+    say('연결을 마치지 못했어요. 대화와 입력은 유지했으니 다시 시도해 주세요.', { statusNotice: true });
+    return false;
+  } finally {
+    if (generation === chatGeneration) { busy = false; render(); refreshContentSelectionControls(); }
+  }
 }

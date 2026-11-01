@@ -7,7 +7,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit
 from urllib.request import Request, urlopen
 
-from outing import InputError, KST, coordinate
+from outing import InputError, KST, coordinate, distance_km
 from transit import api_key
 
 _SLOTS = BoundedSemaphore(2)
@@ -24,12 +24,25 @@ def search_input(data):
     return query.strip(), kind
 
 
+def search_origin(data):
+    """선택한 출발 좌표만 검색 중심으로 사용한다. 누락 시 전국 정확도순 동작을 유지한다."""
+    origin = data.get("origin")
+    if origin is None:
+        return None
+    if not isinstance(origin, dict) or set(origin) != {"lat", "lng"}:
+        raise InputError("invalid_origin", "origin", "검색할 출발 위치를 다시 선택해 주세요.")
+    try:
+        return coordinate(origin["lat"], 90), coordinate(origin["lng"], 180)
+    except ValueError:
+        raise InputError("invalid_origin", "origin", "검색할 출발 위치를 다시 선택해 주세요.") from None
+
+
 def text_or_none(value):
     """공급자 텍스트를 제한된 길이로 읽고 공백·누락은 null로 유지한다."""
     return value.strip() if isinstance(value, str) and 0 < len(value.strip()) <= 500 else None
 
 
-def normalize_places(body, kind):
+def normalize_places(body, kind, origin=None):
     """공급자 x/y를 숫자 lng/lat로 바꾸고 선택 가능한 최대5건만 반환한다. 손상과0건을 구분한다."""
     documents = body.get("documents")
     total = body.get("meta", {}).get("total_count")
@@ -59,8 +72,15 @@ def normalize_places(body, kind):
                 url = None
             if not label or not identity:
                 raise ValueError("선택 장소 식별 정보 누락")
-            places.append(dict(id=f"kakao:{kind}:{identity}", label=label, lat=lat, lng=lng,
-                               address=address, road_address=road, official_url=url, type=kind))
+            place = dict(id=f"kakao:{kind}:{identity}", label=label, lat=lat, lng=lng,
+                         address=address, road_address=road, official_url=url, type=kind)
+            if origin is not None:
+                place["distance_km"] = distance_km(origin[0], origin[1], lat, lng)
+            if kind == "keyword":
+                place["category_name"] = text_or_none(item.get("category_name"))
+                place["category_group_code"] = text_or_none(item.get("category_group_code"))
+                place["category_group_name"] = text_or_none(item.get("category_group_name"))
+            places.append(place)
         except (ValueError, TypeError, AttributeError):
             skipped += 1
     if documents and not places:
@@ -73,6 +93,7 @@ def normalize_places(body, kind):
 def search_places(data):
     """카카오에 검색어를 보내 후보를 반환한다. HTTP 상태·권한/쿼터/시간초과를 구분하고 비밀값은 숨긴다."""
     query, kind = search_input(data)
+    origin = search_origin(data)
     try:
         key = api_key()
     except (OSError, ValueError):
@@ -82,13 +103,18 @@ def search_places(data):
     if not _SLOTS.acquire(blocking=False):
         return 429, dict(status="limited", code="search_busy", message="검색 중이에요. 잠시 후 다시 시도해 주세요.")
     try:
-        url = f"https://dapi.kakao.com/v2/local/search/{kind}.json?" + urlencode(dict(query=query, size=5, page=1))
+        parameters = dict(query=query, size=5, page=1)
+        if origin is not None and kind == "keyword":
+            parameters.update(x=origin[1], y=origin[0], sort="distance")
+        url = f"https://dapi.kakao.com/v2/local/search/{kind}.json?" + urlencode(parameters)
         request = Request(url, headers={"Authorization":"KakaoAK " + key, "Accept":"application/json"})
         with urlopen(request, timeout=6) as response:
             raw = response.read(500001)
         if len(raw) > 500000:
             raise ValueError("검색 응답 크기 오류")
-        return 200, normalize_places(json.loads(raw), kind)
+        result = normalize_places(json.loads(raw), kind, origin)
+        result["origin_applied"] = origin is not None and kind == "keyword"
+        return 200, result
     except HTTPError as exc:
         code = exc.code
         exc.close()

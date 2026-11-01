@@ -70,7 +70,7 @@ async function main() {
         }
       };
     });
-    await page.goto(`${base}/#/chat?text`);
+    await page.goto(`${base}/?agent=legacy#/chat?text`);
     await page.locator('#chat-input').fill('내일 3시');
     await page.locator('#chat-form').evaluate((form) => form.requestSubmit());
     await page.getByText('오전인지 오후인지 알려 주세요.').waitFor();
@@ -128,7 +128,7 @@ async function main() {
         if (!url.startsWith(base)) { await route.abort(); return; }
         await route.continue();
       });
-      await tab.goto(`${base}/#/chat?text`);
+      await tab.goto(`${base}/?agent=legacy#/chat?text`);
       return { tab, calls };
     }
     async function send(tab, text) {

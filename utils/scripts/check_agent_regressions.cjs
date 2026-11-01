@@ -140,7 +140,7 @@ async function main() {
         if (!url.startsWith(base)) { await route.abort(); return; }
         await route.continue();
       });
-      await page.goto(`${base}/#/chat?text`);
+      await page.goto(`${base}/?agent=legacy#/chat?text`);
       return { page, calls, errors };
     }
 

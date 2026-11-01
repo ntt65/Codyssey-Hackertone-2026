@@ -3,7 +3,8 @@
  * 대화 카드·상세·지도·저장이 같은 후보 id 를 써요. 확인 안 된 정보는 '확인 필요'로 보여요.
  * 도보 시간은 경로 계산이 성공했을 때만 보여요 (직선 거리를 걷는 시간처럼 쓰지 않아요).
  */
-import { state, candidateById } from './state.js';
+import { state, candidateById, usesAgentV3 } from './state.js';
+import { createContentSelectionButton } from './chat.js';
 import { walkRoute, transitRoute, mapConfig, eventContact } from './api.js';
 import { isSignedIn, isSaved, savePlace, startDemo, savedPlaces } from './saved.js';
 import { $, el, photo, formatDate, formatTime, isDebug, speakKo, talkFor } from './util.js';
@@ -14,14 +15,16 @@ let pendingSave = null; // 체험 시작 전 저장 요청 1회 보관
 
 /** 대화 후보 또는 저장한 장소에서 찾기 */
 export function placeById(id) {
+  if (state.selectedCandidate?.id === id) return state.selectedCandidate;
   return candidateById(id) || savedPlaces().find((p) => p.id === id) || null;
 }
 
 /** 방문 날짜 한 줄 ("11월 1일 (일) 관람 검토 · 무료") */
 function visitLine(c) {
-  const r = state.lastRequest;
+  const r = c.visit_validation_context || (c.result_kind ? null : state.lastRequest);
   const parts = [];
-  if (r) parts.push(`${formatDate(r.start_at.slice(0, 10))} ${formatTime(r.start_at.slice(11, 16))}–${formatTime(r.end_at.slice(11, 16))} 관람 검토`);
+  if (r?.start_at && r?.end_at) parts.push(`${formatDate(r.start_at.slice(0, 10))} ${formatTime(r.start_at.slice(11, 16))}–${formatTime(r.end_at.slice(11, 16))} 관람 검토`);
+  else if (c.result_kind) parts.push('방문 날짜와 운영시간은 아직 확인하지 않았어요');
   if (c.fee_type) parts.push(c.fee_type);
   return parts.join(' · ');
 }
@@ -32,6 +35,7 @@ export function renderPlace(id) {
   const box = $('#s04-body');
   box.replaceChildren();
   $('#s04-actions').hidden = !c;
+  $('#s04-select-content')?.remove();
   if (!c) {
     box.append(el('h2', null, '장소 정보를 찾을 수 없어요'), el('p', 'muted', '대화로 돌아가서 다시 골라 주세요.'));
     return;
@@ -104,6 +108,10 @@ export function renderPlace(id) {
   saveBtn.disabled = false;
   $('#s04-note').hidden = true;
   $('#s04-bye').hidden = true;
+  if (usesAgentV3) {
+    $('#s04-actions').insertBefore(createContentSelectionButton(c, 's04-select-content'), $('#s04-map'));
+    requestAnimationFrame(() => { if (placeById(id) === c) box.style.paddingBottom = `${Math.max(200, Math.ceil($('#s04-actions').getBoundingClientRect().height) + 24)}px`; });
+  }
 }
 
 /* ---------------- 저장 (S06) ---------------- */
@@ -248,7 +256,8 @@ function credit(text) {
 export async function renderMap(id) {
   setBig(false);
   const c = placeById(id);
-  const from = state.lastRequest?.start_location || null;
+  const from = c?.origin_context || c?.result_context?.origin || c?.result_context?.conditions?.start_location
+    || (c?.result_kind ? null : state.lastRequest?.start_location) || null;
   $('#s08-title').textContent = c ? `${from?.label || '출발지'} → ${c.venue || c.title}` : '장소를 찾을 수 없어요';
   $('#s08-back').dataset.go = c ? `/place/${encodeURIComponent(c.id)}` : '/chat';
   $('#s08-error').hidden = true;
@@ -364,6 +373,7 @@ function setMode(mode) {
 
 /** 이벤트 연결 (한 번) */
 export function initPlace() {
+  document.addEventListener('content-selection-error', (event) => note(event.detail, true));
   $('#s04-save').addEventListener('click', (e) => {
     const id = e.currentTarget.dataset.id;
     if (isSaved(id)) { location.hash = '/me'; return; }

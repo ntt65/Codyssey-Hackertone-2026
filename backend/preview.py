@@ -140,11 +140,16 @@ class Preview(BaseHTTPRequestHandler):
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
-            if not 0 < length <= 8192:
+            if not 0 < length <= 32768:
                 raise ValueError("요청 크기를 확인해 주세요.")
             data = json.loads(self.rfile.read(length))
             if not isinstance(data, dict):
                 raise ValueError("요청 형식을 확인해 주세요.")
+            restore = (self.path == "/preview/chat" and data.get("agent_version") == 3
+                       and isinstance(data.get("event"), dict)
+                       and data["event"].get("type") in {"restore", "restoration"})
+            if length > 8192 and not restore:
+                raise ValueError("요청 크기를 확인해 주세요.")
             if self.path == "/preview/culture-places":
                 status, body = culture_places(data)
                 self.reply(status, body)

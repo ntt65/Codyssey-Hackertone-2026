@@ -19,14 +19,19 @@ lab678/
   backend/
     AGENTS.md
     README.md
+    agent_v3.py
     chat_conditions.py
     chat_grounding.py
+    chat_knowledge.py
     chat_prompt.py
     contact.py
+    conversation_store.py
     course.py
     culture.env.example
     culture_config.py
     deploy.env.example
+    dialogue_memory.py
+    exploration.py
     local_voice.py
     location_view.js
     map_config.py
@@ -48,11 +53,15 @@ lab678/
     test_chat_conditions.py
     test_chat_grounding.py
     test_contact.py
+    test_conversation_store.py
     test_course.py
     test_culture_sources.py
     test_deployment_keys.py
+    test_dialogue_memory.py
+    test_exploration.py
     test_map_config.py
     test_naito_chat.py
+    test_naito_v3.py
     test_outing.py
     test_places.py
     test_preferences.py
@@ -72,6 +81,9 @@ lab678/
     README.md
     development/
       README.md
+      agent-engine-migration-plan.md
+      agent-engine-port-progress.md
+      agent-implementation-spec.md
       agent-remediation-review.md
       automatic-voice.md
       chat-conditions.md
@@ -264,6 +276,8 @@ lab678/
         20261101-agent-remediation-published.md
         20261101-agent-remediation-validation.md
         20261101-dj-agent-setup.md
+        20261101-engine-port-local.md
+        20261101-engine-port-publish-code.md
         20261101-final-agent-plan.md
         20261101-root-location-commit.md
         automatic-voice-session.md
@@ -363,6 +377,7 @@ lab678/
     dev_server.py
     index.html
     js/
+      agent-session.js
       api.js
       app.js
       chat.js
@@ -381,11 +396,13 @@ lab678/
     reverse_index.md
     scripts/
       agent_http_fixture.py
+      agent_v3_http_fixture.py
       catalog.py
       check_agent_dialogue.cjs
       check_agent_http.cjs
       check_agent_recommendation.cjs
       check_agent_regressions.cjs
+      check_agent_v3.cjs
       check_chat_api.py
       check_chat_live.py
       check_chat_ui.cjs

@@ -108,6 +108,20 @@ export async function requestChat(body) {
   return { kind: 'error', message: data?.message || 'AI 응답을 받지 못했어요.' };
 }
 
+/** Send a canonical agent event; a failed request never becomes a local interpretation. */
+export async function requestAgent(body, signal) {
+  const r = await post('/preview/chat', { agent_version: 3, ...body, mode: testMode() }, signal);
+  if (!r) return { kind: 'error', status: 0, code: 'network', message: '연결을 확인하고 다시 시도해 주세요. 입력과 대화는 유지했어요.' };
+  return { kind: r.status === 200 ? 'ok' : 'error', status: r.status, data: r.data, code: r.data?.code,
+    message: r.data?.message || r.data?.assistant_text || '요청을 마치지 못했어요. 대화는 유지했어요.' };
+}
+
+/** Release the current writer using the configured API origin, including during unload. */
+export function releaseAgentConnection(body) {
+  return fetch(`${API_BASE}/preview/chat`, { method: 'POST', keepalive: true,
+    headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ agent_version: 3, ...body }) }).catch(() => {});
+}
+
 /**
  * 도보 경로. 경로 계산이 성공했을 때만 시간·거리를 돌려줘요 (추정값을 만들지 않아요).
  * @param {{lat:number,lng:number}} from

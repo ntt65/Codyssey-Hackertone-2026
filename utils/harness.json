@@ -33,6 +33,25 @@
     "docs/development/repo_tree.md"
   ],
   "features": {
+    "develop 원형 기반 에이전트 엔진·최소 세션/선택 연결": [
+      "backend/agent_v3.py",
+      "backend/chat_knowledge.py",
+      "backend/conversation_store.py",
+      "backend/dialogue_memory.py",
+      "backend/exploration.py",
+      "backend/naito_chat.py",
+      "backend/test_naito_v3.py",
+      "frontend/js/agent-session.js",
+      "frontend/js/chat.js",
+      "frontend/js/state.js",
+      "frontend/js/api.js",
+      "frontend/js/place.js",
+      "utils/scripts/agent_v3_http_fixture.py",
+      "utils/scripts/check_agent_v3.cjs",
+      "docs/development/agent-implementation-spec.md",
+      "docs/development/agent-engine-migration-plan.md",
+      "docs/development/agent-engine-port-progress.md"
+    ],
     "정식 문화정보 조회 확대·국문 문화시설": [
       "backend/culture_config.py",
       "backend/culture.env.example",

@@ -107,6 +107,9 @@ def extract_conditions(message, draft, history, key, model):
 
 def chat(data):
     """대화 API 결과를 (HTTP상태, 본문)으로 반환한다. 장애 시 가짜 해석/추천으로 대체하지 않는다."""
+    if data.get("agent_version") == 3:
+        from agent_v3 import chat_v3
+        return chat_v3(data)
     message, draft, confirmed, revision, history = validate_request(data)
     key, model = settings()
     if not key or not model:

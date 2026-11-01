@@ -1,5 +1,7 @@
 # 재사용 개발 도구
 
+현재 `dj/develop`의 엔진 이식은 [승인 계획](../docs/development/agent-engine-migration-plan.md)과 [실행 체크리스트](../docs/development/agent-engine-port-progress.md)를 따른다. `node utils/scripts/check_agent_v3.cjs`는 실제 프론트·CORS HTTP·분리 엔진·store를 통과하고 모델/공급자·음성 장치만 고정한다. source의 성적을 target에 재사용하지 않으며 실제 마이크/GPS/시각 시험과 구분한다.
+
 이 폴더는 김동조의 `dj/agent` 작업을 위한 개발 도구다. 공통 운영은 [TEAM_WORKFLOW.md](../TEAM_WORKFLOW.md)를 따르며 서비스 구현·기술 스택 채택을 뜻하지 않는다. 핵심 도구는 Python 표준 라이브러리만 사용한다. PDF 읽기 도구는 선택적으로 번들 pypdf를 사용한다. Python 3.10 이상 문법을 사용하고 이번 실행 환경에서 별도로 검증한다.
 
 **구현 전 승인:** [조사 → 계획 → 실시계획 → 검토·보완 → 명시적 허락](../docs/development/engineering-loop.md#구현-전-승인-절차--필수)을 먼저 따른다. 하네스 통과는 구현 허락이 아니다. 사용자가 프론트 수정 금지를 해제했으며 현재 최종계획을 작성한다. Push·배포는 별도 요청이 필요하다.

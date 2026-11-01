@@ -1,5 +1,7 @@
 # LAB678 · 김동조 개발 작업 맥락
 
+> 최신 작업: 새 `dj/develop`은 원격 develop `e5697e2` 원형에서 출발했다. [원본 엔진 명세](agent-implementation-spec.md), [선택 이식 승인 계획](agent-engine-migration-plan.md), [실행 체크리스트/실제 성적](agent-engine-port-progress.md) 순서로 확인한다. 소스 dj/agent 성적과 대상의 기준선·이식 후 성적을 구분한다.
+
 동료와 LLM은 [개발 참조·실행 안내](team-backend-guide.md)에서 읽는 순서·브랜치·실행·API 연결·협업 절차를 확인한다.
 
 > 10/31 갱신: 현재 기획 기준은 [기획 안내](../planning/README.md)의 PRD v0.7.0·화면명세 v0.3.0이다. 아래 구버전 기준 검토는 당시 이력이며 최신 상세 대조는 별도 진행한다.

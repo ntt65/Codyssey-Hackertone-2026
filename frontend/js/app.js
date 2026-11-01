@@ -5,15 +5,51 @@
 import { pickSeason, startLeaves } from './landing.js';
 import { wakeServer } from './api.js';
 import { seoulWeather, greetingFor, cachedGreeting } from './weather.js';
-import { initChat, renderChat } from './chat.js';
+import { initChat, renderChat, pauseChatNavigation } from './chat.js';
 import { initPlace, renderPlace, renderMap } from './place.js';
 import { isSignedIn, savedPlaces, endDemo, startDemo } from './saved.js';
+import { state, save } from './state.js';
 import { $, el, button, readStore, writeStore, talkFor, unlockSpeech, speakKo, photo } from './util.js';
 
 /** 까치가 일어나는 모습을 최소한 이만큼은 보여줘요 (너무 빨리 넘어가면 깜빡이는 느낌) */
 const MIN_WAKE_MS = 3200; // 기지개 켜는 모습을 천천히 보여줘요 (11/1: 너무 빨리 깨어난다는 의견)
+let activeHash = null;
+let chatPosition = null;
+let pendingView = null;
+let requestedChatStart = null;
+
+/** Retain only chat scroll/focus; canonical conversation settings never come from navigation. */
+function captureChatPosition() {
+  if (!$('#s02').classList.contains('is-active')) return;
+  chatPosition = { scrollY: window.scrollY, focusId: document.activeElement?.id || '',
+    conversationId: state.agent.conversation?.conversation_id || null };
+}
+
+/** Associate detail/map entries with their actual displayed snapshot, using the existing hash route. */
+function prepareView(target) {
+  if (!/^\/(?:place|map)\//u.test(target)) return;
+  let id;
+  try { id = decodeURIComponent(target.split('/')[2]); } catch { return; }
+  const screen = document.querySelector('.screen.is-active')?.id;
+  const parent = history.state?.lab678View;
+  const savedSource = ['s01', 's07'].includes(screen);
+  const candidate = savedSource ? savedPlaces().find((item) => item.id === id)
+    : state.selectedCandidate?.id === id ? state.selectedCandidate : state.candidates[id];
+  pendingView = { hash: `#${target}`, returnTo: savedSource ? (screen === 's07' ? '/me' : '/home') : parent?.returnTo || '/chat',
+    savedSource: savedSource || !!parent?.savedSource, conversationId: state.agent.conversation?.conversation_id || null,
+    candidate: candidate ? JSON.parse(JSON.stringify(candidate)) : null };
+}
 
 function route() {
+  const changed = activeHash !== null && activeHash !== location.hash;
+  if (changed) pauseChatNavigation();
+  const explicitChatStart = requestedChatStart === location.hash;
+  requestedChatStart = null;
+  if (pendingView?.hash === location.hash) {
+    history.replaceState({ ...history.state, lab678View: pendingView }, '', location.href);
+    pendingView = null;
+  }
+  const view = history.state?.lab678View;
   const full = location.hash.replace(/^#/, '') || '/';
   const [path, query = ''] = full.split('?');
   const [, base = '', rawId] = path.split('/');
@@ -29,12 +65,29 @@ function route() {
   if (screen === 'snotify') renderNotify();
   if (screen === 's02') {
     const q = new URLSearchParams(query);
-    renderChat({ voice: q.has('voice') ? true : q.has('text') ? false : undefined });
+    const resume = !!state.messages.length && !explicitChatStart;
+    renderChat({ voice: q.has('voice') ? true : q.has('text') ? false : undefined, resume });
+    const position = chatPosition;
+    if (resume && position?.conversationId === (state.agent.conversation?.conversation_id || null)) {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (!$('#s02').classList.contains('is-active')) return;
+        document.getElementById(position.focusId)?.focus({ preventScroll: true });
+        window.scrollTo(0, position.scrollY);
+      }));
+    }
   }
-  if (screen === 's04') renderPlace(id);
+  if (['s04', 's08'].includes(screen) && view?.candidate?.id === id
+      && (view.savedSource || view.conversationId === (state.agent.conversation?.conversation_id || null))) {
+    state.selectedCandidate = view.candidate; save();
+  }
+  if (screen === 's04') {
+    renderPlace(id);
+    $('#s04 .topbar [data-go]')?.setAttribute('data-go', /^\/(?:chat|home|me)$/u.test(view?.returnTo || '') ? view.returnTo : '/chat');
+  }
   if (screen === 's08') renderMap(id);
   if (screen === 's07') renderMe();
   if (screen !== 's02') window.scrollTo(0, 0);
+  activeHash = location.hash;
 }
 
 /**
@@ -216,11 +269,16 @@ function initNavigation() {
   document.addEventListener('click', (e) => {
     const target = e.target.closest('[data-go]');
     if (target && !target.disabled) {
-      if (target.dataset.go.startsWith('/chat')) unlockSpeech();
+      if (location.hash === `#${target.dataset.go}`) { pendingView = null; return; }
+      captureChatPosition();
+      prepareView(target.dataset.go);
+      requestedChatStart = /^\/chat\?(?:voice|text)(?:[=&]|$)/u.test(target.dataset.go) ? `#${target.dataset.go}` : null;
+      if (target.dataset.go.startsWith('/chat') && (!state.messages.length || /\?voice(?:&|$)/u.test(target.dataset.go))) unlockSpeech();
       location.hash = target.dataset.go;
     }
   });
   window.addEventListener('hashchange', route);
+  window.addEventListener('scroll', captureChatPosition, { passive: true });
 }
 
 initNavigation();

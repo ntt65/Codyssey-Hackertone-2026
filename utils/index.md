@@ -8,22 +8,27 @@
 
 | 파일 | 개요 | SHA-256 앞 12자 |
 |---|---|---|
+| [backend/agent_v3.py](../backend/agent_v3.py) | Versioned agent engine, isolated from the unchanged legacy condition API. | `edc5e29a4236` |
 | [backend/chat_conditions.py](../backend/chat_conditions.py) | AI 해석 결과를 추천 조건 초안으로 병합한다. 네트워크·저장·추천 실행은 하지 않는다. | `c8fca428da00` |
 | [backend/chat_grounding.py](../backend/chat_grounding.py) | 검증 가능한 발화 근거만 조건에 반영한다. 외부 호출·저장·행사 사실 판정은 하지 않는다. | `b957b102350c` |
-| [backend/chat_prompt.py](../backend/chat_prompt.py) | 대화 조건 후보와 이번 발화 근거를 요청하는 내부 지침. | `674aabe6d4af` |
+| [backend/chat_knowledge.py](../backend/chat_knowledge.py) | v3 대화의 허용 개념과 실제 조회 능력. 운영·요금·장소 사실을 포함하지 않는다. | `ee094de44ce5` |
+| [backend/chat_prompt.py](../backend/chat_prompt.py) | 대화 조건 후보와 이번 발화 근거를 요청하는 내부 지침. | `454b860c9ed0` |
 | [backend/contact.py](../backend/contact.py) | 행사 문의 전화번호. 서울시 문화포털 행사 상세 페이지의 '문의' 칸에서 번호만 읽어 와요. | `91140f742559` |
+| [backend/conversation_store.py](../backend/conversation_store.py) | 단일 프로세스의 임시 대화 상태·턴 중복·writer lease를 관리한다. | `6265a286903b` |
 | [backend/course.py](../backend/course.py) | 서울시 후보 최대 다섯 곳의 방문 순서를 비교해 두 곳 도보 일정 하나를 제시한다. | `fc42683c7b44` |
 | [backend/culture_config.py](../backend/culture_config.py) | 문화정보 키를 서버 환경/무시된 로컬 파일에서 읽는다. 비밀값을 응답·로그에 내보내지 않는다. | `f9d1551f7b88` |
+| [backend/dialogue_memory.py](../backend/dialogue_memory.py) | v3 의미 상태·조건 후보·대화 정책의 순수 전이. | `1675ec9f72fe` |
+| [backend/exploration.py](../backend/exploration.py) | v3 콘텐츠 탐색: 방문 일정을 만들어 내지 않고 실제 행사/장소와 적용 근거를 반환한다. | `1cbc19ebe89c` |
 | [backend/local_voice.py](../backend/local_voice.py) | Windows 개인 시연용. 카드 텍스트를 설치된 한국어 음성으로 WAV 합성한다. | `a36d41d07b14` |
 | [backend/location_view.js](../backend/location_view.js) | 지도 위 내 위치 표시·갱신·중지를 제공한다. 사용자 클릭 후에만 위치 권한을 요청한다. | `89b2538a420e` |
 | [backend/map_config.py](../backend/map_config.py) | 지도 표시용 공개 JavaScript 키만 읽는다. 서버 REST 키와 설정 파일은 공개하지 않는다. | `d6393a77066b` |
 | [backend/map_view.js](../backend/map_view.js) | 카카오 지도 우선 표시와 기존 지도 대체를 제공하는 개인 점검용 어댑터. | `4144865fa817` |
 | [backend/microphone_meter.js](../backend/microphone_meter.js) | 실제 마이크 PCM 입력의 RMS/dBFS를 측정한다. 원본 음성 저장/전송·스피커 재생은 하지 않는다. | `3598dfeffac3` |
-| [backend/naito_chat.py](../backend/naito_chat.py) | Naito 단일 조건 추출 호출. 키/대화 원문은 기록하지 않고 실패 시 기존 초안을 유지한다. | `ee8efaf07b55` |
+| [backend/naito_chat.py](../backend/naito_chat.py) | Naito 단일 조건 추출 호출. 키/대화 원문은 기록하지 않고 실패 시 기존 초안을 유지한다. | `0df30e1a0396` |
 | [backend/outing.py](../backend/outing.py) | 서울시 분류별 공개 후보에서 날짜·시간·대화 선호를 확인해 추천한다. | `b904be688105` |
-| [backend/places.py](../backend/places.py) | 출발지 선택용 카카오 장소명/주소 검색. 사용자 검색어·키·원문 응답은 저장하지 않는다. | `15ca7cc32b99` |
+| [backend/places.py](../backend/places.py) | 출발지 선택용 카카오 장소명/주소 검색. 사용자 검색어·키·원문 응답은 저장하지 않는다. | `401fcf31859a` |
 | [backend/preferences.py](../backend/preferences.py) | 대화 선호의 형식과 공식 행사 사실 기반 선별. AI가 가격·경로 사실을 만들지 않는다. | `9255a02ce149` |
-| [backend/preview.py](../backend/preview.py) | 동조 개인용 로컬 추천 점검 화면. python backend/preview.py로 시작한다. | `26d2068a9ca0` |
+| [backend/preview.py](../backend/preview.py) | 동조 개인용 로컬 추천 점검 화면. python backend/preview.py로 시작한다. | `d1a2794eb2ef` |
 | [backend/preview_meter.js](../backend/preview_meter.js) | 기존 점검 화면에서도 실제 마이크 입력만 독립적으로 점검한다. STT 성공으로 표시하지 않는다. | `bf80fbd716f2` |
 | [backend/team_app.py](../backend/team_app.py) | 검증한 로컬 팀 프론트를 /app/에서 제공한다. 선택 파일·비밀값·저장소 전체를 공개하지 않는다. | `caeddc220712` |
 | [backend/team_chat.js](../backend/team_chat.js) | 팀 프론트 164cd40의 공통 자동 대화 모듈. 최종 반영 전 담당 확인용이다. | `2c96f8eb8ec0` |
@@ -34,13 +39,17 @@
 | [backend/test_chat_conditions.py](../backend/test_chat_conditions.py) | 실제 AI를 호출하지 않는 조건 병합 테스트. 동의·최신 입력·사실 경계를 검증한다. | `d8f45e130ede` |
 | [backend/test_chat_grounding.py](../backend/test_chat_grounding.py) | 실제 모델 호출 없이 발화 근거와 시간 판단의 안전 경계를 검증한다. | `0d9dafec1fbd` |
 | [backend/test_contact.py](../backend/test_contact.py) | 개요 없음 | `9dfdbadbfe7f` |
+| [backend/test_conversation_store.py](../backend/test_conversation_store.py) | 네트워크 없이 대화 TTL·중복·CAS·문서 lease의 실제 저장 경계를 검사한다. | `f558486d7652` |
 | [backend/test_course.py](../backend/test_course.py) | 두 곳 도보 일정의 마감 경계·휴관 원문·결측·방문 순서를 검사한다. | `94dbe388fa2a` |
 | [backend/test_culture_sources.py](../backend/test_culture_sources.py) | 문화정보 키/조회 범위와 국문 장소의 사실·오류 경계를 모의 응답으로 검사한다. | `9b0e158d3e3a` |
 | [backend/test_deployment_keys.py](../backend/test_deployment_keys.py) | 배포 환경변수가 개인 로컬 키 파일보다 우선하는지 가짜 키로 검사한다. 외부 호출/실제 키 조회 없음. | `4e820f2d34cc` |
+| [backend/test_dialogue_memory.py](../backend/test_dialogue_memory.py) | v3 순수 대화 정책의 실제 실패 맥락·부분 성공·필수조건·이벤트 회귀. | `b050c2f55e82` |
+| [backend/test_exploration.py](../backend/test_exploration.py) | v3 탐색의 실제 공급자 형태·조건 적용·근거 정렬·미확인/장애 경계를 오프라인 재현한다. | `64c00a7328df` |
 | [backend/test_map_config.py](../backend/test_map_config.py) | 지도 공개 설정이 JS 키만 노출하고 서버 키·잘못된 입력을 배제하는지 검증한다. | `00c375b43f69` |
 | [backend/test_naito_chat.py](../backend/test_naito_chat.py) | Naito 모의 응답/장애와 HTTP 연결 경계를 검사한다. 실제 서비스 성공을 뜻하지 않는다. | `d2ae168ae7b3` |
+| [backend/test_naito_v3.py](../backend/test_naito_v3.py) | 실제 모델/실 API 품질과 구분한 v3 orchestration 경계 회귀. | `902705380511` |
 | [backend/test_outing.py](../backend/test_outing.py) | 서울시 공개 응답 재생으로 입력·선별·결측·실패를 검사한다. | `4f76676a4a52` |
-| [backend/test_places.py](../backend/test_places.py) | 장소/주소 검색의 입력·좌표·실제0건·공급자 장애·비밀값 노출 방지 회귀. | `8791dc24d48a` |
+| [backend/test_places.py](../backend/test_places.py) | 장소/주소 검색의 입력·좌표·실제0건·공급자 장애·비밀값 노출 방지 회귀. | `46e7097e91b9` |
 | [backend/test_preferences.py](../backend/test_preferences.py) | 대화→조건→추천 경계. 복수 관심사·제외·가격 미확인·확정값 보호를 재현한다. | `fcdb9301848c` |
 | [backend/test_preview.py](../backend/test_preview.py) | HTTP 처리기의 입력 오류 계약과 route/course 호환을 외부 조회 없이 검증한다. | `0cffec5946b6` |
 | [backend/test_team_app.py](../backend/test_team_app.py) | 같은 서버 앱 서빙의 경로 제한·미설정·정적 자산만 검사한다. 외부 API를 호출하지 않는다. | `a770a41a112e` |
@@ -51,17 +60,19 @@
 | [backend/voice_session.js](../backend/voice_session.js) | 횟수와 무응답 시간으로 제한된 브라우저 음성 대화. 시작 클릭 없이 재생/녹음하지 않는다. | `35ba6882994d` |
 | [backend/walking.py](../backend/walking.py) | 개인 점검 화면에서 선택한 행사장 두 곳의 Valhalla 보행 경로를 조회한다. | `fedc1567e347` |
 | [frontend/dev_server.py](../frontend/dev_server.py) | 프론트 개발 서버. frontend 폴더를 보여주고 /preview/ 요청은 백엔드로 그대로 넘겨요. | `75a8bc5f1957` |
-| [frontend/js/api.js](../frontend/js/api.js) | 백엔드 API 호출. 실패해도 Mock 후보로 바꾸지 않고, 결과 종류를 그대로 구분해서 돌려줘요. | `549a68f422ac` |
-| [frontend/js/app.js](../frontend/js/app.js) | 화면 이동과 S00 시작 · S01 홈 · S07 내 나들이. | `4b6eb096f9fd` |
-| [frontend/js/chat.js](../frontend/js/chat.js) | S02 까치와 대화 · S02a 부족·충돌 확인 · S03 대화 안 추천 카드 (PRD v0.7 H02~H10). | `1f4596ebca4a` |
+| [frontend/js/agent-session.js](../frontend/js/agent-session.js) | Canonical agent transport and tab lease, independent of chat rendering and speech. | `8fdb31721c53` |
+| [frontend/js/api.js](../frontend/js/api.js) | 백엔드 API 호출. 실패해도 Mock 후보로 바꾸지 않고, 결과 종류를 그대로 구분해서 돌려줘요. | `17548d67cb09` |
+| [frontend/js/app.js](../frontend/js/app.js) | 화면 이동과 S00 시작 · S01 홈 · S07 내 나들이. | `8d4b97d76add` |
+| [frontend/js/chat.js](../frontend/js/chat.js) | S02 까치와 대화 · S02a 부족·충돌 확인 · S03 대화 안 추천 카드 (PRD v0.7 H02~H10). | `228135b82063` |
 | [frontend/js/landing.js](../frontend/js/landing.js) | S00 시작 화면: 계절에 맞는 그림을 고르고, 그림 영역에 잎(단풍잎·꽃잎)을 천천히 떨어뜨려요. | `b592d66b567b` |
 | [frontend/js/parse.js](../frontend/js/parse.js) | AI 대화 연결이 없을 때 쓰는 규칙 기반 해석기. | `c384db51157c` |
-| [frontend/js/place.js](../frontend/js/place.js) | S04 장소 상세 (지도 보기 = 주 행동, 내 나들이에 저장 = 보조) · S08 지도와 도보 경로 · S06 저장 시트. | `f6b061837c85` |
+| [frontend/js/place.js](../frontend/js/place.js) | S04 장소 상세 (지도 보기 = 주 행동, 내 나들이에 저장 = 보조) · S08 지도와 도보 경로 · S06 저장 시트. | `b628d401ab23` |
 | [frontend/js/saved.js](../frontend/js/saved.js) | 체험 모드와 내 나들이 저장 (S06·S07). 로그인 없이 이 브라우저(localStorage)에만 저장해요. | `4b5ee1e1c71f` |
-| [frontend/js/state.js](../frontend/js/state.js) | 대화·추천 상태. 새로고침해도 대화와 결과가 남도록 sessionStorage 에 보관해요. | `e16f95c0a1b3` |
+| [frontend/js/state.js](../frontend/js/state.js) | 대화·추천 상태. 새로고침해도 대화와 결과가 남도록 sessionStorage 에 보관해요. | `7238a297ffd1` |
 | [frontend/js/util.js](../frontend/js/util.js) | 여러 화면이 같이 쓰는 작은 도구: 요소 만들기, 날짜·시각 표시, 저장소 읽기/쓰기. | `4adb4e134617` |
 | [frontend/js/weather.js](../frontend/js/weather.js) | 날씨 인사. 서울의 지금 날씨를 Open-Meteo(무료, 키 없음)에서 받아 까치가 먼저 건넬 말을 코드가 정해요. | `9b257963a8cb` |
-| [utils/scripts/agent_http_fixture.py](../utils/scripts/agent_http_fixture.py) | 브라우저 회귀 검사에 실제 Preview HTTP와 고정 외부 공급자 데이터를 제공한다. | `2ff9de44f1f6` |
+| [utils/scripts/agent_http_fixture.py](../utils/scripts/agent_http_fixture.py) | 브라우저 회귀 검사에 실제 Preview HTTP와 고정 외부 공급자 데이터를 제공한다. | `f12f06c9e2d7` |
+| [utils/scripts/agent_v3_http_fixture.py](../utils/scripts/agent_v3_http_fixture.py) | v3 실제 Preview HTTP/store/정책/탐색에 고정 모델·공급자 원본만 연결하는 A층 fixture. | `d1290c12e478` |
 | [utils/scripts/catalog.py](../utils/scripts/catalog.py) | Build deterministic code indexes without importing source modules. | `ecb99cd9ca5b` |
 | [utils/scripts/check_chat_api.py](../utils/scripts/check_chat_api.py) | 임시 로컬 서버에서 대화 API 정상·입력·미설정·CORS를 검사한다. 외부 AI 호출은 모의다. | `6edb12fa1d4e` |
 | [utils/scripts/check_chat_live.py](../utils/scripts/check_chat_live.py) | 명시 실행 시 Naito 실제 호출 3회로 공개 예문을 검증한다. 키/공급자 원문은 출력하지 않는다. | `9779f9dc2d52` |
